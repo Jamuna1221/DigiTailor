@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-blue: #1E40AF;
+  --accent-amber: #F59E0B;
+  --success-green: #10B981;
+  --purple-gradient: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  --blue-gradient: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+  line-height: 1.6;
+}
+
+.gradient-text {
+  background: var(--purple-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105;
+}
+
+.btn-secondary {
+  @apply bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:from-amber-600 hover:to-orange-600 transition-all duration-200 transform hover:scale-105;
+}
+
+.btn-ai {
+  @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 transform hover:scale-105;
+}
