@@ -1,21 +1,48 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import DesignCard from '../components/design/DesignCard.jsx'
+import { useWishlist } from '../contexts/WishlistContext'
 
 const API_BASE_URL = 'http://localhost:5000/api'
-// eslint-disable-next-line no-unused-vars
+
 function Catalog({ user }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [designs, setDesigns] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState('')
+  const [wishlistMessage, setWishlistMessage] = useState('')
+
+  // Wishlist context
+  const { addToWishlist, removeFromWishlist, isInWishlist, isLoading: wishlistLoading } = useWishlist()
+
   // Get filters from URL params
   const selectedCategory = searchParams.get('category') || 'all'
   const searchQuery = searchParams.get('search') || ''
   const sortBy = searchParams.get('sortBy') || 'createdAt'
   const sortOrder = searchParams.get('sortOrder') || 'desc'
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async (designId) => {
+    if (!user) {
+      // You can add a login redirect here if needed
+      alert('Please login to add items to wishlist')
+      return
+    }
+
+    const inWishlist = isInWishlist(designId)
+    
+    let result
+    if (inWishlist) {
+      result = await removeFromWishlist(designId)
+    } else {
+      result = await addToWishlist(designId)
+    }
+
+    setWishlistMessage(result.message)
+    setTimeout(() => setWishlistMessage(''), 3000)
+  }
 
   // Fetch catalog data
   useEffect(() => {
@@ -70,26 +97,26 @@ function Catalog({ user }) {
   }
 
   const handleInputChange = (e) => {
-  setSearchInput(e.target.value);
-};
-
-// Handle search execution (triggered by button click or Enter key)
-const handleSearchExecute = () => {
-  const newParams = new URLSearchParams(searchParams);
-  if (searchInput.trim()) {
-    newParams.set('search', searchInput.trim());
-  } else {
-    newParams.delete('search');
+    setSearchInput(e.target.value)
   }
-  setSearchParams(newParams);
-};
 
-// Handle Enter key press
-const handleKeyPress = (e) => {
-  if (e.key === 'Enter') {
-    handleSearchExecute();
+  // Handle search execution (triggered by button click or Enter key)
+  const handleSearchExecute = () => {
+    const newParams = new URLSearchParams(searchParams)
+    if (searchInput.trim()) {
+      newParams.set('search', searchInput.trim())
+    } else {
+      newParams.delete('search')
+    }
+    setSearchParams(newParams)
   }
-};
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchExecute()
+    }
+  }
 
   const handleSortChange = (e) => {
     const [newSortBy, newSortOrder] = e.target.value.split('-')
@@ -135,38 +162,47 @@ const handleKeyPress = (e) => {
           </p>
         </div>
 
+        {/* Wishlist Message */}
+        {wishlistMessage && (
+          <div className="mb-6 max-w-md mx-auto">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <span className="text-green-600 mr-2">✅</span>
+                <span className="text-green-800 text-sm">{wishlistMessage}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Search */}
-             <div className="flex flex-col">
-  <label className="text-sm font-medium text-gray-600 mb-2">
-    Search
-  </label>
-  <div className="flex gap-2">
-    <input
-      type="text"
-      placeholder="Search Designs"
-      value={searchInput}
-      onChange={handleInputChange}
-      onKeyPress={handleKeyPress}
-      className="flex-1 h-12 px-4 border border-gray-300 rounded-lg text-base bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500"
-    />
-    <button 
-      onClick={handleSearchExecute}
-      className="h-12 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
-      type="button"
-    >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="11" cy="11" r="8"></circle>
-        <path d="m21 21-4.35-4.35"></path>
-      </svg>
-    </button>
-  </div>
-</div>
-
-
-
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-600 mb-2">
+                Search
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Search Designs"
+                  value={searchInput}
+                  onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
+                  className="flex-1 h-12 px-4 border border-gray-300 rounded-lg text-base bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                />
+                <button 
+                  onClick={handleSearchExecute}
+                  className="h-12 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
+                  type="button"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
 
             {/* Category Filter */}
             <div>
@@ -220,7 +256,14 @@ const handleKeyPress = (e) => {
         {designs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {designs.map(design => (
-              <DesignCard key={design._id} design={design} />
+              <DesignCard 
+                key={design._id} 
+                design={design}
+                user={user}
+                onWishlistToggle={handleWishlistToggle}
+                isInWishlist={isInWishlist(design._id)}
+                wishlistLoading={wishlistLoading}
+              />
             ))}
           </div>
         ) : (

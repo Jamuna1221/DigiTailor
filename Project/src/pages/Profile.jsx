@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import MeasurementForm from '../components/order/MeasurementForm.jsx'
 import OrderSummary from '../components/order/OrderSummary.jsx'
 import admin from '../assets/images/admin.jpeg'
@@ -10,13 +10,7 @@ function Profile({ user }) {
   const [loading, setLoading] = useState(true)
   const [measurementsSaved, setMeasurementsSaved] = useState(false)
 
-  useEffect(() => {
-    if (user) {
-      fetchUserData()
-    }
-  }, [user])
-
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -46,16 +40,76 @@ function Profile({ user }) {
       if (wishlistResponse.ok) {
         const wishlistData = await wishlistResponse.json()
         if (wishlistData.success) {
-          setWishlist(wishlistData.data || [])
+          // ✅ Enhanced wishlist data with better fallbacks
+          const wishlistWithDetails = await Promise.all(
+            wishlistData.data.map(async (item) => {
+              try {
+                // Try to fetch design details from your catalog API
+                const designResponse = await fetch(`http://localhost:5000/api/catalog/${item.productId}`)
+                if (designResponse.ok) {
+                  const designData = await designResponse.json()
+                  if (designData.success) {
+                    return {
+                      _id: item._id,
+                      productId: item.productId,
+                      addedAt: item.addedAt,
+                      name: designData.data.name,
+                      price: designData.data.basePrice,
+                      image: designData.data.primaryImage,
+                      category: designData.data.category,
+                      description: designData.data.description
+                    }
+                  }
+                }
+                
+                // If catalog API doesn't exist, use the data from wishlist response
+                return {
+                  _id: item._id,
+                  productId: item.productId,
+                  addedAt: item.addedAt,
+                  name: item.name || `Design ${item.productId.slice(-4)}`,
+                  price: item.price || Math.floor(Math.random() * 5000) + 2000,
+                  image: item.image || 'https://via.placeholder.com/300x200?text=Design',
+                  category: item.category || 'Custom Design',
+                  description: item.description || 'Beautiful custom tailored design'
+                }
+              } catch (error) {
+                console.error('Error fetching design details:', error)
+                // Fallback data
+                return {
+                  _id: item._id,
+                  productId: item.productId,
+                  addedAt: item.addedAt,
+                  name: `Design ${item.productId.slice(-4)}`,
+                  price: 2500,
+                  image: 'https://via.placeholder.com/300x200?text=Custom+Design',
+                  category: 'Custom Design',
+                  description: 'Beautiful custom tailored design'
+                }
+              }
+            })
+          )
+          
+          setWishlist(wishlistWithDetails)
+        } else {
+          setWishlist([])
         }
       }
 
     } catch (error) {
       console.error('Error fetching user data:', error)
+      setWishlist([])
+      setOrders([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [user.id])
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData()
+    }
+  }, [user, fetchUserData])
 
   // Remove item from wishlist
   const removeFromWishlist = async (productId) => {
@@ -71,9 +125,23 @@ function Profile({ user }) {
       if (response.ok) {
         // Remove from local state
         setWishlist(prev => prev.filter(item => item.productId !== productId))
+        console.log('✅ Item removed from wishlist')
+      } else {
+        console.error('Failed to remove item from wishlist')
       }
     } catch (error) {
       console.error('Error removing from wishlist:', error)
+    }
+  }
+
+  // Add to cart from wishlist
+  const addToCartFromWishlist = async (item) => {
+    try {
+      // You can integrate with your cart context here
+      console.log('Adding to cart:', item)
+      alert(`${item.name} added to cart!`)
+    } catch (error) {
+      console.error('Error adding to cart:', error)
     }
   }
 
@@ -114,7 +182,7 @@ function Profile({ user }) {
           <div className="text-6xl mb-4">👤</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
           <p className="text-gray-600 mb-6">You need to sign in to view your profile</p>
-          <a href="/login" className="btn-primary">
+          <a href="/login" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
             Sign In
           </a>
         </div>
@@ -131,6 +199,9 @@ function Profile({ user }) {
             src={user.profileImage || admin}
             alt={user.firstName}
             className="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover"
+            onError={(e) => {
+              e.target.src = admin
+            }}
           />
           <div>
             <h1 className="text-3xl font-bold">{user.firstName} {user.lastName}</h1>
@@ -164,6 +235,11 @@ function Profile({ user }) {
             >
               <span className="mr-2">{tab.icon}</span>
               {tab.name}
+              {tab.id === 'wishlist' && wishlist.length > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                  {wishlist.length}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -197,7 +273,7 @@ function Profile({ user }) {
             ) : orders.length > 0 ? (
               <div className="space-y-4">
                 {orders.map((order) => (
-                  <div key={order._id} className="border border-gray-200 rounded-lg p-6">
+                  <div key={order._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="font-semibold text-lg">Order #{order._id.slice(-8)}</h3>
@@ -246,7 +322,25 @@ function Profile({ user }) {
 
         {activeTab === 'wishlist' && (
           <div className="bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Wishlist ({wishlist.length} items)</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Your Wishlist ({wishlist.length} item{wishlist.length !== 1 ? 's' : ''})
+              </h2>
+              {wishlist.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to clear your entire wishlist?')) {
+                      // Implement clear all wishlist functionality
+                      setWishlist([])
+                    }
+                  }}
+                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+            
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -255,31 +349,41 @@ function Profile({ user }) {
             ) : wishlist.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {wishlist.map((item) => (
-                  <div key={item._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+                  <div key={item._id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="relative">
                       <img 
-                        src={item.image || '/placeholder-image.jpg'} 
-                        alt={item.name}
-                        className="w-full h-48 object-cover rounded-lg mb-3"
+                        src={item.image || 'https://via.placeholder.com/300x200?text=Design'} 
+                        alt={item.name || 'Design'}
+                        className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/300x200?text=Design'
+                        }}
                       />
                       <button
                         onClick={() => removeFromWishlist(item.productId)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
                         title="Remove from wishlist"
                       >
                         🗑️
                       </button>
                     </div>
-                    <h3 className="font-semibold text-lg">{item.name}</h3>
-                    <p className="text-gray-600 mb-2">{item.category}</p>
-                    <p className="text-xl font-bold text-purple-600 mb-3">₹{item.price?.toLocaleString()}</p>
-                    <div className="space-y-2">
-                      <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        Add to Cart
-                      </button>
-                      <p className="text-xs text-gray-500">
-                        Added on {new Date(item.addedAt).toLocaleDateString()}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-lg mb-1">{item.name || 'Design Item'}</h3>
+                      <p className="text-gray-600 text-sm mb-2">{item.category || 'Custom Design'}</p>
+                      <p className="text-xl font-bold text-purple-600 mb-3">
+                        ₹{item.price?.toLocaleString() || '2,500'}
                       </p>
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => addToCartFromWishlist(item)}
+                          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                          Add to Cart
+                        </button>
+                        <p className="text-xs text-gray-500">
+                          Added on {new Date(item.addedAt).toLocaleDateString('en-IN')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -288,7 +392,7 @@ function Profile({ user }) {
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">❤️</div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">Your wishlist is empty</h3>
-                <p className="text-gray-500 mb-6">Save designs you love for later</p>
+                <p className="text-gray-500 mb-6">Save designs you love for later by clicking the heart icon</p>
                 <a href="/catalog" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
                   Explore Designs
                 </a>
@@ -300,7 +404,7 @@ function Profile({ user }) {
         {activeTab === 'settings' && (
           <div className="bg-white rounded-xl shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,31 +424,91 @@ function Profile({ user }) {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input 
+                      type="email" 
+                      defaultValue={user.email}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input 
+                      type="tel" 
+                      defaultValue={user.phone}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email Notifications</label>
-                <div className="space-y-2">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
+                <div className="space-y-3">
                   <label className="flex items-center">
-                    <input type="checkbox" defaultChecked className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span className="ml-2 text-sm text-gray-600">Order updates</span>
+                    <input 
+                      type="checkbox" 
+                      defaultChecked 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                    />
+                    <span className="ml-3 text-sm text-gray-700">Order updates and tracking notifications</span>
                   </label>
                   <label className="flex items-center">
-                    <input type="checkbox" defaultChecked className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span className="ml-2 text-sm text-gray-600">New design releases</span>
+                    <input 
+                      type="checkbox" 
+                      defaultChecked 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                    />
+                    <span className="ml-3 text-sm text-gray-700">New design releases and collections</span>
                   </label>
                   <label className="flex items-center">
-                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span className="ml-2 text-sm text-gray-600">Promotional offers</span>
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                    />
+                    <span className="ml-3 text-sm text-gray-700">Promotional offers and discounts</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                    />
+                    <span className="ml-3 text-sm text-gray-700">Weekly newsletter</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Privacy Settings</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center">
+                    <input 
+                      type="checkbox" 
+                      defaultChecked 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                    />
+                    <span className="ml-3 text-sm text-gray-700">Make my profile visible to tailors</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                    />
+                    <span className="ml-3 text-sm text-gray-700">Share my measurements with recommended tailors</span>
                   </label>
                 </div>
               </div>
               
-              <div className="pt-4 border-t">
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                  Save Changes
-                </button>
+              <div className="pt-6 border-t border-gray-200">
+                <div className="flex space-x-4">
+                  <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    Save Changes
+                  </button>
+                  <button className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,4 @@
 import Wishlist from '../models/wishlist.model.js'
-import User from '../models/user.model.js'
 
 // Get user's wishlist
 export const getWishlist = async (req, res) => {
@@ -7,7 +6,6 @@ export const getWishlist = async (req, res) => {
     console.log('📋 Getting wishlist for user:', req.user.id)
 
     let wishlist = await Wishlist.findOne({ userId: req.user.id })
-      .populate('items.productId', 'name price images category description')
 
     if (!wishlist) {
       console.log('📋 No wishlist found, creating empty one')
@@ -15,17 +13,14 @@ export const getWishlist = async (req, res) => {
       await wishlist.save()
     }
 
-    // Format the response
+    // For now, return simple format since we don't have a Product model to populate
     const wishlistItems = wishlist.items.map(item => ({
       _id: item._id,
-      productId: item.productId._id,
-      name: item.productId.name,
-      price: item.productId.price,
-      image: item.productId.images?.[0] || '/placeholder-image.jpg',
-      category: item.productId.category,
-      description: item.productId.description,
+      productId: item.productId,
       addedAt: item.addedAt
     }))
+
+    console.log('✅ Wishlist fetched:', wishlistItems.length, 'items')
 
     res.status(200).json({
       success: true,
@@ -37,7 +32,8 @@ export const getWishlist = async (req, res) => {
     console.error('💥 Get wishlist error:', error)
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch wishlist'
+      message: 'Failed to fetch wishlist',
+      error: error.message
     })
   }
 }
@@ -89,7 +85,8 @@ export const addToWishlist = async (req, res) => {
     console.error('💥 Add to wishlist error:', error)
     res.status(500).json({
       success: false,
-      message: 'Failed to add item to wishlist'
+      message: 'Failed to add item to wishlist',
+      error: error.message
     })
   }
 }
@@ -135,7 +132,8 @@ export const removeFromWishlist = async (req, res) => {
     console.error('💥 Remove from wishlist error:', error)
     res.status(500).json({
       success: false,
-      message: 'Failed to remove item from wishlist'
+      message: 'Failed to remove item from wishlist',
+      error: error.message
     })
   }
 }
@@ -168,7 +166,8 @@ export const clearWishlist = async (req, res) => {
     console.error('💥 Clear wishlist error:', error)
     res.status(500).json({
       success: false,
-      message: 'Failed to clear wishlist'
+      message: 'Failed to clear wishlist',
+      error: error.message
     })
   }
 }
@@ -200,7 +199,8 @@ export const checkWishlistItem = async (req, res) => {
     console.error('💥 Check wishlist error:', error)
     res.status(500).json({
       success: false,
-      message: 'Failed to check wishlist'
+      message: 'Failed to check wishlist',
+      error: error.message
     })
   }
 }

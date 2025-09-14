@@ -16,7 +16,7 @@ import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageCatalog from './pages/admin/ManageCatalog.jsx'
 import ManageGallery from './pages/admin/ManageGallery.jsx'
-import ManageUsers from './pages/admin/ManageUsers.jsx' // ✅ Added this import
+import ManageUsers from './pages/admin/ManageUsers.jsx'
 
 // Import new components for role-based routing
 import TailorDashboard from './pages/TailorDashboard.jsx'
@@ -27,7 +27,11 @@ import ChatbotWidget from './components/widgets/ChatbotWidget.jsx'
 import Login from './pages/Login.jsx'
 import SignUp from './pages/SignUp.jsx'
 import Contact from './pages/Contact.jsx'
+
+// Import context providers
 import { CartProvider } from './contexts/CartProvider'
+import { WishlistProvider } from './contexts/WishlistContext' // ✅ Add this import
+
 import Cart from './pages/cart.jsx'
 import ProductDetails from './components/product/ProductDetails.jsx'
 import ManageOrders from './pages/admin/ManageOrders.jsx'
@@ -125,95 +129,98 @@ function App() {
 
   return (
     <CartProvider>
-      <Router>
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-          
-          <Header user={user} onSignOut={handleSignOut} onSignIn={handleSignIn} />
+      <WishlistProvider> {/* ✅ Add WishlistProvider here */}
+        <Router>
+          <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+            
+            <Header user={user} onSignOut={handleSignOut} onSignIn={handleSignIn} />
 
-          <main className="flex-grow">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home user={user} onDemoSignIn={demoSignIn} />} />
-              <Route path="/login" element={<Login onSignIn={handleSignIn} />} />
-              <Route path="/signup" element={<SignUp onSignIn={handleSignIn} />} />
-              <Route path="/catalog" element={<Catalog user={user} />} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="/ai-studio" element={<AIStudio user={user} />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/gallery" element={<Gallery />} />
-              
-             <Route path="/forgot-password" element={<ForgotPassword/>} />
-             <Route path="/reset-password" element={<ResetPassword />}/>
-              <Route path="/checkout" element={<Checkout />} />
-              {/* Customer Routes */}
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
-                    <Profile user={user} />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/orders" 
-                element={
-                  <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
-                    <OrderTracking user={user} />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute allowedRoles={['customer']}>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
+            <main className="flex-grow">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home user={user} onDemoSignIn={demoSignIn} />} />
+                <Route path="/login" element={<Login onSignIn={handleSignIn} />} />
+                <Route path="/signup" element={<SignUp onSignIn={handleSignIn} />} />
+                <Route path="/catalog" element={<Catalog user={user} />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/ai-studio" element={<AIStudio user={user} />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/gallery" element={<Gallery />} />
+                
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/checkout" element={<Checkout />} />
+                
+                {/* Customer Routes */}
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
+                      <Profile user={user} />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/orders" 
+                  element={
+                    <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
+                      <OrderTracking user={user} />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
 
-              {/* Admin Routes */}
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminLayout user={user} />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminDashboard />} />
-                <Route path="catalog" element={<ManageCatalog />} />
-                <Route path="gallery" element={<ManageGallery />} />
-                <Route path="users" element={<ManageUsers />} /> {/* ✅ Added this route */}
-                <Route path="orders" element={<ManageOrders />} />
-              </Route>
+                {/* Admin Routes */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminLayout user={user} />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="catalog" element={<ManageCatalog />} />
+                  <Route path="gallery" element={<ManageGallery />} />
+                  <Route path="users" element={<ManageUsers />} />
+                  <Route path="orders" element={<ManageOrders />} />
+                </Route>
 
-              {/* Tailor Routes */}
-              <Route 
-                path="/tailor/dashboard" 
-                element={
-                  <ProtectedRoute allowedRoles={['tailor']}>
-                    <TailorDashboard />
-                  </ProtectedRoute>
-                } 
-              />
+                {/* Tailor Routes */}
+                <Route 
+                  path="/tailor/dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['tailor']}>
+                      <TailorDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
 
-              {/* Catch all route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
+                {/* Catch all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
 
-          <Footer />
-          <Cart />
+            <Footer />
+            <Cart />
 
-          {/* Add the widgets here - they'll appear on all pages */}
-          <WhatsAppWidget 
-            phoneNumber="918608737147" // Replace with your business WhatsApp number
-            message="Hi! I'm interested in your tailoring services. Can you help me?"
-            position="bottom-right"
-          />
-          <ChatbotWidget />
-        </div>
-      </Router>
+            {/* Add the widgets here - they'll appear on all pages */}
+            <WhatsAppWidget 
+              phoneNumber="918608737147" // Replace with your business WhatsApp number
+              message="Hi! I'm interested in your tailoring services. Can you help me?"
+              position="bottom-right"
+            />
+            <ChatbotWidget />
+          </div>
+        </Router>
+      </WishlistProvider> {/* ✅ Close WishlistProvider here */}
     </CartProvider>
   )
 }
