@@ -12,7 +12,12 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   loyaltyPoints: { type: Number, default: 0 },
   createdBy: { type: String },
-  
+  // In your user.model.js, add this field
+profileImage: {
+  type: String,
+  default: null
+},
+
   // Password reset fields
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date }

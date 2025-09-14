@@ -1,50 +1,64 @@
 import { useState, useEffect, useCallback } from 'react'
 import MeasurementForm from '../components/order/MeasurementForm.jsx'
-import OrderSummary from '../components/order/OrderSummary.jsx'
 import admin from '../assets/images/admin.jpeg'
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')
   const [orders, setOrders] = useState([])
   const [wishlist, setWishlist] = useState([])
+  const [measurements, setMeasurements] = useState([])
   const [loading, setLoading] = useState(true)
   const [measurementsSaved, setMeasurementsSaved] = useState(false)
+  const [profileUpdateLoading, setProfileUpdateLoading] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [profileData, setProfileData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || ''
+  })
 
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true)
       
-      // Fetch user orders and wishlist in parallel
-      const [ordersResponse, wishlistResponse] = await Promise.all([
+      // Fetch user orders, wishlist, and measurements in parallel
+      const [ordersResponse, wishlistResponse, measurementsResponse] = await Promise.all([
         fetch(`http://localhost:5000/api/orders/user/${user.id}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
-        }),
+        }).catch(() => null),
         fetch(`http://localhost:5000/api/wishlist`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
-        })
+        }).catch(() => null),
+        fetch(`http://localhost:5000/api/measurements`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        }).catch(() => null)
       ])
 
-      if (ordersResponse.ok) {
+      // Handle orders
+      if (ordersResponse && ordersResponse.ok) {
         const ordersData = await ordersResponse.json()
         if (ordersData.success) {
           setOrders(ordersData.data)
         }
       }
 
-      if (wishlistResponse.ok) {
+      // Handle wishlist
+      if (wishlistResponse && wishlistResponse.ok) {
         const wishlistData = await wishlistResponse.json()
         if (wishlistData.success) {
-          // ✅ Enhanced wishlist data with better fallbacks
           const wishlistWithDetails = await Promise.all(
             wishlistData.data.map(async (item) => {
               try {
-                // Try to fetch design details from your catalog API
                 const designResponse = await fetch(`http://localhost:5000/api/catalog/${item.productId}`)
                 if (designResponse.ok) {
                   const designData = await designResponse.json()
@@ -62,7 +76,6 @@ function Profile({ user }) {
                   }
                 }
                 
-                // If catalog API doesn't exist, use the data from wishlist response
                 return {
                   _id: item._id,
                   productId: item.productId,
@@ -75,7 +88,6 @@ function Profile({ user }) {
                 }
               } catch (error) {
                 console.error('Error fetching design details:', error)
-                // Fallback data
                 return {
                   _id: item._id,
                   productId: item.productId,
@@ -96,10 +108,19 @@ function Profile({ user }) {
         }
       }
 
+      // Handle measurements
+      if (measurementsResponse && measurementsResponse.ok) {
+        const measurementsData = await measurementsResponse.json()
+        if (measurementsData.success) {
+          setMeasurements(measurementsData.data)
+        }
+      }
+
     } catch (error) {
       console.error('Error fetching user data:', error)
       setWishlist([])
       setOrders([])
+      setMeasurements([])
     } finally {
       setLoading(false)
     }
@@ -108,6 +129,12 @@ function Profile({ user }) {
   useEffect(() => {
     if (user) {
       fetchUserData()
+      setProfileData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      })
     }
   }, [user, fetchUserData])
 
@@ -123,7 +150,6 @@ function Profile({ user }) {
       })
 
       if (response.ok) {
-        // Remove from local state
         setWishlist(prev => prev.filter(item => item.productId !== productId))
         console.log('✅ Item removed from wishlist')
       } else {
@@ -137,7 +163,6 @@ function Profile({ user }) {
   // Add to cart from wishlist
   const addToCartFromWishlist = async (item) => {
     try {
-      // You can integrate with your cart context here
       console.log('Adding to cart:', item)
       alert(`${item.name} added to cart!`)
     } catch (error) {
@@ -145,9 +170,11 @@ function Profile({ user }) {
     }
   }
 
+  // Handle measurements save
   const handleSaveMeasurements = async (measurementData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/measurements', {
+      setMeasurementsSaved(false)
+      const response = await fetch('http://localhost:5000/api/measurements', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -157,13 +184,170 @@ function Profile({ user }) {
       })
 
       if (response.ok) {
-        setMeasurementsSaved(true)
-        setTimeout(() => setMeasurementsSaved(false), 3000)
+        const data = await response.json()
+        if (data.success) {
+          setMeasurementsSaved(true)
+          setTimeout(() => setMeasurementsSaved(false), 3000)
+          
+          // Refresh measurements
+          const measurementsResponse = await fetch('http://localhost:5000/api/measurements', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          })
+          
+          if (measurementsResponse.ok) {
+            const measurementsData = await measurementsResponse.json()
+            if (measurementsData.success) {
+              setMeasurements(measurementsData.data)
+            }
+          }
+        }
       } else {
         console.error('Failed to save measurements')
+        alert('Failed to save measurements. Please try again.')
       }
     } catch (error) {
       console.error('Error saving measurements:', error)
+      alert('Error saving measurements. Please try again.')
+    }
+  }
+
+  // Handle profile picture upload
+  const handleProfilePictureUpload = async (file) => {
+    try {
+      setUploadingImage(true)
+      const formData = new FormData()
+      formData.append('profileImage', file)
+
+      const response = await fetch('http://localhost:5000/api/profile/picture', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          // Update user data in localStorage
+          const savedUser = JSON.parse(localStorage.getItem('digitailor_user'))
+          if (savedUser) {
+            savedUser.profileImage = data.data.profileImage
+            localStorage.setItem('digitailor_user', JSON.stringify(savedUser))
+          }
+          
+          alert('Profile picture updated successfully!')
+          window.location.reload() // Refresh to show new image
+        }
+      } else {
+        const errorData = await response.json()
+        alert(errorData.message || 'Failed to upload profile picture')
+      }
+    } catch (error) {
+      console.error('Error uploading profile picture:', error)
+      alert('Error uploading profile picture. Please try again.')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  // Handle profile picture deletion
+  const handleDeleteProfilePicture = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile/picture', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        // Update user data in localStorage
+        const savedUser = JSON.parse(localStorage.getItem('digitailor_user'))
+        if (savedUser) {
+          savedUser.profileImage = null
+          localStorage.setItem('digitailor_user', JSON.stringify(savedUser))
+        }
+        
+        alert('Profile picture removed successfully!')
+        window.location.reload() // Refresh to show default image
+      } else {
+        alert('Failed to remove profile picture')
+      }
+    } catch (error) {
+      console.error('Error deleting profile picture:', error)
+      alert('Error removing profile picture. Please try again.')
+    }
+  }
+
+  // Handle profile update
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault()
+    setProfileUpdateLoading(true)
+
+    try {
+      const response = await fetch('http://localhost:5000/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(profileData)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          // Update user data in localStorage
+          const savedUser = JSON.parse(localStorage.getItem('digitailor_user'))
+          if (savedUser) {
+            Object.assign(savedUser, data.data)
+            localStorage.setItem('digitailor_user', JSON.stringify(savedUser))
+          }
+          
+          alert('Profile updated successfully!')
+          window.location.reload() // Refresh to show updated data
+        }
+      } else {
+        const errorData = await response.json()
+        alert(errorData.message || 'Failed to update profile')
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      alert('Error updating profile. Please try again.')
+    } finally {
+      setProfileUpdateLoading(false)
+    }
+  }
+
+  // Delete measurement
+  const deleteMeasurement = async (measurementId) => {
+    if (!window.confirm('Are you sure you want to delete this measurement?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/measurements/${measurementId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        setMeasurements(prev => prev.filter(m => m._id !== measurementId))
+        alert('Measurement deleted successfully!')
+      } else {
+        alert('Failed to delete measurement')
+      }
+    } catch (error) {
+      console.error('Error deleting measurement:', error)
+      alert('Error deleting measurement. Please try again.')
     }
   }
 
@@ -195,14 +379,21 @@ function Profile({ user }) {
       {/* Profile Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white p-8 mb-8">
         <div className="flex items-center space-x-6">
-          <img
-            src={user.profileImage || admin}
-            alt={user.firstName}
-            className="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover"
-            onError={(e) => {
-              e.target.src = admin
-            }}
-          />
+          <div className="relative">
+            <img
+              src={user.profileImage ? `http://localhost:5000${user.profileImage}` : admin}
+              alt={user.firstName}
+              className="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover"
+              onError={(e) => {
+                e.target.src = admin
+              }}
+            />
+            {uploadingImage && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              </div>
+            )}
+          </div>
           <div>
             <h1 className="text-3xl font-bold">{user.firstName} {user.lastName}</h1>
             <p className="text-blue-100">{user.email}</p>
@@ -240,6 +431,11 @@ function Profile({ user }) {
                   {wishlist.length}
                 </span>
               )}
+              {tab.id === 'measurements' && measurements.length > 0 && (
+                <span className="ml-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                  {measurements.length}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -248,17 +444,93 @@ function Profile({ user }) {
       {/* Tab Content */}
       <div>
         {activeTab === 'measurements' && (
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Measurements</h2>
-            {measurementsSaved && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <div className="flex">
-                  <span className="text-green-600 mr-2">✅</span>
-                  <span className="text-green-800">Measurements saved successfully!</span>
+          <div className="space-y-8">
+            {/* Existing Measurements */}
+            {measurements.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Saved Measurements ({measurements.length})</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {measurements.map((measurement) => (
+                    <div key={measurement._id} className="bg-gray-50 rounded-lg p-6 border">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">{measurement.measurementType}</h3>
+                        <div className="flex space-x-2">
+                          <span className="text-xs text-gray-500">
+                            {new Date(measurement.createdAt).toLocaleDateString()}
+                          </span>
+                          <button
+                            onClick={() => deleteMeasurement(measurement._id)}
+                            className="text-red-500 hover:text-red-700 text-xs"
+                            title="Delete measurement"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        {measurement.measurements.bust && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Bust:</span>
+                            <span className="font-medium">{measurement.measurements.bust}"</span>
+                          </div>
+                        )}
+                        {measurement.measurements.waist && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Waist:</span>
+                            <span className="font-medium">{measurement.measurements.waist}"</span>
+                          </div>
+                        )}
+                        {measurement.measurements.hip && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Hip:</span>
+                            <span className="font-medium">{measurement.measurements.hip}"</span>
+                          </div>
+                        )}
+                        {measurement.measurements.shoulderWidth && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Shoulder:</span>
+                            <span className="font-medium">{measurement.measurements.shoulderWidth}"</span>
+                          </div>
+                        )}
+                        {measurement.measurements.armLength && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Arm Length:</span>
+                            <span className="font-medium">{measurement.measurements.armLength}"</span>
+                          </div>
+                        )}
+                        {measurement.measurements.sleeveLength && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Sleeve:</span>
+                            <span className="font-medium">{measurement.measurements.sleeveLength}"</span>
+                          </div>
+                        )}
+                      </div>
+                      {measurement.notes && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-xs text-gray-600">
+                            <span className="font-medium">Notes:</span> {measurement.notes}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
-            <MeasurementForm onSubmit={handleSaveMeasurements} />
+
+            {/* Add New Measurement */}
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Add New Measurement</h2>
+              {measurementsSaved && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                  <div className="flex">
+                    <span className="text-green-600 mr-2">✅</span>
+                    <span className="text-green-800">Measurements saved successfully!</span>
+                  </div>
+                </div>
+              )}
+              <MeasurementForm onSubmit={handleSaveMeasurements} />
+            </div>
           </div>
         )}
 
@@ -330,7 +602,6 @@ function Profile({ user }) {
                 <button
                   onClick={() => {
                     if (window.confirm('Are you sure you want to clear your entire wishlist?')) {
-                      // Implement clear all wishlist functionality
                       setWishlist([])
                     }
                   }}
@@ -403,46 +674,146 @@ function Profile({ user }) {
 
         {activeTab === 'settings' && (
           <div className="bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">Account Settings</h2>
+            
             <div className="space-y-8">
+              {/* Profile Picture Section */}
               <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Profile Picture</h3>
+                <div className="flex items-center space-x-6">
+                  <div className="relative">
+                    <img
+                      src={user.profileImage ? `http://localhost:5000${user.profileImage}` : admin}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                      onError={(e) => {
+                        e.target.src = admin
+                      }}
+                    />
+                    {uploadingImage && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files[0]) {
+                          handleProfilePictureUpload(e.target.files[0])
+                        }
+                      }}
+                      className="hidden"
+                      id="profileImageInput"
+                      disabled={uploadingImage}
+                    />
+                    <div className="flex space-x-3">
+                      <label
+                        htmlFor="profileImageInput"
+                        className={`px-4 py-2 rounded-lg cursor-pointer transition-colors ${
+                          uploadingImage 
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        } text-white`}
+                      >
+                        {uploadingImage ? 'Uploading...' : 'Upload New Picture'}
+                      </label>
+                      {user.profileImage && !uploadingImage && (
+                        <button
+                          onClick={handleDeleteProfilePicture}
+                          className="px-4 py-2 text-red-600 hover:text-red-800 border border-red-600 hover:border-red-800 rounded-lg transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Personal Information */}
+              <form onSubmit={handleProfileUpdate}>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                     <input 
                       type="text" 
-                      defaultValue={user.firstName}
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
                     <input 
                       type="text" 
-                      defaultValue={user.lastName}
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input 
                       type="email" 
-                      defaultValue={user.email}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={profileData.email}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                      disabled
                     />
+                    <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                     <input 
                       type="tel" 
-                      defaultValue={user.phone}
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
                     />
                   </div>
                 </div>
-              </div>
 
+                <div className="pt-6 border-t border-gray-200 mt-8">
+                  <div className="flex space-x-4">
+                    <button 
+                      type="submit" 
+                      disabled={profileUpdateLoading}
+                      className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                        profileUpdateLoading
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      } text-white`}
+                    >
+                      {profileUpdateLoading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setProfileData({
+                          firstName: user.firstName || '',
+                          lastName: user.lastName || '',
+                          email: user.email || '',
+                          phone: user.phone || ''
+                        })
+                      }}
+                      className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {/* Email Notifications */}
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
                 <div className="space-y-3">
@@ -479,6 +850,7 @@ function Profile({ user }) {
                 </div>
               </div>
 
+              {/* Privacy Settings */}
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Privacy Settings</h3>
                 <div className="space-y-3">
@@ -497,17 +869,6 @@ function Profile({ user }) {
                     />
                     <span className="ml-3 text-sm text-gray-700">Share my measurements with recommended tailors</span>
                   </label>
-                </div>
-              </div>
-              
-              <div className="pt-6 border-t border-gray-200">
-                <div className="flex space-x-4">
-                  <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    Save Changes
-                  </button>
-                  <button className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-                    Reset
-                  </button>
                 </div>
               </div>
             </div>

@@ -44,7 +44,8 @@ const measurementSchema = new mongoose.Schema({
   },
   notes: {
     type: String,
-    maxlength: 500
+    maxlength: 500,
+    default: ''
   },
   isActive: {
     type: Boolean,

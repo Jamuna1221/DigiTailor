@@ -1,33 +1,58 @@
 import { useState } from 'react'
 
+const measurementTypes = [
+  'Blouse', 'Shirt', 'Pant', 'Saree Blouse', 'Lehenga', 'Suit', 'Dress', 'Kurta'
+]
+
 function MeasurementForm({ onSubmit }) {
+  const [measurementType, setMeasurementType] = useState('Blouse')
   const [measurements, setMeasurements] = useState({
-    measurementType: 'Blouse',
-    bustChest: '',
+    bust: '',
     waist: '',
     hip: '',
     shoulderWidth: '',
     armLength: '',
-    sleeveLength: '',
-    blouseLength: '',
-    neckSize: '',
-    armhole: '',
-    frontNeckDepth: '',
-    backNeckDepth: '',
-    specialNotes: ''
+    sleeveLength: ''
   })
+  const [notes, setNotes] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const handleMeasurementChange = (field, value) => {
     setMeasurements(prev => ({
       ...prev,
-      [name]: value
+      [field]: value
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    onSubmit(measurements)
+    setLoading(true)
+
+    try {
+      const measurementData = {
+        measurementType,
+        measurements,
+        notes
+      }
+
+      await onSubmit(measurementData)
+      
+      // Reset form after successful submission
+      setMeasurements({
+        bust: '',
+        waist: '',
+        hip: '',
+        shoulderWidth: '',
+        armLength: '',
+        sleeveLength: ''
+      })
+      setNotes('')
+      
+    } catch (error) {
+      console.error('Error saving measurement:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -37,19 +62,18 @@ function MeasurementForm({ onSubmit }) {
           Measurement Type
         </label>
         <select
-          name="measurementType"
-          value={measurements.measurementType}
-          onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          value={measurementType}
+          onChange={(e) => setMeasurementType(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="Blouse">Blouse</option>
-          <option value="Kurti">Kurti</option>
-          <option value="Dress">Dress</option>
-          <option value="Kids">Kids</option>
+          {measurementTypes.map(type => (
+            <option key={type} value={type}>{type}</option>
+          ))}
         </select>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Basic Measurements */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Bust/Chest (inches) *
@@ -57,10 +81,9 @@ function MeasurementForm({ onSubmit }) {
           <input
             type="number"
             step="0.5"
-            name="bustChest"
-            value={measurements.bustChest}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={measurements.bust}
+            onChange={(e) => handleMeasurementChange('bust', e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
@@ -72,10 +95,9 @@ function MeasurementForm({ onSubmit }) {
           <input
             type="number"
             step="0.5"
-            name="waist"
             value={measurements.waist}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) => handleMeasurementChange('waist', e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
@@ -87,10 +109,9 @@ function MeasurementForm({ onSubmit }) {
           <input
             type="number"
             step="0.5"
-            name="hip"
             value={measurements.hip}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) => handleMeasurementChange('hip', e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
@@ -102,10 +123,9 @@ function MeasurementForm({ onSubmit }) {
           <input
             type="number"
             step="0.5"
-            name="shoulderWidth"
             value={measurements.shoulderWidth}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) => handleMeasurementChange('shoulderWidth', e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -116,10 +136,9 @@ function MeasurementForm({ onSubmit }) {
           <input
             type="number"
             step="0.5"
-            name="armLength"
             value={measurements.armLength}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) => handleMeasurementChange('armLength', e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -130,78 +149,37 @@ function MeasurementForm({ onSubmit }) {
           <input
             type="number"
             step="0.5"
-            name="sleeveLength"
             value={measurements.sleeveLength}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Blouse Length (inches)
-          </label>
-          <input
-            type="number"
-            step="0.5"
-            name="blouseLength"
-            value={measurements.blouseLength}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Neck Size (inches)
-          </label>
-          <input
-            type="number"
-            step="0.5"
-            name="neckSize"
-            value={measurements.neckSize}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Armhole (inches)
-          </label>
-          <input
-            type="number"
-            step="0.5"
-            name="armhole"
-            value={measurements.armhole}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={(e) => handleMeasurementChange('sleeveLength', e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Special Notes
+          Notes (Optional)
         </label>
         <textarea
-          name="specialNotes"
-          value={measurements.specialNotes}
-          onChange={handleChange}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
           rows={3}
-          placeholder="Any special requirements or notes for the tailor..."
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Any additional notes or special requirements..."
         />
       </div>
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="btn-primary px-8"
-        >
-          Save Measurements
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={loading}
+        className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-colors ${
+          loading
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-600 hover:bg-blue-700'
+        }`}
+      >
+        {loading ? 'Saving...' : 'Save Measurements'}
+      </button>
     </form>
   )
 }
