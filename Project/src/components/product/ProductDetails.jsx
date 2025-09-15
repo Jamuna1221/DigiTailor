@@ -1,12 +1,12 @@
 // src/components/product/ProductDetails.jsx
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { CartContext } from '../../contexts/CartContext'
+import { useCart } from '../../contexts/CartContext'
 
 function ProductDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { addToCart } = useContext(CartContext)
+  const { addToCart } = useCart()
   
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -26,28 +26,44 @@ function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        setLoading(true)
+        console.log(`🔍 Fetching product ID: ${id}`)
+        
+        // ✅ Use the public catalog endpoint (no auth required)
         const response = await fetch(`http://localhost:5000/api/catalog/${id}`)
+        console.log(`🔍 Response status: ${response.status}`)
+        
         const data = await response.json()
+        console.log(`🔍 Response data:`, data)
         
         if (data.success) {
           setProduct(data.data)
+          console.log('✅ Product loaded successfully')
+        } else {
+          console.error('❌ Product not found:', data.message)
+          setProduct(null)
         }
       } catch (error) {
-        console.error('Error fetching product:', error)
+        console.error('💥 Error fetching product:', error)
+        setProduct(null)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProduct()
+    if (id) {
+      fetchProduct()
+    }
   }, [id])
 
   const handleAddToCart = () => {
+    if (!product) return
+
     const cartItem = {
       id: product._id,
       name: product.name,
-      price: product.basePrice,
-      image: product.primaryImage || '/placeholder-image.jpg',
+      price: product.basePrice || product.price || 0,
+      image: product.primaryImage || product.image || '/placeholder-image.jpg',
       category: product.category,
       quantity: quantity,
       customization: {
@@ -58,43 +74,19 @@ function ProductDetails() {
       }
     }
 
-    addToCart(cartItem)
-    alert(`${product.name} added to cart!`)
-  }
-  useEffect(() => {
-  const fetchProduct = async () => {
-    try {
-      setLoading(true)
-      console.log(`🔍 Frontend requesting product ID: ${id}`)
-      console.log(`🔍 ID length: ${id.length}`)
-      console.log(`🔍 ID type: ${typeof id}`)
-      
-      const response = await fetch(`http://localhost:5000/api/products/${id}`)
-      console.log(`🔍 Response status: ${response.status}`)
-      
-      const data = await response.json()
-      console.log(`🔍 Response data:`, data)
-      
-      if (data.success) {
-        setProduct(data.data)
-      } else {
-        console.error('Product not found:', data.message)
-        setProduct(null)
-      }
-    } catch (error) {
-      console.error('Error fetching product:', error)
-      setProduct(null)
-    } finally {
-      setLoading(false)
+    console.log('🛒 Adding to cart from ProductDetails:', cartItem)
+
+    const success = addToCart(cartItem)
+    if (success) {
+      alert(`${product.name} added to cart!`)
+    } else {
+      alert('Failed to add item to cart')
     }
   }
 
-  if (id) {
-    fetchProduct()
-  }
-}, [id])
-
   const handleOrderNow = () => {
+    if (!product) return
+
     // Add to cart first
     handleAddToCart()
     
@@ -103,8 +95,6 @@ function ProductDetails() {
       navigate('/checkout')
     }, 500) // Small delay to ensure cart is updated
   }
-
-  // ✅ Removed unused handleDirectOrder function
 
   if (loading) {
     return (
@@ -119,9 +109,10 @@ function ProductDetails() {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+        <p className="text-gray-600 mb-6">The product you're looking for doesn't exist or has been removed.</p>
         <button 
           onClick={() => navigate('/catalog')}
-          className="bg-purple-600 text-white px-6 py-3 rounded-lg"
+          className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
         >
           Browse Catalog
         </button>
@@ -142,7 +133,7 @@ function ProductDetails() {
             <div className="p-6">
               <div className="aspect-w-1 aspect-h-1">
                 <img
-                  src={product.primaryImage || '/placeholder-image.jpg'}
+                  src={product.primaryImage || product.image || '/placeholder-image.jpg'}
                   alt={product.name}
                   className="w-full h-96 object-cover rounded-lg"
                   onError={(e) => {
@@ -171,7 +162,9 @@ function ProductDetails() {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
                 <div className="flex items-center space-x-4">
-                  <span className="text-3xl font-bold text-purple-600">₹{product.basePrice}</span>
+                  <span className="text-3xl font-bold text-purple-600">
+                    ₹{(product.basePrice || product.price || 0).toLocaleString()}
+                  </span>
                   {product.difficulty && (
                     <span className="px-3 py-1 bg-amber-100 text-amber-800 text-sm rounded-full">
                       {product.difficulty}
@@ -180,13 +173,15 @@ function ProductDetails() {
                 </div>
               </div>
 
-              <p className="text-gray-600 leading-relaxed">{product.description}</p>
+              <p className="text-gray-600 leading-relaxed">
+                {product.description || 'Beautiful custom tailored design with premium quality materials and expert craftsmanship.'}
+              </p>
 
               {/* Product Info */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Category:</span>
-                  <p className="text-purple-600">{product.category}</p>
+                  <p className="text-purple-600">{product.category || 'Custom Design'}</p>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Estimated Time:</span>
@@ -264,7 +259,7 @@ function ProductDetails() {
                     ...customization,
                     specialInstructions: e.target.value
                   })}
-                  className="w-full p-3 border border-gray-300 rounded-lg resize-none"
+                  className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   rows="3"
                 />
               </div>
@@ -275,7 +270,7 @@ function ProductDetails() {
                   onClick={handleOrderNow}
                   className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  Order Now - ₹{(product.basePrice * quantity).toLocaleString()}
+                  Order Now - ₹{((product.basePrice || product.price || 0) * quantity).toLocaleString()}
                 </button>
 
                 <div className="grid grid-cols-2 gap-3">

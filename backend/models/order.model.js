@@ -1,92 +1,167 @@
 import mongoose from 'mongoose'
 
-const orderItemSchema = new mongoose.Schema({
-  productId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-  quantity: { type: Number, required: true, default: 1 },
-  image: { type: String },
-  category: { type: String, required: true }, // Important for tailor allocation
-  customization: {
-    size: { type: String },
-    color: { type: String },
-    fabric: { type: String },
-    measurements: {
-      bust: Number,
-      waist: Number,
-      hips: Number,
-      length: Number
-    },
-    specialInstructions: { type: String }
-  }
-})
-
 const orderSchema = new mongoose.Schema({
-  orderNumber: { 
-    type: String, 
-    unique: true, 
-    default: () => 'DT' + Date.now() + Math.floor(Math.random() * 1000)
+  orderId: {
+    type: String,
+    unique: true,
+    required: true
   },
-  
-  // Customer Information
-  customer: {
-    id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: { type: String, required: true },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  items: [{
+    productId: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      default: 1
+    },
+    category: String,
+    image: String,
+    customizations: {
+      fabric: String,
+      color: String,
+      size: String,
+      specialInstructions: String
+    }
+  }],
+  shippingInfo: {
+    fullName: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true
+    },
+    phone: {
+      type: String,
+      required: true
+    },
     address: {
-      street: { type: String, required: true },
-      city: { type: String, required: true },
-      state: { type: String, required: true },
-      zipCode: { type: String, required: true }
+      street: {
+        type: String,
+        required: true
+      },
+      city: {
+        type: String,
+        required: true
+      },
+      state: {
+        type: String,
+        required: true
+      },
+      zipCode: {
+        type: String,
+        required: true
+      }
+    },
+    specialInstructions: String
+  },
+  pricing: {
+    subtotal: {
+      type: Number,
+      required: true
+    },
+    delivery: {
+      type: Number,
+      default: 50
+    },
+    tax: {
+      type: Number,
+      default: 0
+    },
+    total: {
+      type: Number,
+      required: true
     }
   },
-
-  // Order Items
-  items: [orderItemSchema],
-
-  // **TAILOR ALLOCATION** - Hidden from customer
-  assignedTailor: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Tailor' 
+  payment: {
+    method: {
+      type: String,
+      enum: ['razorpay', 'cod'],
+      default: 'razorpay'
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded'],
+      default: 'pending'
+    },
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
+    transactionDate: Date
   },
-  allocationTimestamp: { type: Date },
-  tailorNotes: { type: String }, // Only tailor can see/edit
-
-  // Pricing
-  subtotal: { type: Number, required: true },
-  tax: { type: Number, default: 0 },
-  deliveryCharges: { type: Number, default: 50 },
-  total: { type: Number, required: true },
-
-  // Order Status
   status: {
     type: String,
-    enum: ['pending', 'assigned', 'in_progress', 'quality_check', 'ready', 'delivered', 'cancelled'],
-    default: 'pending'
+    enum: ['placed', 'confirmed', 'assigned', 'in_progress', 'completed', 'shipped', 'delivered', 'cancelled'],
+    default: 'placed'
   },
-
-  // Payment
-  paymentMethod: {
-    type: String,
-    enum: ['cash_on_delivery', 'online_payment', 'bank_transfer'],
-    default: 'cash_on_delivery'
+  assignedTailor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   },
-  paymentStatus: {
-    type: String,
-    enum: ['pending', 'paid', 'failed', 'refunded'],
-    default: 'pending'
+  estimatedDelivery: {
+    type: Date
   },
-
-  // Timeline
-  estimatedDelivery: { type: Date },
-  actualDelivery: { type: Date },
-
-  // Notes
-  customerNotes: { type: String },
-  adminNotes: { type: String }
+  statusHistory: [{
+    status: String,
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    note: String,
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  }]
 }, {
-  timestamps: true
+  timestamps: true,
+  suppressReservedKeysWarning: true
+})
+
+// Generate unique order ID
+orderSchema.pre('save', async function(next) {
+  if (!this.orderId) {
+    const date = new Date()
+    const year = date.getFullYear().toString().slice(-2)
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    
+    const count = await mongoose.models.Order.countDocuments({
+      createdAt: {
+        $gte: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
+        $lt: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
+      }
+    })
+    
+    this.orderId = `DT${year}${month}${day}${String(count + 1).padStart(3, '0')}`
+  }
+  
+  // Add to status history
+  if (this.isModified('status')) {
+    this.statusHistory.push({
+      status: this.status,
+      timestamp: new Date()
+    })
+  }
+  
+  next()
 })
 
 export default mongoose.model('Order', orderSchema)

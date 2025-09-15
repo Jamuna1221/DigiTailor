@@ -28,11 +28,12 @@ import Login from './pages/Login.jsx'
 import SignUp from './pages/SignUp.jsx'
 import Contact from './pages/Contact.jsx'
 
-// Import context providers
-import { CartProvider } from './contexts/CartProvider'
-import { WishlistProvider } from './contexts/WishlistContext' // ✅ Add this import
+// ✅ FIXED: Import context providers correctly
+import CartProvider from './contexts/CartContext' // Default export
+import { WishlistProvider } from './contexts/WishlistContext' // Named export
 
-import Cart from './pages/cart.jsx'
+// ✅ FIXED: Import Cart with correct path (lowercase)
+import Cart from './pages/Cart.jsx'
 import ProductDetails from './components/product/ProductDetails.jsx'
 import ManageOrders from './pages/admin/ManageOrders.jsx'
 import Checkout from './pages/checkout.jsx'
@@ -80,12 +81,17 @@ function App() {
     // Check if user is already logged in (from localStorage)
     const savedUser = localStorage.getItem('digitailor_user')
     if (savedUser) {
-      setUser(JSON.parse(savedUser))
+      try {
+        setUser(JSON.parse(savedUser))
+      } catch (error) {
+        console.error('Error parsing saved user:', error)
+        localStorage.removeItem('digitailor_user')
+      }
     }
     setLoading(false)
   }, [])
 
-  // Sign In function (you can call this from login page)
+  // Sign In function
   const handleSignIn = (userData) => {
     setUser(userData)
     localStorage.setItem('digitailor_user', JSON.stringify(userData))
@@ -100,23 +106,24 @@ function App() {
     }
   }
 
-  // Sign Out function
+  // Sign Out function - ✅ ONLY CHANGE: Don't clear cart on logout
   const handleSignOut = () => {
     setUser(null)
     localStorage.removeItem('digitailor_user')
-    localStorage.removeItem('token') // Also remove token if stored separately
-    // Optional: Redirect to home page after sign out
+    localStorage.removeItem('token')
+    // ✅ Keep cart items after logout - removed this line:
+    // localStorage.removeItem('digitailor_cart')
     window.location.href = '/'
   }
 
-  // Demo Sign In function (updated to use new role system)
+  // Demo Sign In function
   const demoSignIn = () => {
     const demoUser = {
       id: 1,
       firstName: 'Priya',
       lastName: 'Sharma',
       email: 'priya@example.com',
-      role: 'customer', // Updated to use 'role' instead of 'userType'
+      role: 'customer',
       loyaltyPoints: 1250,
       profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b647?w=100'
     }
@@ -129,7 +136,7 @@ function App() {
 
   return (
     <CartProvider>
-      <WishlistProvider> {/* ✅ Add WishlistProvider here */}
+      <WishlistProvider>
         <Router>
           <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
             
@@ -146,7 +153,6 @@ function App() {
                 <Route path="/ai-studio" element={<AIStudio user={user} />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/gallery" element={<Gallery />} />
-                
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checkout" element={<Checkout />} />
@@ -209,18 +215,20 @@ function App() {
             </main>
 
             <Footer />
+            
+            {/* ✅ Cart component - will show when isCartOpen is true */}
             <Cart />
 
-            {/* Add the widgets here - they'll appear on all pages */}
+            {/* Widgets */}
             <WhatsAppWidget 
-              phoneNumber="918608737147" // Replace with your business WhatsApp number
+              phoneNumber="918608737147"
               message="Hi! I'm interested in your tailoring services. Can you help me?"
               position="bottom-right"
             />
             <ChatbotWidget />
           </div>
         </Router>
-      </WishlistProvider> {/* ✅ Close WishlistProvider here */}
+      </WishlistProvider>
     </CartProvider>
   )
 }
