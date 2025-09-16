@@ -1,37 +1,35 @@
 import express from 'express'
-import { 
-  createRazorpayOrder,
-  verifyPayment,
+import {
   createOrder,
-  getUserOrders,
-  getAllOrders,
-  assignOrderToTailor,
-  updateOrderStatus,
-  getTailorOrders
+  getAllOrdersForAdmin,
+  getOrdersForTailor,
+  getOrdersForUser,
+  updateOrderByTailor,
+  getOrderDetails,
+  addReview,
+  addAlterationRequest
 } from '../controllers/order.controller.js'
-import { protect, authorize } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
 
-// All routes require authentication
-router.use(protect)
-
-// Payment routes
-router.post('/create-razorpay-order', createRazorpayOrder)
-router.post('/verify-payment', verifyPayment)
-
-// Order routes
+// Public - Create order (auto-allocates tailor)
 router.post('/', createOrder)
-router.get('/user/:userId', getUserOrders)
 
-// Admin routes
-router.get('/admin/all', authorize('admin'), getAllOrders)
-router.put('/admin/:orderId/assign', authorize('admin'), assignOrderToTailor)
+// Admin - Get all orders with tailor details
+router.get('/admin/all', getAllOrdersForAdmin)
 
-// Tailor routes
-router.get('/tailor', authorize('tailor', 'admin'), getTailorOrders)
+// Tailor - Get assigned orders
+router.get('/tailor/:tailorId', getOrdersForTailor)
 
-// Status update (Admin and assigned Tailor)
-router.put('/:orderId/status', updateOrderStatus)
+// User - Get user orders (no tailor info)
+router.get('/user/:userId', getOrdersForUser)
+
+// Tailor - Update order status/notes
+router.put('/tailor/:orderId', updateOrderByTailor)
+
+// Add these routes to your order.routes.js
+router.get('/:orderId', getOrderDetails)
+router.post('/:orderId/review', addReview)
+router.post('/:orderId/alteration', addAlterationRequest)
 
 export default router

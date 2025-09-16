@@ -1,173 +1,213 @@
-// src/pages/UserOrders.jsx
-import { useState, useEffect } from 'react'
-
-// Utility function for status colors
+import { useState, useEffect, useCallback } from 'react'
+ import { useNavigate } from 'react-router-dom'
+// ✅ Helper function defined outside component
 const getStatusColor = (status) => {
-  switch (status) {
-    case 'pending': return 'bg-yellow-100 text-yellow-800'
-    case 'assigned': return 'bg-blue-100 text-blue-800'
-    case 'in_progress': return 'bg-indigo-100 text-indigo-800'
-    case 'quality_check': return 'bg-purple-100 text-purple-800'
-    case 'ready': return 'bg-green-100 text-green-800'
-    case 'delivered': return 'bg-green-600 text-white'
-    case 'cancelled': return 'bg-red-100 text-red-800'
-    default: return 'bg-gray-100 text-gray-800'
+  const colors = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    confirmed: 'bg-blue-100 text-blue-800',
+    'in-progress': 'bg-purple-100 text-purple-800',
+    'ready-for-pickup': 'bg-green-100 text-green-800',
+    delivered: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800'
   }
+  return colors[status] || 'bg-gray-100 text-gray-800'
 }
 
-
-function UserOrders({ user }) {
+function UserOrders() {
   const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true) // ✅ Renamed to be used
+ // At the top of your component
+const navigate = useNavigate()
+  // ✅ Use useCallback to fix dependency warning
+  const fetchUserOrders = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const token = localStorage.getItem('token')
+      
+      if (!token) {
+        console.log('No token found')
+        return
+      }
+
+      const response = await fetch('http://localhost:5000/api/orders/user', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setOrders(data.data || [])
+      } else {
+        console.error('Failed to fetch orders:', response.status)
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    const fetchUserOrders = async () => {
-      if (!user?.id) return
-      
-      try {
-        console.log(`Fetching orders for user: ${user.id}`)
-        const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}`)
-        const data = await response.json()
-        
-        if (data.success) {
-          setOrders(data.data)
-          console.log(`✅ Loaded ${data.data.length} orders`)
-        } else {
-          console.error('Failed to fetch orders:', data.message)
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchUserOrders()
-  }, [user?.id])
+  }, [fetchUserOrders]) // ✅ Fixed dependency
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="ml-3 text-gray-600">Loading your orders...</p>
-      </div>
-    )
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
   }
 
-  if (orders.length === 0) {
+  const formatPrice = (price) => {
+    return `₹${price.toLocaleString()}`
+  }
+
+  // ✅ Use isLoading state
+  if (isLoading) {
     return (
-      <div className="text-center py-12">
-        <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-          </svg>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading your orders...</p>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders yet</h3>
-        <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
-        <button className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
-          Browse Catalog
-        </button>
       </div>
     )
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
-        <p className="text-gray-600">Track and manage your custom tailoring orders</p>
-      </div>
-      
-      <div className="space-y-6">
-        {orders.map(order => (
-          <div key={order._id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-            <div className="p-6">
-              {/* Order Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Order #{order.orderNumber}</h3>
-                  <p className="text-gray-600 mt-1">
-                    Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
-                </div>
-                <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                  {order.status.replace('_', ' ').toUpperCase()}
-                </span>
-              </div>
-              
-              {/* Order Items */}
-              <div className="space-y-3 mb-6">
-                <h4 className="font-medium text-gray-900">Items:</h4>
-                {order.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      {item.image && (
-                        <img 
-                          src={item.image} 
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
+          <p className="text-gray-600 mt-2">Track and manage your tailoring orders</p>
+        </div>
+
+        {orders.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              📦
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Orders Yet</h2>
+            <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
+            <button
+              onClick={() => window.location.href = '/catalog'}
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Browse Catalog
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {orders.map((order) => (
+              <div key={order._id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="p-6">
+                  {/* Order Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Order #{order._id.slice(-6)}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        Placed on {formatDate(order.createdAt)}
+                      </p>
+                    </div>
+                    <div className="mt-2 sm:mt-0">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        {order.status.replace('-', ' ').toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="space-y-3 mb-4">
+                    {order.items.map((item, index) => (
+                      <div key={index} className="flex items-center space-x-3 py-2 border-b border-gray-100 last:border-b-0">
+                        <img
+                          src={item.image || 'https://via.placeholder.com/60x60?text=Item'}
                           alt={item.name}
                           className="w-12 h-12 object-cover rounded-lg"
                         />
-                      )}
-                      <div>
-                        <p className="font-medium text-gray-900">{item.name}</p>
-                        <p className="text-sm text-gray-600">{item.category}</p>
-                        {item.customization?.size && (
-                          <p className="text-xs text-blue-600">Size: {item.customization.size}</p>
-                        )}
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900 text-sm">{item.name}</h4>
+                          <p className="text-gray-600 text-xs">Qty: {item.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {formatPrice(item.price * item.quantity)}
+                          </p>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Order Footer */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-200">
+                    <div className="text-sm text-gray-600 mb-2 sm:mb-0">
+                      Payment: {order.payment?.method === 'cod' ? 'Cash on Delivery' : 'Online'}
+                      {order.payment?.method === 'cod' && (
+                        <span className="text-orange-600 ml-1">(+COD charges)</span>
+                      )}
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">₹{item.price * item.quantity}</p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                      <p className="text-lg font-bold text-purple-600">
+                        Total: {formatPrice(order.total)}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              {/* Order Summary */}
-              <div className="border-t pt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div className="mb-4 sm:mb-0">
-                    <p className="text-lg font-bold text-gray-900">Total: ₹{order.total}</p>
-                    {order.estimatedDelivery && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        Expected delivery: {new Date(order.estimatedDelivery).toLocaleDateString()}
+
+                  {/* Shipping Info */}
+                  {order.shippingInfo && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <h5 className="font-medium text-gray-900 text-sm mb-2">Shipping Address</h5>
+                      <p className="text-gray-600 text-sm">
+                        {order.shippingInfo.fullName}<br/>
+                        {order.shippingInfo.address?.street}<br/>
+                        {order.shippingInfo.address?.city}, {order.shippingInfo.address?.state} {order.shippingInfo.address?.zipCode}
                       </p>
-                    )}
-                  </div>
-                  
-                  <div className="flex space-x-3">
-                    <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                      View Details
-                    </button>
-                    {order.status !== 'delivered' && order.status !== 'cancelled' && (
-                      <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="mt-4 flex space-x-3">
+                   
+
+
+
+// Then use this button
+                 <button
+                   onClick={() => navigate(`/orders/${order._id}`)}
+                 className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition-colors"
+                 >
+                   View Details
+                </button>
+
+                    {order.status === 'pending' && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to cancel this order?')) {
+                            // Handle order cancellation
+                          }
+                        }}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors"
+                      >
                         Cancel Order
                       </button>
                     )}
                   </div>
                 </div>
-                
-                {/* Customer Notes */}
-                {order.customerNotes && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-gray-700">
-                      <strong>Your notes:</strong> {order.customerNotes}
-                    </p>
-                  </div>
-                )}
               </div>
-            </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </div>
   )
 }
 
+// ✅ Default export to fix Fast Refresh warning
 export default UserOrders

@@ -4,7 +4,6 @@ const orderSchema = new mongoose.Schema({
   orderId: {
     type: String,
     unique: true,
-    required: true
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -129,13 +128,32 @@ const orderSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }
+  }],
+  // ✅ ADDED: Review and alteration fields INSIDE the schema
+  review: {
+    rating: Number,
+    comment: String,
+    createdAt: Date
+  },
+  alterationRequests: [{
+    request: String,
+    status: {
+      type: String,
+      enum: ['pending', 'in_progress', 'completed'],
+      default: 'pending'
+    },
+    response: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   }]
 }, {
   timestamps: true,
   suppressReservedKeysWarning: true
 })
 
-// Generate unique order ID
+// ✅ FIXED Generate unique order ID
 orderSchema.pre('save', async function(next) {
   if (!this.orderId) {
     const date = new Date()
@@ -143,7 +161,8 @@ orderSchema.pre('save', async function(next) {
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     
-    const count = await mongoose.models.Order.countDocuments({
+    // ✅ Use this.constructor instead of mongoose.models.Order
+    const count = await this.constructor.countDocuments({
       createdAt: {
         $gte: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
         $lt: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)

@@ -10,7 +10,7 @@ import OrderTracking from './pages/OrderTracking.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Gallery from './pages/Gallery.jsx'
 import LoadingSpinner from './components/common/LoadingSpinner.jsx'
-
+import OrderDetails from './pages/OrderDetails'
 // Import the existing admin components
 import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -156,7 +156,7 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checkout" element={<Checkout />} />
-                
+                <Route path="/orders/:orderId" element={<OrderDetails />} />
                 {/* Customer Routes */}
                 <Route 
                   path="/profile" 
