@@ -252,7 +252,7 @@ function Header({ user, onSignOut }) {
                           {user.role === "tailor" && (
                             <>
                               <Link
-                                to="/tailor-dashboard"
+                                to="/tailor/dashboard"
                                 onClick={() => setUserMenuOpen(false)}
                                 className="flex items-center space-x-3 px-4 py-3 rounded-xl text-emerald-600 hover:bg-emerald-50 transition-colors group"
                               >

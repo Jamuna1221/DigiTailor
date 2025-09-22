@@ -13,14 +13,26 @@ export const useCart = () => {
   return context
 }
 
+// ✅ Get user-specific cart key
+const getCartKey = () => {
+  const user = JSON.parse(localStorage.getItem('digitailor_user') || '{}')
+  const userId = user.id || user._id
+  return userId ? `digitailor_cart_${userId}` : 'digitailor_cart_guest'
+}
+
 // ✅ Main provider component - default export only
 function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([])
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isLoaded, setIsLoaded] = useState(false) // ✅ Add loaded flag
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null) // ✅ Track current user
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem('digitailor_cart')
+  // ✅ Load cart based on current user
+  const loadUserCart = () => {
+    const cartKey = getCartKey()
+    console.log('🔑 Loading cart with key:', cartKey)
+    
+    const savedCart = localStorage.getItem(cartKey)
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart)
@@ -30,22 +42,68 @@ function CartProvider({ children }) {
         }
       } catch (error) {
         console.error('Error loading cart from localStorage:', error)
-        localStorage.removeItem('digitailor_cart')
+        localStorage.removeItem(cartKey)
+        setCartItems([])
       }
+    } else {
+      setCartItems([])
     }
-    setIsLoaded(true) // ✅ Mark as loaded
+  }
+
+  // ✅ Initial cart load
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('digitailor_user') || '{}')
+    setCurrentUser(user)
+    loadUserCart()
+    setIsLoaded(true)
   }, [])
 
+  // ✅ Listen for user changes (login/logout)
   useEffect(() => {
-    // ✅ Only save after the cart has been loaded initially
+    const handleStorageChange = (e) => {
+      if (e.key === 'digitailor_user') {
+        console.log('👤 User changed, reloading cart')
+        const newUser = e.newValue ? JSON.parse(e.newValue) : {}
+        setCurrentUser(newUser)
+        loadUserCart()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
+  // ✅ Save cart whenever it changes (user-specific key)
+  useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('digitailor_cart', JSON.stringify(cartItems))
-      console.log('💾 Cart saved to localStorage:', cartItems)
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems))
+      console.log('💾 Cart saved to localStorage with key:', cartKey, cartItems)
     }
   }, [cartItems, isLoaded])
 
+  // ✅ Switch cart when user logs in/out
+  const switchUserCart = (newUser) => {
+    console.log('🔄 Switching cart for new user:', newUser?.id || newUser?._id)
+    setCurrentUser(newUser)
+    loadUserCart()
+  }
+
   const addToCart = (item) => {
-    console.log('🛒 CartContext received item:', item)
+    // ✅ Check if user is logged in
+    const user = JSON.parse(localStorage.getItem('digitailor_user') || '{}')
+    
+    if (!user.id && !user._id) {
+      const shouldLogin = window.confirm(
+        'Please login to add items to your cart. Would you like to login now?'
+      )
+      if (shouldLogin) {
+        window.location.href = '/login'
+      }
+      return false
+    }
+
+    console.log('🛒 CartContext received item for user:', user.id || user._id, item)
     
     const sanitizedItem = {
       id: item.id || item._id || `temp-${Date.now()}`,
@@ -130,7 +188,9 @@ function CartProvider({ children }) {
   const clearCart = () => {
     console.log('🧹 Clearing cart')
     setCartItems([])
-    localStorage.removeItem('digitailor_cart')
+    // ✅ Remove user-specific cart
+    const cartKey = getCartKey()
+    localStorage.removeItem(cartKey)
   }
 
   const getCartTotal = () => {
@@ -155,7 +215,7 @@ function CartProvider({ children }) {
     setIsCartOpen(!isCartOpen)
   }
 
-  const closeCart =()=> {
+  const closeCart = () => {
     setIsCartOpen(false)
   }
 
@@ -176,7 +236,9 @@ function CartProvider({ children }) {
     toggleCart,
     closeCart,
     openCart,
-    getTotalItems
+    getTotalItems,
+    switchUserCart, // ✅ Add this for manual cart switching
+    currentUser
   }
 
   return (

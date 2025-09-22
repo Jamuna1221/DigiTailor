@@ -15,9 +15,8 @@ function OrderDetails() {
   // Order status flow
   const statusFlow = [
     { key: 'placed', label: 'Order Placed', icon: '📋', color: 'blue' },
-    { key: 'confirmed', label: 'Confirmed', icon: '✅', color: 'green' },
+    
     { key: 'assigned', label: 'Assigned to Tailor', icon: '👨‍🎨', color: 'purple' },
-    { key: 'in_progress', label: 'Stitching in Progress', icon: '✂️', color: 'yellow' },
     { key: 'completed', label: 'Stitching Completed', icon: '👕', color: 'indigo' },
     { key: 'packed', label: 'Packed', icon: '📦', color: 'orange' },
     { key: 'shipped', label: 'Out for Delivery', icon: '🚚', color: 'blue' },

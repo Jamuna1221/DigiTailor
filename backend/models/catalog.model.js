@@ -13,7 +13,7 @@ const catalogSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['blouse', 'kurti', 'dress', 'mens_shirt', 'mens_kurta', 'kids', 'bridal']
+    enum: ['blouse', 'kurti','Western dress', 'mens_shirt', 'mens_kurta', 'kids', 'bridal']
   },
   basePrice: {
     type: Number,

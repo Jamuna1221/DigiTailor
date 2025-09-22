@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import MeasurementForm from '../components/order/MeasurementForm.jsx'
-import admin from '../assets/images/admin.jpeg'
+import admin from '../assets/images/admin.jpg'
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')
