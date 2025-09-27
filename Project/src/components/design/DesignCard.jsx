@@ -93,12 +93,12 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
 
   return (
     <Link to={`/product/${design._id || design.id}`} className="block">
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
-        <div className="relative">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden card-hover h-[420px] flex flex-col">
+        <div className="relative h-[180px]">
           <img
             src={design.primaryImage || design.image || design.imageUrl || 'https://via.placeholder.com/400x300?text=Design'}
             alt={design.name || 'Design'}
-            className="w-full h-64 object-cover"
+            className="w-full h-full object-cover"
             onError={(e) => {
               e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'
             }}
@@ -119,9 +119,9 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
           </div>
         </div>
         
-        <div className="p-6">
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="text-xl font-bold text-gray-900 leading-tight flex-1 pr-4">
+        <div className="p-4 flex flex-col flex-1 overflow-hidden">
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="text-xl font-bold text-gray-900 leading-tight flex-1 pr-4 line-clamp-2">
               {design.name || 'Untitled Design'}
             </h3>
             <span className="text-2xl font-bold text-purple-600 whitespace-nowrap">
@@ -129,11 +129,11 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
             </span>
           </div>
           
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
             {design.description || 'Beautiful custom tailored design with premium quality materials and expert craftsmanship.'}
           </p>
           
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+          <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
             <span className="flex items-center">
               <span className="mr-1">🎨</span>
               {design.category || (design.tags && design.tags[0]) || 'Custom Style'}
@@ -146,7 +146,7 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
 
           {/* Fabric and Color Info */}
           {(design.fabric || design.color) && (
-            <div className="flex justify-between text-xs text-gray-500 mb-4">
+            <div className="flex justify-between text-xs text-gray-500 mb-3">
               {design.fabric && (
                 <span className="flex items-center">
                   <span className="mr-1">🧵</span>
@@ -163,7 +163,7 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
           )}
           
           {/* Bottom Buttons - Only Add to Cart and Wishlist (no Order Now) */}
-          <div className="flex space-x-2">
+          <div className="mt-auto flex space-x-2">
             <button 
               onClick={handleAddToCart}
               className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-center py-2.5 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2"
@@ -194,7 +194,7 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
           </div>
 
           {/* Additional Info */}
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-3 pt-3 border-t border-gray-100">
             <div className="flex justify-between text-xs text-gray-500">
               <span>⚡ Custom Tailored</span>
               <span>🚚 Free Delivery</span>
