@@ -81,7 +81,12 @@ export const getCatalogById = async (req, res) => {
     const { id } = req.params
     console.log(`🔍 Fetching catalog item with ID: ${id}`)
     
-    const catalogItem = await Catalog.findById(id)
+    // Increment views atomically and return updated document
+    const catalogItem = await Catalog.findByIdAndUpdate(
+      id,
+      { $inc: { views: 1 } },
+      { new: true }
+    )
     
     if (!catalogItem) {
       return res.status(404).json({
@@ -90,7 +95,7 @@ export const getCatalogById = async (req, res) => {
       })
     }
     
-    console.log(`✅ Found catalog item: ${catalogItem.name}`)
+    console.log(`✅ Found catalog item: ${catalogItem.name} (views: ${catalogItem.views})`)
     
     res.status(200).json({
       success: true,
@@ -105,6 +110,72 @@ export const getCatalogById = async (req, res) => {
       message: 'Failed to fetch catalog item',
       error: error.message
     })
+  }
+}
+
+// GET /api/catalog/top-items?type=views|reviews&limit=10
+export const getTopCatalogItems = async (req, res) => {
+  try {
+    const { type = 'views', limit = '10' } = req.query
+    const sortField = type === 'reviews' ? 'reviewsCount' : 'views'
+    const lim = Math.max(1, Math.min(parseInt(limit) || 10, 50))
+
+    const items = await Catalog.find()
+      .select('name primaryImage category reviewsCount views')
+      .sort({ [sortField]: -1, createdAt: -1 })
+      .limit(lim)
+
+    res.status(200).json({
+      success: true,
+      message: 'Top catalog items fetched successfully',
+      data: items,
+      count: items.length,
+      type
+    })
+  } catch (error) {
+    console.error('❌ Error fetching top catalog items:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch top catalog items',
+      error: error.message
+    })
+  }
+}
+
+// POST /api/catalog/:id/reviews - Add a review and increment reviewsCount
+export const addReview = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { rating, comment } = req.body
+
+    if (!rating || Number.isNaN(Number(rating))) {
+      return res.status(400).json({ success: false, message: 'Rating (1-5) is required' })
+    }
+
+    const review = {
+      rating: Math.max(1, Math.min(parseInt(rating, 10), 5)),
+      comment: comment || '',
+      user: req.user ? req.user._id : undefined
+    }
+
+    const updated = await Catalog.findByIdAndUpdate(
+      id,
+      { $push: { reviews: review }, $inc: { reviewsCount: 1 } },
+      { new: true }
+    )
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Catalog item not found' })
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Review added successfully',
+      data: { reviewsCount: updated.reviewsCount }
+    })
+  } catch (error) {
+    console.error('❌ Error adding review:', error)
+    res.status(500).json({ success: false, message: 'Failed to add review', error: error.message })
   }
 }
 

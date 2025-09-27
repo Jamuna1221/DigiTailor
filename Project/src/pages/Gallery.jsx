@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 const API_BASE_URL = 'http://localhost:5000/api'
 
@@ -11,7 +12,11 @@ function Gallery() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Fetch gallery items and categories from backend
+  // Top items banner state
+  const [topItems, setTopItems] = useState([])
+  const [topType, setTopType] = useState('views') // 'views' | 'reviews'
+
+  // Fetch gallery items, categories, and top items from backend
   useEffect(() => {
     const fetchGalleryData = async () => {
       try {
@@ -45,8 +50,19 @@ function Gallery() {
       }
     }
 
+    const fetchTopItems = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/catalog/top-items?type=${topType}&limit=10`)
+        const data = await res.json()
+        if (data.success) setTopItems(data.data)
+      } catch (err) {
+        console.error('Failed to fetch top items:', err)
+      }
+    }
+
     fetchGalleryData()
-  }, [])
+    fetchTopItems()
+  }, [topType])
 
   // Filter items by category
   useEffect(() => {
@@ -121,6 +137,62 @@ function Gallery() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Top Items Shimmer Tape Banner */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow">
+              ✨ Trending
+            </span>
+            <h2 className="text-xl font-bold text-gray-900">Most {topType === 'views' ? 'Viewed' : 'Reviewed'} Designs</h2>
+          </div>
+          <div className="bg-white rounded-full p-1 shadow-sm border border-gray-100">
+            <button
+              onClick={() => setTopType('views')}
+              className={`px-3 py-1 text-sm rounded-full ${topType === 'views' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              👁 Views
+            </button>
+            <button
+              onClick={() => setTopType('reviews')}
+              className={`px-3 py-1 text-sm rounded-full ${topType === 'reviews' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+            >
+              ⭐ Reviews
+            </button>
+          </div>
+        </div>
+        <div className="relative overflow-hidden rounded-2xl border border-purple-100 shadow-lg">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 opacity-20 animate-[shimmer_6s_linear_infinite]" />
+          <div className="relative flex gap-4 py-3 items-stretch whitespace-nowrap animate-[scrollLeft_25s_linear_infinite]">
+            {[...topItems, ...topItems].map((item, idx) => (
+              <Link
+                to={`/product/${item._id}`}
+                key={`${item._id}-${idx}`}
+                className="inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-xl shadow border border-gray-100 px-3 py-2 hover:shadow-md transition-all hover:scale-[1.01]"
+                title={item.name}
+              >
+                <img
+                  src={item.primaryImage}
+                  alt={item.name}
+                  className="w-12 h-12 rounded-lg object-cover"
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/64x64?text=DT' }}
+                />
+                <div className="min-w-[140px]">
+                  <div className="text-sm font-semibold text-gray-900 truncate max-w-[220px]">{item.name}</div>
+                  <div className="text-xs text-gray-600">
+                    {topType === 'views' ? (
+                      <span>👁 {item.views || 0} Views</span>
+                    ) : (
+                      <span>⭐ {item.reviewsCount || 0} Reviews</span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Transformation Stories</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -398,3 +470,21 @@ function Gallery() {
 }
 
 export default Gallery
+
+/* CSS for shimmer and scrolling animation */
+const style = document.createElement('style')
+style.innerHTML = `
+@keyframes scrollLeft {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes shimmer {
+  0% { opacity: 0.15; }
+  50% { opacity: 0.35; }
+  100% { opacity: 0.15; }
+}
+`
+if (typeof document !== 'undefined' && !document.getElementById('gallery-banner-anim')) {
+  style.id = 'gallery-banner-anim'
+  document.head.appendChild(style)
+}

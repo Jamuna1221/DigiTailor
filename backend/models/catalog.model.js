@@ -1,5 +1,12 @@
 import mongoose from 'mongoose'
 
+const reviewSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  rating: { type: Number, min: 1, max: 5, required: true },
+  comment: { type: String },
+  createdAt: { type: Date, default: Date.now }
+}, { _id: false })
+
 const catalogSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -55,7 +62,11 @@ const catalogSchema = new mongoose.Schema({
   createdBy: {
     type: String,
     default: 'admin'
-  }
+  },
+  // New analytics and reviews
+  views: { type: Number, default: 0, index: true },
+  reviewsCount: { type: Number, default: 0, index: true },
+  reviews: [reviewSchema]
 }, {
   timestamps: true
 })
