@@ -717,18 +717,205 @@ export const logout = async (req, res) => {
   })
 }
 
-// Google OAuth (placeholder - implement with passport)
+// ✅ NEW: Update user role after OAuth
+export const updateRole = async (req, res) => {
+  try {
+    const { role } = req.body
+    const userId = req.user.id
+
+    console.log('🔄 Role update request for user:', userId, 'New role:', role)
+
+    if (!['customer', 'tailor'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role. Must be customer or tailor.'
+      })
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { role },
+      { new: true }
+    )
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+
+    console.log('✅ Role updated successfully for user:', user.email, 'New role:', user.role)
+
+    res.status(200).json({
+      success: true,
+      message: 'Role updated successfully',
+      data: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        specializations: user.specializations,
+        isActive: user.isActive,
+        loyaltyPoints: user.loyaltyPoints
+      }
+    })
+
+  } catch (error) {
+    console.error('💥 Update role error:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update role'
+    })
+  }
+}
+
+// Google OAuth callback - Only for Customer & Tailor
 export const googleAuth = async (req, res) => {
   try {
-    console.log('📗 Google OAuth callback initiated')
+    console.log('🔍 Google OAuth callback initiated')
+    console.log('📝 Query params:', req.query)
     
-    // This will be called after successful Google OAuth
-    // req.user will contain Google profile data
-    const token = generateToken(req.user._id)
+    const { code, error } = req.query
     
-    res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`)
+    // Handle OAuth error
+    if (error) {
+      console.error('❌ Google OAuth error:', error)
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=${encodeURIComponent(error)}`)
+    }
+    
+    // Handle missing code
+    if (!code) {
+      console.error('❌ No authorization code received')
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=No authorization code`)
+    }
+
+    console.log('🔑 Authorization code received')
+
+    // Exchange code for access token
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI
+      })
+    })
+    
+    const tokens = await tokenResponse.json()
+    console.log('🎫 Token response:', tokens.access_token ? 'Access token received' : 'No access token')
+    
+    if (tokens.error) {
+      console.error('❌ Google token error:', tokens.error)
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=Token exchange failed`)
+    }
+
+    // Get user info from Google - FIXED variable name conflict
+    const googleUserResponse = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokens.access_token}`)
+    const googleUser = await googleUserResponse.json()
+    
+    console.log('👤 Google user:', googleUser.name, googleUser.email)
+    
+    if (googleUser.error) {
+      console.error('❌ Google user fetch error:', googleUser.error)
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=Failed to get user data`)
+    }
+
+    // Check if user exists and is admin (block admin Google login)
+    const existingUser = await User.findOne({ email: googleUser.email })
+    
+    if (existingUser && existingUser.role === 'admin') {
+      console.log('🚫 Admin user attempted Google login - blocking')
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=Admin accounts cannot use Google login. Please use regular login.`)
+    }
+    
+    let user = existingUser
+    
+    if (!user) {
+      console.log('🆕 Creating new customer from Google data')
+      
+      // ✅ FIXED - Handle missing lastName and phone
+      user = new User({
+        firstName: googleUser.given_name || googleUser.name.split(' ')[0] || 'User',
+        lastName: googleUser.family_name || googleUser.name.split(' ').slice(1).join(' ') || 'Google', // ✅ Default to 'Google' if no last name
+        email: googleUser.email,
+        password: Math.random().toString(36) + Math.random().toString(36),
+        phone: '1234567890', // ✅ Default phone for OAuth users
+        role: 'customer',
+        specializations: [],
+        isActive: true,
+        loyaltyPoints: 0,
+        profileImage: googleUser.picture || null,
+        createdBy: 'google-oauth'
+      })
+      
+      await user.save()
+      console.log('✅ New customer created:', user._id)
+      
+    } else {
+      console.log('✅ Existing user found:', user._id, 'Role:', user.role)
+      
+      // ✅ Only allow customer and tailor roles
+      if (!['customer', 'tailor'].includes(user.role)) {
+        console.log('🚫 User role not allowed for Google login:', user.role)
+        return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=Your account type is not supported for Google login.`)
+      }
+      
+      // Update profile image if Google provides one and user doesn't have one
+      if (googleUser.picture && !user.profileImage) {
+        user.profileImage = googleUser.picture
+        await user.save()
+      }
+      
+      // Update last login
+      try {
+        if (typeof user.updateLastLogin === 'function') {
+          await user.updateLastLogin()
+        }
+      } catch (updateError) {
+        console.log('⚠️ Failed to update last login:', updateError.message)
+      }
+    }
+    
+    // Generate JWT token
+    const token = generateToken(user._id)
+    
+    // Create clean user response (no admin data)
+    const userResponse = {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      role: user.role, // Will be 'customer' or 'tailor' only
+      specializations: user.specializations,
+      isActive: user.isActive,
+      loyaltyPoints: user.loyaltyPoints,
+      profileImage: user.profileImage
+    }
+    
+    console.log('🎉 Google OAuth successful for:', user.role, user.email)
+    
+    // ✅ NEW: Redirect to role selection for new users, oauth-success for existing users
+    let redirectUrl
+    if (!existingUser) {
+      // New user - go to role selection
+      redirectUrl = `${process.env.FRONTEND_URL}/role-selection?token=${token}&user=${encodeURIComponent(JSON.stringify(userResponse))}`
+    } else {
+      // Existing user - direct to oauth-success
+      redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}&user=${encodeURIComponent(JSON.stringify(userResponse))}`
+    }
+    
+    console.log('🔄 Redirecting to frontend')
+    res.redirect(redirectUrl)
+    
   } catch (error) {
-    console.error('💥 Google OAuth error:', error)
+    console.error('💥 Google OAuth callback error:', error)
     res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=OAuth callback failed`)
   }
 }
@@ -775,9 +962,9 @@ export const facebookAuth = async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=Token exchange failed`)
     }
 
-    // Get user info from Facebook
-    const userResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,first_name,last_name,email&access_token=${tokens.access_token}`)
-    const facebookUser = await userResponse.json()
+    // Get user info from Facebook - FIXED variable name conflict
+    const facebookUserResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,first_name,last_name,email&access_token=${tokens.access_token}`)
+    const facebookUser = await facebookUserResponse.json()
     
     console.log('👤 Facebook user:', facebookUser.name, facebookUser.email)
     
@@ -798,7 +985,7 @@ export const facebookAuth = async (req, res) => {
         lastName: facebookUser.last_name || '',
         email: facebookUser.email,
         password: Math.random().toString(36), // Random password, will be hashed
-        phone: '', // Facebook doesn't always provide phone
+        phone: '1234567890', // Default phone for OAuth users
         role: 'customer',
         isActive: true,
         loyaltyPoints: 0,
@@ -823,7 +1010,7 @@ export const facebookAuth = async (req, res) => {
     }
     
     // Redirect to frontend with success
-    const redirectUrl = `${process.env.FRONTEND_URL}/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`
+    const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}&user=${encodeURIComponent(JSON.stringify(userData))}`
     console.log('🔄 Redirecting to frontend:', redirectUrl)
     res.redirect(redirectUrl)
     

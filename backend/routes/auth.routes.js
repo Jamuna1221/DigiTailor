@@ -8,7 +8,8 @@ import {
   verifyOtp,
   resendOtp,
   googleAuth,
-  facebookAuth
+  facebookAuth,
+  updateRole
 } from '../controllers/auth.controller.js'
 import { protect } from '../middlewares/auth.middleware.js'
 
@@ -36,7 +37,7 @@ router.get('/google', (req, res) => {
     res.status(500).json({ success: false, message: 'OAuth initiation failed' })
   }
 })
-
+router.patch('/update-role',protect,updateRole)
 router.get('/google/callback', googleAuth)
 // Add these imports to your existing auth.routes.js
 import { forgotPassword, resetPassword, verifyResetToken } from '../controllers/auth.controller.js'

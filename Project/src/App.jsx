@@ -39,6 +39,9 @@ import ManageOrders from './pages/admin/ManageOrders.jsx'
 import Checkout from './pages/checkout.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
+import OAuthError from './components/OAuthError.jsx'
+import OAuthSuccess from './components/OAuthSuccess.jsx'
+import RoleSelection from './components/RoleSelection.jsx'
 
 // Role-based Route Protection Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -157,6 +160,9 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/orders/:orderId" element={<OrderDetails />} />
+                <Route path="/auth/error" element={<OAuthError/>}/>
+                <Route path="/oauth-success" element={<OAuthSuccess/>}/>
+                <Route path="/role-selection" element={<RoleSelection/>}/>
                 {/* Customer Routes */}
                 <Route 
                   path="/profile" 

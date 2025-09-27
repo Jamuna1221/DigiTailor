@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react'
-
+import { useCallback } from 'react'
 // ✅ Create context
 const CartContext = createContext()
 
@@ -83,12 +83,11 @@ function CartProvider({ children }) {
   }, [cartItems, isLoaded])
 
   // ✅ Switch cart when user logs in/out
-  const switchUserCart = (newUser) => {
-    console.log('🔄 Switching cart for new user:', newUser?.id || newUser?._id)
-    setCurrentUser(newUser)
-    loadUserCart()
-  }
-
+  const switchUserCart = useCallback((newUser) => {
+  console.log('🔄 Switching cart for new user:', newUser?.id || newUser?._id)
+  setCurrentUser(newUser)
+  loadUserCart()
+}, []);
   const addToCart = (item) => {
     // ✅ Check if user is logged in
     const user = JSON.parse(localStorage.getItem('digitailor_user') || '{}')
