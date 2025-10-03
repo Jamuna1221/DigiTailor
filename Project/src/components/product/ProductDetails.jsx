@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCart } from '../../contexts/CartContext'
 import { addRecentlyViewed } from '../../utils/recentlyViewed'
+import Recommendations from './Recommendations'
 
 function ProductDetails() {
   const { id } = useParams()
@@ -355,6 +356,12 @@ function ProductDetails() {
           </div>
         </div>
       </div>
+      {/* Recommendations Section */}
+      <Recommendations
+        productId={product?._id || product?.id}
+        category={product?.category}
+        tags={Array.isArray(product?.tags) ? product.tags : []}
+      />
     </div>
   )
 }

@@ -3,6 +3,7 @@ add to cart la user issue -completed
 ai-studio potanum 
 recommandation
 most view -completed
+recently viewed -completed
 whatsapp notification-mail
 payment*
 order processing
