@@ -1,10 +1,12 @@
 o auth(contine with google)-completed
 add to cart la user issue -completed
 ai-studio potanum 
-recommandation
+recommandation-completed
 most view -completed
 recently viewed -completed
 whatsapp notification-mail
+combo
+review
 payment*
 order processing
 tailot dashboard

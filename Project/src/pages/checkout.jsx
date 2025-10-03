@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useCart } from '../contexts/CartContext'
 import { useNavigate } from 'react-router-dom'
+import CheckoutRecommendations from '../components/checkout/CheckoutRecommendations'
 
 // ✅ Fixed: Use environment variable properly for Vite
 const API_BASE_URL = import.meta.env.PROD 
@@ -569,6 +570,9 @@ function Checkout() {
                     }
                   </p>
                 </div>
+
+                {/* Recommendations below Pay Now */}
+                <CheckoutRecommendations cartItems={cartItems} />
               </div>
             </div>
           </div>
