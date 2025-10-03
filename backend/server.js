@@ -21,6 +21,7 @@ import productRoutes from './routes/product.routes.js'
 import wishlistRoutes from './routes/wishlist.routes.js'
 import measurementRoutes from './routes/measurement.routes.js'
 import profileRoutes from './routes/profile.routes.js'
+import recentlyViewedRoutes from './routes/recentlyViewed.routes.js'
 
 // ES modules dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
@@ -161,6 +162,7 @@ app.use('/api/measurements', protect, measurementRoutes)
 app.use('/api/profile', protect, profileRoutes)
 app.use('/api/orders', protect, orderRoutes)
 app.use('/api/products', protect, productRoutes)
+app.use('/api/recently-viewed', recentlyViewedRoutes)
 
 // ✅ PROTECTED TEST ROUTE
 app.get('/api/protected', protect, (req, res) => {

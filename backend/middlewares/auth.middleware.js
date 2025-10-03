@@ -50,7 +50,6 @@ export const protect = async (req, res, next) => {
           message: 'Not authorized, user not found or inactive'
         })
       }
-
       req.user = user
       req.userType = 'user'
       console.log('👤 User authenticated:', user.email)

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useCart } from '../../contexts/CartContext'
+import { addRecentlyViewed } from '../../utils/recentlyViewed'
 
 function ProductDetails() {
   const { id } = useParams()
@@ -39,6 +40,39 @@ function ProductDetails() {
         if (data.success) {
           setProduct(data.data)
           console.log('✅ Product loaded successfully')
+          try {
+            const p = data.data || {}
+            const pid = p._id || p.id || id
+            const image = p.primaryImage || p.image || (Array.isArray(p.images) ? p.images[0] : null) || '/placeholder-image.jpg'
+            // Guest/local fallback
+            addRecentlyViewed({
+              id: pid,
+              name: p.name || 'Product',
+              price: p.basePrice || p.price || 0,
+              image,
+              link: `/product/${pid}`,
+            })
+            // Logged-in: also persist to server
+            const token = localStorage.getItem('token')
+            if (token) {
+              try {
+                await fetch('http://localhost:5000/api/recently-viewed', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ productId: pid }),
+                })
+                // Fire a local update event to refresh any listeners
+                window.dispatchEvent(new CustomEvent('recentlyViewed:update'))
+              } catch (postErr) {
+                console.warn('Failed to persist recently viewed to server', postErr)
+              }
+            }
+          } catch (e) {
+            console.warn('Could not add to recently viewed', e)
+          }
         } else {
           console.error('❌ Product not found:', data.message)
           setProduct(null)

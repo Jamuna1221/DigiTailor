@@ -4,6 +4,7 @@ import heroBg from '../assets/images/hero-bg.png'
 import kurti1 from '../assets/images/kurti1.jpg'
 import kurti2 from '../assets/images/kurti2.jpg'
 import saree from '../assets/images/saree.jpg'
+import RecentlyViewed from '../components/product/RecentlyViewed'
 function Home() {
   return (
     <div>
@@ -219,6 +220,9 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* Recently Viewed */}
+      <RecentlyViewed />
 
       {/* Testimonials - EXACTLY as your original */}
       <section className="py-20 bg-white">
