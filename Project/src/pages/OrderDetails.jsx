@@ -178,7 +178,7 @@ function OrderDetails() {
             {statusFlow.map((status, index) => {
               const isCompleted = index <= currentStatusIndex
               const isCurrent = index === currentStatusIndex
-              
+              const isAssignedStep = status.key === 'assigned' && order?.assignedTailor
               return (
                 <div key={status.key} className="flex items-center mb-8 last:mb-0">
                   {/* Timeline line */}
@@ -204,6 +204,12 @@ function OrderDetails() {
                     <h3 className={`font-semibold ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>
                       {status.label}
                     </h3>
+                    {/* 💜 Tailor info appears here */}
+        {isAssignedStep && (
+          <p className="text-sm text-purple-600 font-medium mt-1">
+            👔 {order.assignedTailor.firstName} {order.assignedTailor.lastName} — 📞 {order.assignedTailor.phone}
+          </p>
+        )}
                     {isCurrent && (
                       <p className="text-sm text-blue-600 font-medium">Current Status</p>
                     )}

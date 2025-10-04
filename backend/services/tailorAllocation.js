@@ -1,33 +1,16 @@
-import Tailor from '../models/tailor.model.js'
+import User from '../models/user.model.js'
 import Order from '../models/order.model.js'
 
-export const allocateTailorToOrder = async (orderItems) => {
+export const allocateTailorToOrder = async () => {
   try {
-    // Extract unique categories from order items
-    const categories = [...new Set(orderItems.map(item => item.category))]
-    
-    console.log('🎯 Allocating tailor for categories:', categories)
+    console.log('🎯 Allocating tailor (ignoring specialties & experience)')
 
-    // Step 1: Find tailors who can handle ALL categories in the order
-    const eligibleTailors = await Tailor.find({
-      specialties: { $all: categories },
-      isActive: true
-    })
+    // Step 1: Get all active tailors
+    const eligibleTailors = await User.find({ role: 'tailor', isActive: true })
 
     if (eligibleTailors.length === 0) {
-      // Fallback: Find tailors who can handle at least one category
-      const fallbackTailors = await Tailor.find({
-        specialties: { $in: categories },
-        isActive: true
-      })
-      
-      if (fallbackTailors.length === 0) {
-        console.log('❌ No eligible tailors found')
-        return null
-      }
-      
-      console.log(`⚠️ Using fallback tailors: ${fallbackTailors.length} found`)
-      eligibleTailors.push(...fallbackTailors)
+      console.log('❌ No active tailors found')
+      return null
     }
 
     // Step 2: Count active orders for each eligible tailor
@@ -35,31 +18,28 @@ export const allocateTailorToOrder = async (orderItems) => {
       eligibleTailors.map(async (tailor) => {
         const activeOrderCount = await Order.countDocuments({
           assignedTailor: tailor._id,
-          status: { $in: ['assigned', 'in_progress', 'quality_check'] }
+          status: { $in: ['assigned', 'in_progress', 'confirmed'] }
         })
 
         return {
           tailorId: tailor._id,
-          tailor: tailor,
-          activeOrders: activeOrderCount,
-          // Priority score: fewer orders = higher priority
-          priority: activeOrderCount
+          tailor,
+          activeOrders: activeOrderCount
         }
       })
     )
 
-    // Step 3: Sort by workload (ascending) then by experience (descending)
-    tailorWorkloads.sort((a, b) => {
-      if (a.priority !== b.priority) {
-        return a.priority - b.priority // Fewer orders first
-      }
-      return b.tailor.experience - a.tailor.experience // More experienced first
-    })
+    if (tailorWorkloads.length === 0) return null
+
+    // Step 3: Sort by least workload
+    tailorWorkloads.sort((a, b) => a.activeOrders - b.activeOrders)
 
     const selectedTailor = tailorWorkloads[0]
-    
-    console.log(`✅ Allocated tailor: ${selectedTailor.tailor.name} (${selectedTailor.activeOrders} active orders)`)
-    
+
+    console.log(
+      `✅ Allocated tailor: ${selectedTailor.tailor.name} (${selectedTailor.activeOrders} active orders)`
+    )
+
     return selectedTailor.tailorId
 
   } catch (error) {

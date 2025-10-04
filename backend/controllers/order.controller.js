@@ -131,7 +131,7 @@ export const getAllOrdersForAdmin = async (req, res) => {
     }
     
     let query = Order.find(filter)
-      .populate('assignedTailor', 'name email phone specialties experience') // Include tailor details
+      .populate('assignedTailor', 'firstName lastName email phone specialties experience') // Include tailor details
       .populate('userId', 'firstName lastName email')
       .sort({ createdAt: -1 })
     
@@ -255,7 +255,7 @@ export const getOrderDetails = async (req, res) => {
     const order = await Order.findOne({ 
       _id: orderId,
       userId: userId // Ensure user can only see their own orders
-    }).populate('assignedTailor', 'name email phone')
+    }).populate('assignedTailor', 'firstName lastName email phone')
     
     if (!order) {
       return res.status(404).json({

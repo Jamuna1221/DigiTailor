@@ -47,7 +47,7 @@ function TailorDashboard() {
       activeOrders: orders.filter(order => 
         ['assigned', 'in_progress', 'completed', 'packed'].includes(order.status)
       ).length,
-      completedOrders: orders.filter(order => order.status === 'delivered').length,
+      completedOrders: orders.filter(order => order.status === 'shipped').length,
       todaysOrders: orders.filter(order => 
         new Date(order.createdAt).toDateString() === today
       ).length
@@ -145,16 +145,16 @@ function TailorDashboard() {
     : orders.filter(order => order.status === selectedStatus)
 
   // Get tailor's specializations from user profile
-  const getSpecializationBadges = () => {
-    if (!user?.tailorProfile?.specialties) return null
+  // const getSpecializationBadges = () => {
+  //   if (!user?.tailorProfile?.specialties) return null
     
-    return user.tailorProfile.specialties.map(specialty => (
-      <span key={specialty} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2 mb-2">
-        <span className="mr-1">{categoryIcons[specialty.toLowerCase()] || '🎯'}</span>
-        {specialty.charAt(0).toUpperCase() + specialty.slice(1)}
-      </span>
-    ))
-  }
+  //   return user.tailorProfile.specialties.map(specialty => (
+  //     <span key={specialty} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2 mb-2">
+  //       <span className="mr-1">{categoryIcons[specialty.toLowerCase()] || '🎯'}</span>
+  //       {specialty.charAt(0).toUpperCase() + specialty.slice(1)}
+  //     </span>
+  //   ))
+  // }
 
   
 
@@ -213,7 +213,7 @@ function TailorDashboard() {
                 </div>
               </div>
             </div>
-            <div>
+            {/* <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Specializations:</h4>
               <div className="flex flex-wrap">
                 {getSpecializationBadges()}
@@ -231,7 +231,7 @@ function TailorDashboard() {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -377,6 +377,11 @@ function TailorDashboard() {
                         <p className="text-sm font-medium text-gray-700 mb-2">Items to Stitch:</p>
                         <div className="space-y-1">
                           {order.items?.map((item, index) => (
+                            <a
+                            key={index}
+                            href={`/product/${item.productId}`} // ✅ link to product details page
+                             className="flex items-center space-x-2 text-sm text-gray-600 hover:bg-gray-50 p-2 rounded transition"
+                            >
                             <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
                               <span className="text-lg">
                                 {categoryIcons[item.category?.toLowerCase()] || '🎯'}
@@ -390,6 +395,7 @@ function TailorDashboard() {
                                 <span className="text-green-600 font-medium">₹{item.price}</span>
                               )}
                             </div>
+                            </a>
                           ))}
                         </div>
                       </div>
@@ -447,14 +453,7 @@ function TailorDashboard() {
                         >
                           🚚 Ship Order
                         </button>
-                      )}
-
-                      <button
-                        onClick={() => navigate(`/tailor/orders/${order._id}`)}
-                        className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50"
-                      >
-                        👁️ View Details
-                      </button>
+                      )}                      
                     </div>
                   </div>
                 </div>
