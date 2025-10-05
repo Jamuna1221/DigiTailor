@@ -1,15 +1,14 @@
-o auth(contine with google)-completed
+o auth(contine with google)-completed-sikkal
 add to cart la user issue -completed
-ai-studio potanum 
 recommandation-completed
 most view -completed
 recently viewed -completed
-whatsapp notification-mail
-combo
-review
+combo-completed
+order review
 payment*
-order processing
+order processing-ongoing
 tailot dashboard
 admin dashboard
+whatsapp notification-mail
 chatpot
-order review,
+ai-studio potanum 

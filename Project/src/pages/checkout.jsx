@@ -294,9 +294,10 @@ function Checkout() {
 
       // Success
       console.log('🎉 Order placed successfully:', result)
-      alert(`Order placed successfully!\nOrder Number: ${result.data?.orderNumber || 'N/A'}\nOrder ID: ${result.data?.orderId || 'N/A'}`)
-      clearCart()
-      navigate('/orders')
+      const orderNumber = result.data?.orderNumber || 'N/A'
+      const orderId = result.data?.orderId || 'N/A'
+      // Move clearCart to the Order Success page to avoid race with checkout's empty-cart redirect
+      navigate('/order-success', { state: { orderNumber, orderId } })
 
     } catch (error) {
       console.error('💥 COMPLETE Payment error details:', error)

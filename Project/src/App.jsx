@@ -42,6 +42,7 @@ import ResetPassword from './pages/ResetPassword.jsx'
 import OAuthError from './components/OAuthError.jsx'
 import OAuthSuccess from './components/OAuthSuccess.jsx'
 import RoleSelection from './components/RoleSelection.jsx'
+import OrderSuccess from './pages/OrderSuccess.jsx'
 
 // Role-based Route Protection Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -163,6 +164,14 @@ function App() {
                 <Route path="/auth/error" element={<OAuthError/>}/>
                 <Route path="/oauth-success" element={<OAuthSuccess/>}/>
                 <Route path="/role-selection" element={<RoleSelection/>}/>
+                <Route 
+                  path="/order-success" 
+                  element={
+                    <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
+                      <OrderSuccess />
+                    </ProtectedRoute>
+                  }
+                />
                 {/* Customer Routes */}
                 <Route 
                   path="/profile" 
