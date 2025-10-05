@@ -271,7 +271,7 @@ function AIStudio() {
   const currentAd = designAds[currentAdIndex]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 relative">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white relative">
       {/* Sidebar Toggle Button */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
@@ -283,14 +283,14 @@ function AIStudio() {
       </button>
 
       {/* Simplified Sidebar - Only Designs */}
-      <div className={`fixed right-0 top-0 h-full w-96 bg-white/95 backdrop-blur-md shadow-2xl border-l border-white/20 z-40 overflow-hidden transition-transform duration-500 ease-in-out ${
+      <div className={`fixed right-0 top-0 h-full w-96 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md shadow-2xl border-l border-white/20 dark:border-slate-800 z-40 overflow-hidden transition-transform duration-500 ease-in-out ${
         showSidebar ? 'transform translate-x-0' : 'transform translate-x-full'
       }`}>
         <div className="h-full flex flex-col">
           {/* Close Button */}
           <button
             onClick={() => setShowSidebar(false)}
-            className="absolute top-4 right-4 z-10 bg-white/80 text-gray-600 p-2 rounded-full hover:bg-white transition-all duration-200"
+            className="absolute top-4 right-4 z-10 bg-white/80 dark:bg-slate-800 text-gray-600 dark:text-white p-2 rounded-full hover:bg-white dark:hover:bg-slate-700 transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -312,7 +312,7 @@ function AIStudio() {
           {/* Design Views with Track Button */}
           <div className="flex-1 p-4 space-y-4 overflow-y-auto">
             {/* Front Design */}
-            <div className="bg-white/90 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-white/90 dark:bg-[#111827] rounded-xl shadow-lg overflow-hidden">
               <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                 <h4 className="text-sm font-bold flex items-center justify-between">
                   <span className="flex items-center">
@@ -341,7 +341,7 @@ function AIStudio() {
             </div>
 
             {/* Back Design */}
-            <div className="bg-white/90 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-white/90 dark:bg-[#111827] rounded-xl shadow-lg overflow-hidden">
               <div className="p-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white">
                 <h4 className="text-sm font-bold flex items-center">
                   <span className="w-3 h-3 bg-white rounded-full mr-2"></span>
@@ -358,7 +358,7 @@ function AIStudio() {
             </div>
 
             {/* Hand/Sleeve Design */}
-            <div className="bg-white/90 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-white/90 dark:bg-[#111827] rounded-xl shadow-lg overflow-hidden">
               <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
                 <h4 className="text-sm font-bold flex items-center">
                   <span className="w-3 h-3 bg-white rounded-full mr-2"></span>
@@ -395,20 +395,20 @@ function AIStudio() {
             <div className="absolute -top-2 -right-2 animate-bounce">🎨</div>
             <div className="absolute -top-1 -left-3 animate-pulse">✨</div>
           </div>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-700 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
             Create stunning custom designs with AI technology. Upload, customize colors, and craft your perfect outfit!
           </p>
           
           <div className="flex justify-center mt-6 space-x-8">
-            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+            <div className="flex items-center space-x-2 bg-white/80 dark:bg-slate-800/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg text-gray-700 dark:text-white">
               <span className="text-2xl">👗</span>
               <span className="text-sm font-medium text-gray-700">Custom Designs</span>
             </div>
-            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+            <div className="flex items-center space-x-2 bg-white/80 dark:bg-slate-800/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg text-gray-700 dark:text-white">
               <span className="text-2xl">🎨</span>
               <span className="text-sm font-medium text-gray-700">Advanced Colors</span>
             </div>
-            <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+            <div className="flex items-center space-x-2 bg-white/80 dark:bg-slate-800/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg text-gray-700 dark:text-white">
               <span className="text-2xl">⚡</span>
               <span className="text-sm font-medium text-gray-700">AI Powered</span>
             </div>
@@ -419,18 +419,18 @@ function AIStudio() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Input Section */}
           <div className="space-y-6">
-            <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20">
+            <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 dark:border-slate-800">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
                 🎯 Design Parameters
               </h2>
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Category</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50"
+                    className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
                   >
                     <option value="Blouse">👗 Blouse</option>
                     <option value="Kurti">👘 Kurti</option>
@@ -440,11 +440,11 @@ function AIStudio() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Style</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Style</label>
                   <select
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
-                    className="w-full p-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50"
+                    className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
                   >
                     <option value="Traditional">🏛️ Traditional</option>
                     <option value="Modern">🌟 Modern</option>
@@ -454,16 +454,16 @@ function AIStudio() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Design Prompt</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Design Prompt</label>
                   <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="✍️ Describe your dream outfit in detail..."
-                    className="w-full p-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all duration-200 bg-white/50"
+                    className="w-full p-4 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
                     rows={4}
                   />
                   {trackedDesign && (
-                    <p className="text-xs text-green-600 mt-2 flex items-center">
+                    <p className="text-xs text-green-600 dark:text-green-300 mt-2 flex items-center">
                       <span className="mr-1">🎯</span>
                       AI will generate based on: {trackedDesign.title}
                     </p>
@@ -491,7 +491,7 @@ function AIStudio() {
 
                 <button
                   onClick={clearAllDesigns}
-                  className="w-full py-3 px-4 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium"
+                  className="w-full py-3 px-4 border-2 border-gray-300 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-all duration-200 font-medium"
                 >
                   🗑️ Clear All
                 </button>
@@ -499,13 +499,13 @@ function AIStudio() {
             </div>
 
             {/* Reference Image Upload */}
-            <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20">
+            <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 dark:border-slate-800">
               <h3 className="text-lg font-bold text-gray-900 mb-4">📸 Reference Image</h3>
               
-              <div
-                onClick={() => referenceUploadRef.current?.click()}
-                className="border-2 border-dashed border-purple-300 rounded-xl p-6 text-center cursor-pointer hover:border-purple-500 transition-all duration-200 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100"
-              >
+                <div
+                  onClick={() => referenceUploadRef.current?.click()}
+                  className="border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-xl p-6 text-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 transition-all duration-200 bg-gradient-to-br from-purple-50 to-pink-50 dark:bg-slate-800 hover:from-purple-100 hover:to-pink-100 dark:hover:shadow-md"
+                >
                 {referenceImage ? (
                   <div className="relative">
                     <img src={referenceImage} alt="Reference" className="w-full h-40 object-cover rounded-xl mb-2 shadow-md" />
@@ -516,10 +516,10 @@ function AIStudio() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-purple-600">
+                  <div className="text-purple-600 dark:text-white">
                     <div className="text-4xl mb-3">📸</div>
                     <p className="font-medium">Upload Reference Image</p>
-                    <p className="text-sm text-gray-500 mt-1">Click to browse files</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-300 mt-1">Click to browse files</p>
                   </div>
                 )}
               </div>
@@ -535,7 +535,7 @@ function AIStudio() {
 
           {/* Design Elements Section */}
           <div className="space-y-6">
-            <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20">
+            <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20 dark:border-slate-800">
               <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
                 🎨 Design Elements
               </h3>
@@ -543,10 +543,10 @@ function AIStudio() {
               <div className="space-y-4">
                 {/* Neck Design */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Neck Design</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Neck Design</label>
                   <div
                     onClick={() => neckDesignUploadRef.current?.click()}
-                    className="border-2 border-purple-200 rounded-xl p-4 text-center cursor-pointer hover:border-purple-400 transition-all duration-200 bg-gradient-to-br from-purple-50 to-indigo-50 hover:shadow-md"
+                    className="border-2 border-purple-200 dark:border-purple-700 rounded-xl p-4 text-center cursor-pointer hover:border-purple-400 dark:hover:border-purple-500 transition-all duration-200 bg-gradient-to-br from-purple-50 to-indigo-50 dark:bg-slate-800/50 hover:shadow-md"
                   >
                     {designElements.neckDesign ? (
                       <div className="relative">
@@ -554,7 +554,7 @@ function AIStudio() {
                         <div className="absolute -top-1 -right-1 bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">✓</div>
                       </div>
                     ) : (
-                      <div className="text-purple-600 py-2">
+                      <div className="text-purple-600 dark:text-white py-2">
                         <div className="text-2xl mb-1">👗</div>
                         <p className="text-sm font-medium">Add Neck Design</p>
                       </div>
@@ -571,10 +571,10 @@ function AIStudio() {
 
                 {/* Hand Design */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Hand/Sleeve Design</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Hand/Sleeve Design</label>
                   <div
                     onClick={() => handDesignUploadRef.current?.click()}
-                    className="border-2 border-pink-200 rounded-xl p-4 text-center cursor-pointer hover:border-pink-400 transition-all duration-200 bg-gradient-to-br from-pink-50 to-rose-50 hover:shadow-md"
+                    className="border-2 border-pink-200 dark:border-pink-700 rounded-xl p-4 text-center cursor-pointer hover:border-pink-400 dark:hover:border-pink-500 transition-all duration-200 bg-gradient-to-br from-pink-50 to-rose-50 dark:bg-slate-800/50 hover:shadow-md"
                   >
                     {designElements.handDesign ? (
                       <div className="relative">
@@ -582,7 +582,7 @@ function AIStudio() {
                         <div className="absolute -top-1 -right-1 bg-pink-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">✓</div>
                       </div>
                     ) : (
-                      <div className="text-pink-600 py-2">
+                      <div className="text-pink-600 dark:text-white py-2">
                         <div className="text-2xl mb-1">👕</div>
                         <p className="text-sm font-medium">Add Sleeve Design</p>
                       </div>
@@ -599,10 +599,10 @@ function AIStudio() {
 
                 {/* Front Neck Model */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Front Neck Model</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Front Neck Model</label>
                   <div
                     onClick={() => frontNeckUploadRef.current?.click()}
-                    className="border-2 border-indigo-200 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-400 transition-all duration-200 bg-gradient-to-br from-indigo-50 to-blue-50 hover:shadow-md"
+                    className="border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-200 bg-gradient-to-br from-indigo-50 to-blue-50 dark:bg-slate-800/50 hover:shadow-md"
                   >
                     {designElements.frontNeckModel ? (
                       <div className="relative">
@@ -650,10 +650,10 @@ function AIStudio() {
           {/* Output Section */}
           <div className="space-y-6">
             {!generatedDesign && !mergedDesign && !loading && (
-              <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100 border-2 border-dashed border-purple-300 rounded-2xl p-12 text-center transform transition-all duration-300 hover:scale-105">
+              <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-indigo-100 dark:bg-slate-800/70 border-2 border-dashed border-purple-300 dark:border-slate-700 rounded-2xl p-12 text-center transform transition-all duration-300 hover:scale-105">
                 <div className="text-6xl mb-4 animate-bounce">🎨</div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">Your Masterpiece Awaits</h3>
-                <p className="text-gray-500">Upload images, pick colors, and create stunning designs!</p>
+                <h3 className="text-xl font-semibold text-gray-700 dark:text-white mb-2">Your Masterpiece Awaits</h3>
+                <p className="text-gray-500 dark:text-slate-300">Upload images, pick colors, and create stunning designs!</p>
                 <div className="mt-4 flex justify-center space-x-2">
                   <span className="animate-pulse">✨</span>
                   <span className="animate-pulse" style={{ animationDelay: '0.5s' }}>✨</span>
@@ -663,9 +663,9 @@ function AIStudio() {
             )}
 
             {(generatedDesign || mergedDesign) && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20">
+              <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 dark:border-slate-800">
                 <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     {generatedDesign ? generatedDesign.name : mergedDesign.name}
                   </h3>
                   {generatedDesign && generatedDesign.basedOn && (
@@ -682,11 +682,11 @@ function AIStudio() {
                 />
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Estimated Price:</span>
+                    <span className="text-gray-600 dark:text-slate-300">Estimated Price:</span>
                     <span className="font-medium">${generatedDesign ? generatedDesign.estimatedPrice : mergedDesign.estimatedPrice}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Delivery:</span>
+                    <span className="text-gray-600 dark:text-slate-300">Delivery:</span>
                     <span className="font-medium">{generatedDesign ? generatedDesign.estimatedDays : mergedDesign.estimatedDays} days</span>
                   </div>
                 </div>
@@ -700,7 +700,7 @@ function AIStudio() {
             )}
 
             {loading && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center border border-white/20">
+              <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center border border-white/20 dark:border-slate-800">
                 <div className="animate-pulse">
                   <div className="w-full h-96 bg-gradient-to-r from-purple-200 via-pink-200 to-indigo-200 rounded-xl mb-4"></div>
                   <div className="h-4 bg-gradient-to-r from-purple-300 to-pink-300 rounded w-3/4 mx-auto mb-2"></div>
@@ -718,12 +718,12 @@ function AIStudio() {
         </div>
 
         {/* Color Picker Section - Moved to bottom of main page */}
-        <div className="mt-16 bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/20">
+        <div className="mt-16 bg-white/90 dark:bg-[#111827] backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/20 dark:border-slate-800">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
               🎨 Advanced Color Picker
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-slate-300">
               Customize your design colors or pick colors from any image
             </p>
           </div>
@@ -731,11 +731,11 @@ function AIStudio() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Color Selection */}
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Selected Colors</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Selected Colors</h3>
               <div className="space-y-4">
                 {/* Primary Color */}
                 <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-4">
-                  <div className="text-gray-700 text-sm font-medium mb-2">Primary Color</div>
+                  <div className="text-gray-700 dark:text-white text-sm font-medium mb-2">Primary Color</div>
                   <div className="flex items-center space-x-4">
                     <div 
                       className="w-16 h-16 rounded-xl border-4 border-white shadow-lg cursor-pointer hover:scale-105 transition-transform"
@@ -743,10 +743,10 @@ function AIStudio() {
                       onClick={() => openColorPicker('primary')}
                     ></div>
                     <div>
-                      <div className="text-gray-800 font-mono text-lg">{selectedColors.primary}</div>
+                      <div className="text-gray-800 dark:text-white font-mono text-lg">{selectedColors.primary}</div>
                       <button
                         onClick={() => openColorPicker('primary')}
-                        className="text-purple-600 hover:text-purple-800 text-sm font-medium flex items-center"
+                        className="text-purple-600 dark:text-white hover:text-purple-800 dark:hover:text-white/90 text-sm font-medium flex items-center"
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -759,7 +759,7 @@ function AIStudio() {
 
                 {/* Secondary Color */}
                 <div className="bg-gradient-to-r from-pink-100 to-rose-100 rounded-xl p-4">
-                  <div className="text-gray-700 text-sm font-medium mb-2">Secondary Color</div>
+                  <div className="text-gray-700 dark:text-white text-sm font-medium mb-2">Secondary Color</div>
                   <div className="flex items-center space-x-4">
                     <div 
                       className="w-12 h-12 rounded-lg border-4 border-white shadow-lg cursor-pointer hover:scale-105 transition-transform"
@@ -767,10 +767,10 @@ function AIStudio() {
                       onClick={() => openColorPicker('secondary')}
                     ></div>
                     <div>
-                      <div className="text-gray-800 font-mono text-base">{selectedColors.secondary}</div>
+                      <div className="text-gray-800 dark:text-white font-mono text-base">{selectedColors.secondary}</div>
                       <button
                         onClick={() => openColorPicker('secondary')}
-                        className="text-pink-600 hover:text-pink-800 text-sm font-medium flex items-center"
+                        className="text-pink-600 dark:text-white hover:text-pink-800 dark:hover:text-white/90 text-sm font-medium flex items-center"
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -783,7 +783,7 @@ function AIStudio() {
 
                 {/* Accent Color */}
                 <div className="bg-gradient-to-r from-cyan-100 to-blue-100 rounded-xl p-4">
-                  <div className="text-gray-700 text-sm font-medium mb-2">Accent Color</div>
+                  <div className="text-gray-700 dark:text-white text-sm font-medium mb-2">Accent Color</div>
                   <div className="flex items-center space-x-4">
                     <div 
                       className="w-10 h-10 rounded-lg border-4 border-white shadow-lg cursor-pointer hover:scale-105 transition-transform"
@@ -791,10 +791,10 @@ function AIStudio() {
                       onClick={() => openColorPicker('accent')}
                     ></div>
                     <div>
-                      <div className="text-gray-800 font-mono text-base">{selectedColors.accent}</div>
+                      <div className="text-gray-800 dark:text-white font-mono text-base">{selectedColors.accent}</div>
                       <button
                         onClick={() => openColorPicker('accent')}
-                        className="text-cyan-600 hover:text-cyan-800 text-sm font-medium flex items-center"
+                        className="text-cyan-600 dark:text-white hover:text-cyan-800 dark:hover:text-white/90 text-sm font-medium flex items-center"
                       >
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -809,8 +809,8 @@ function AIStudio() {
 
             {/* Color Palette Preview */}
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Color Palette Preview</h3>
-              <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Color Palette Preview</h3>
+              <div className="bg-white dark:bg-[#111827] rounded-xl p-6 shadow-lg border-2 border-gray-200 dark:border-slate-800">
                 <div className="space-y-4">
                   <div className="h-20 rounded-lg flex overflow-hidden shadow-md">
                     <div 
@@ -855,14 +855,14 @@ function AIStudio() {
       {/* Unified Color Picker Modal */}
       {showColorPicker && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl">
+          <div className="bg-white dark:bg-[#111827] rounded-2xl p-6 w-full max-w-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Choose {activeColorType.charAt(0).toUpperCase() + activeColorType.slice(1)} Color
               </h3>
               <button
                 onClick={closeColorPicker}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-slate-300 hover:text-gray-600 dark:hover:text-white"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -877,7 +877,7 @@ function AIStudio() {
                 className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                   colorPickerMode === 'normal' 
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700'
                 }`}
               >
                 🎨 Color Picker
@@ -887,7 +887,7 @@ function AIStudio() {
                 className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                   colorPickerMode === 'image' 
                     ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700'
                 }`}
               >
                 🖼️ Pick from Image
@@ -899,19 +899,19 @@ function AIStudio() {
               <div>
                 {/* Color Input */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Hex Color</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Hex Color</label>
                   <div className="flex items-center space-x-3">
                     <input
                       type="color"
                       value={customColor}
                       onChange={(e) => handleCustomColorChange(e.target.value)}
-                      className="w-16 h-12 border-2 border-gray-300 rounded-lg cursor-pointer"
+                      className="w-16 h-12 border-2 border-gray-300 dark:border-slate-700 rounded-lg cursor-pointer"
                     />
                     <input
                       type="text"
                       value={customColor}
                       onChange={(e) => handleCustomColorChange(e.target.value)}
-                      className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono"
+                      className="flex-1 px-3 py-2 border-2 border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono dark:bg-[#0f172a] dark:text-white"
                       placeholder="#000000"
                     />
                   </div>
@@ -919,7 +919,7 @@ function AIStudio() {
 
                 {/* Preset Colors */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Preset Colors</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-3">Preset Colors</label>
                   <div className="grid grid-cols-8 gap-2">
                     {[
                       '#8B5CF6', '#EC4899', '#06B6D4', '#10B981', '#F59E0B',
@@ -947,17 +947,17 @@ function AIStudio() {
                 {!pickerImage ? (
                   <div
                     onClick={() => imagePickerUploadRef.current?.click()}
-                    className="border-2 border-dashed border-blue-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 transition-all duration-200 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100"
+                    className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200 bg-gradient-to-br from-blue-50 to-cyan-50 dark:bg-slate-800 hover:from-blue-100 hover:to-cyan-100"
                   >
-                    <div className="text-blue-600">
+                    <div className="text-blue-600 dark:text-white">
                       <div className="text-4xl mb-3">🖼️</div>
                       <p className="font-medium">Upload Image to Pick Colors</p>
-                      <p className="text-sm text-gray-500 mt-1">Click anywhere on the image to extract color</p>
+                      <p className="text-sm text-gray-500 dark:text-slate-300 mt-1">Click anywhere on the image to extract color</p>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-4">Click anywhere on the image to pick that color</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-300 mb-4">Click anywhere on the image to pick that color</p>
                     <img
                       src={pickerImage}
                       alt="Color Picker"
@@ -970,7 +970,7 @@ function AIStudio() {
                     <div className="mt-4">
                       <button
                         onClick={() => setPickerImage(null)}
-                        className="py-2 px-4 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                        className="py-2 px-4 border-2 border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium"
                       >
                         Choose Different Image
                       </button>
@@ -992,7 +992,7 @@ function AIStudio() {
             <div className="flex space-x-3 mt-6">
               <button
                 onClick={closeColorPicker}
-                className="flex-1 py-2 px-4 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                className="flex-1 py-2 px-4 border-2 border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -1015,7 +1015,7 @@ function AIStudio() {
       >
         <div className="text-center">
           <div className="text-6xl mb-4 animate-bounce">🎉</div>
-          <p className="text-gray-600 mb-6 leading-relaxed">
+          <p className="text-gray-600 dark:text-slate-300 mb-6 leading-relaxed">
             Your design with custom colors has been submitted for review. 
             Our expert team will contact you within 24 hours!
           </p>

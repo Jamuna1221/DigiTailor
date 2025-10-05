@@ -31,6 +31,7 @@ import Contact from './pages/Contact.jsx'
 // ✅ FIXED: Import context providers correctly
 import CartProvider from './contexts/CartContext' // Default export
 import { WishlistProvider } from './contexts/WishlistContext' // Named export
+import { ThemeProvider } from './contexts/ThemeContext.jsx'
 
 // ✅ FIXED: Import Cart with correct path (lowercase)
 import Cart from './pages/Cart.jsx'
@@ -141,8 +142,9 @@ function App() {
   return (
     <CartProvider>
       <WishlistProvider>
-        <Router>
-          <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <ThemeProvider>
+          <Router>
+            <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white">
             
             <Header user={user} onSignOut={handleSignOut} onSignIn={handleSignIn} />
 
@@ -243,6 +245,7 @@ function App() {
             <ChatbotWidget />
           </div>
         </Router>
+        </ThemeProvider>
       </WishlistProvider>
     </CartProvider>
   )

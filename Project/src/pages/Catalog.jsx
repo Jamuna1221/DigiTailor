@@ -152,12 +152,12 @@ function Catalog({ user }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-[#0B1220] dark:to-[#0B1220] py-12 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Design Catalog</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Design Catalog</h1>
+          <p className="text-xl text-gray-600 dark:text-white/90 max-w-3xl mx-auto">
             Browse our extensive collection of AI-generated and traditional designs
           </p>
         </div>
@@ -175,11 +175,11 @@ function Catalog({ user }) {
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-lg p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Search */}
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 mb-2">
+              <label className="text-sm font-medium text-gray-600 dark:text-white mb-2">
                 Search
               </label>
               <div className="flex gap-2">
@@ -189,7 +189,7 @@ function Catalog({ user }) {
                   value={searchInput}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
-                  className="flex-1 h-12 px-4 border border-gray-300 rounded-lg text-base bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="flex-1 h-12 px-4 border border-gray-300 rounded-lg text-base bg-white dark:bg-[#0f172a] text-gray-700 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
                 <button 
                   onClick={handleSearchExecute}
@@ -206,13 +206,13 @@ function Catalog({ user }) {
 
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
                 Category
               </label>
               <select
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-[#0f172a] focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>

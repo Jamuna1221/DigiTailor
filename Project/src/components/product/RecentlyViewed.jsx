@@ -134,10 +134,10 @@ export default function RecentlyViewed() {
   if (loading || !items || items.length === 0) return null
 
   return (
-    <section className="py-14 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-14 bg-gradient-to-b from-white to-gray-50 dark:from-[#0B1220] dark:to-[#0B1220] dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Recently Viewed</h2>
+          <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Recently Viewed</h2>
           <div className="hidden md:flex items-center gap-2">
             
           </div>
@@ -146,7 +146,7 @@ export default function RecentlyViewed() {
         {/* Desktop grid (>= lg): 5 columns with attractive cards */}
         <div className="hidden lg:grid grid-cols-5 gap-5">
           {items.map((p, idx) => (
-            <div key={p?.id || idx} className="group relative rounded-xl overflow-hidden bg-white shadow ring-1 ring-gray-100 hover:shadow-lg transition-all">
+            <div key={p?.id || idx} className="group relative rounded-xl overflow-hidden bg-white dark:bg-[#111827] shadow ring-1 ring-gray-100 dark:ring-slate-800 hover:shadow-lg transition-all">
               <Link to={p?.link || '#'}>
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
@@ -161,7 +161,7 @@ export default function RecentlyViewed() {
                     <div className="text-white font-semibold text-sm line-clamp-1 drop-shadow">
                       {p.name}
                     </div>
-                    <div className="px-2 py-1 rounded-full text-xs font-bold bg-white/90 text-purple-700">
+                    <div className="px-2 py-1 rounded-full text-xs font-bold bg-white/90 dark:bg-slate-900/70 text-purple-700 dark:text-white">
                       {formatPrice(p.price)}
                     </div>
                   </div>
@@ -177,14 +177,14 @@ export default function RecentlyViewed() {
             <button
               aria-label="Scroll left"
               onClick={() => scrollByAmount(-1)}
-              className="p-2 rounded-full bg-white/90 border border-gray-200 shadow"
+              className="p-2 rounded-full bg-white/90 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow text-gray-700 dark:text-white"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
             <button
               aria-label="Scroll right"
               onClick={() => scrollByAmount(1)}
-              className="p-2 rounded-full bg-white/90 border border-gray-200 shadow"
+              className="p-2 rounded-full bg-white/90 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow text-gray-700 dark:text-white"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
             </button>
@@ -197,7 +197,7 @@ export default function RecentlyViewed() {
           >
             {items.map((p, idx) => (
               <div key={p?.id || idx} className="min-w-[70%] sm:min-w-[55%]">
-                <Link to={p?.link || '#'} className="block rounded-xl overflow-hidden bg-white shadow hover:shadow-lg transition">
+                <Link to={p?.link || '#'} className="block rounded-xl overflow-hidden bg-white dark:bg-[#111827] shadow hover:shadow-lg transition">
                   <div className="aspect-[4/3] overflow-hidden">
                     <img
                       src={p.image}
@@ -207,10 +207,10 @@ export default function RecentlyViewed() {
                     />
                   </div>
                   <div className="p-3">
-                    <div className="text-sm font-semibold text-gray-900 line-clamp-1">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-1">
                       {p.name}
                     </div>
-                    <div className="text-sm text-purple-700 mt-1">
+                    <div className="text-sm text-purple-700 dark:text-purple-300 mt-1">
                       {formatPrice(p.price)}
                     </div>
                   </div>

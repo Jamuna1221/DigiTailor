@@ -159,9 +159,9 @@ function ProductDetails() {
   // const availableColors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White']
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0B1220] py-8 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-white dark:bg-[#111827] rounded-lg shadow-xl overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Product Image */}
@@ -195,7 +195,7 @@ function ProductDetails() {
             {/* Product Details */}
             <div className="p-6 space-y-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{product.name}</h1>
                 <div className="flex items-center space-x-4">
                   <span className="text-3xl font-bold text-purple-600">
                     ₹{(product.basePrice || product.price || 0).toLocaleString()}

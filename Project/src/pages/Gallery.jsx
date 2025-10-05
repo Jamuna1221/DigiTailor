@@ -256,10 +256,12 @@ function Gallery() {
                 </button>
               </div>
 
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center">
-                  <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-4 py-2">
-                    <p className="font-medium">📖 Click to Read Story</p>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 ease-out text-center">
+                  <div className="px-4 py-2 rounded-lg bg-black/60 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-white/20 shadow-lg">
+                    <p className="text-sm sm:text-base font-semibold text-gray-100">
+                      📖 Tap to Read
+                    </p>
                   </div>
                 </div>
               </div>

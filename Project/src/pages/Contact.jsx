@@ -116,7 +116,7 @@ function Contact() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white">
       
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-20 px-4 sm:px-6 lg:px-8">
@@ -138,7 +138,7 @@ function Contact() {
             {/* Contact Information */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Contact Information</h2>
+                <h2 className="text-3xl font-bold text-gray-900 dark:!text-white mb-6">Contact Information</h2>
                 
                 <div className="space-y-6">
                   {/* Phone */}
@@ -149,10 +149,10 @@ function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Phone</h3>
-                      <p className="text-gray-600">+91 6374367712</p>
-                      <p className="text-gray-600">+91 8608737147</p>
-                      <p className="text-sm text-gray-500">Mon-Sat 9AM-7PM, Sun 10AM-5PM</p>
+                      <h3 className="font-semibold text-gray-900 dark:!text-white">Phone</h3>
+                      <p className="text-gray-600 dark:!text-white">+91 6374367712</p>
+                      <p className="text-gray-600 dark:!text-white">+91 8608737147</p>
+                      <p className="text-sm text-gray-500 dark:!text-white/90">Mon-Sat 9AM-7PM, Sun 10AM-5PM</p>
                     </div>
                   </div>
 
@@ -164,10 +164,10 @@ function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">2312106@nec.edu.in</p>
-                      <p className="text-gray-600">2312092@nec.edu.in</p>
-                      <p className="text-sm text-gray-500">We reply within 2 hours</p>
+                      <h3 className="font-semibold text-gray-900 dark:!text-white">Email</h3>
+                      <p className="text-gray-600 dark:!text-white">2312106@nec.edu.in</p>
+                      <p className="text-gray-600 dark:!text-white">2312092@nec.edu.in</p>
+                      <p className="text-sm text-gray-500 dark:!text-white/90">We reply within 2 hours</p>
                     </div>
                   </div>
 
@@ -180,10 +180,10 @@ function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Address</h3>
-                      <p className="text-gray-600">16/9,West street</p>
-                      <p className="text-gray-600">Thoothukudi,Tamilnadu -628721</p>
-                      <p className="text-sm text-gray-500">Visit our design studio</p>
+                      <h3 className="font-semibold text-gray-900 dark:!text-white">Address</h3>
+                      <p className="text-gray-600 dark:!text-white">16/9,West street</p>
+                      <p className="text-gray-600 dark:!text-white">Thoothukudi,Tamilnadu -628721</p>
+                      <p className="text-sm text-gray-500 dark:!text-white/90">Visit our design studio</p>
                     </div>
                   </div>
 
@@ -195,10 +195,10 @@ function Contact() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">Business Hours</h3>
-                      <p className="text-gray-600">Mon-Fri: 9:00 AM - 7:00 PM</p>
-                      <p className="text-gray-600">Sat-Sun: 10:00 AM - 5:00 PM</p>
-                      <p className="text-sm text-gray-500">Consultation by appointment</p>
+                      <h3 className="font-semibold text-gray-900 dark:!text-white">Business Hours</h3>
+                      <p className="text-gray-600 dark:!text-white">Mon-Fri: 9:00 AM - 7:00 PM</p>
+                      <p className="text-gray-600 dark:!text-white">Sat-Sun: 10:00 AM - 5:00 PM</p>
+                      <p className="text-sm text-gray-500 dark:!text-white/90">Consultation by appointment</p>
                     </div>
                   </div>
                 </div>
@@ -208,19 +208,19 @@ function Contact() {
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
+            <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-slate-800">
+              <h2 className="text-3xl font-bold text-gray-900 dark:!text-white mb-6">Send us a Message</h2>
               
               {/* Success Message */}
               {success && (
-                <div className="mb-6 p-4 bg-green-50 border border-green-300 text-green-700 rounded-lg">
+                <div className="mb-6 p-4 bg-green-50 dark:bg-green-500/20 border border-green-300 dark:border-green-600 text-green-700 dark:!text-white rounded-lg">
                   ✅ Your message has been sent! We'll get back to you soon.
                 </div>
               )}
 
               {/* Error Message */}
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-300 text-red-700 rounded-lg">
+                <div className="mb-6 p-4 bg-red-50 dark:bg-red-500/20 border border-red-300 dark:border-red-600 text-red-700 dark:!text-white rounded-lg">
                   {error}
                 </div>
               )}
@@ -229,7 +229,7 @@ function Contact() {
                 {/* Name and Email */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -239,13 +239,13 @@ function Contact() {
                       value={form.fullName}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
                       placeholder="Your full name"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -255,7 +255,7 @@ function Contact() {
                       value={form.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -264,7 +264,7 @@ function Contact() {
                 {/* Phone and Service */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
                       Phone Number
                     </label>
                     <input
@@ -273,13 +273,13 @@ function Contact() {
                       name="phone"
                       value={form.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
                       placeholder="+91 98765 43210"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="serviceInterested" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="serviceInterested" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
                       Service Interested In
                     </label>
                     <select
@@ -287,7 +287,7 @@ function Contact() {
                       name="serviceInterested"
                       value={form.serviceInterested}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
                     >
                       <option value="">Select a service</option>
                       {services.map((service, index) => (
@@ -299,11 +299,11 @@ function Contact() {
 
                 {/* Consultation Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:!text-white mb-3">
                     Consultation Type
                   </label>
                   <div className="flex space-x-6">
-                    <label className="flex items-center">
+                    <label className="flex items-center text-gray-700 dark:!text-white">
                       <input
                         type="radio"
                         name="consultationType"
@@ -314,7 +314,7 @@ function Contact() {
                       />
                       <span>Online Consultation</span>
                     </label>
-                    <label className="flex items-center">
+                    <label className="flex items-center text-gray-700 dark:!text-white">
                       <input
                         type="radio"
                         name="consultationType"
@@ -330,7 +330,7 @@ function Contact() {
 
                 {/* Preferred Time */}
                 <div>
-                  <label htmlFor="preferredTime" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="preferredTime" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
                     Preferred Time
                   </label>
                   <input
@@ -339,13 +339,13 @@ function Contact() {
                     name="preferredTime"
                     value={form.preferredTime}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
                   />
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
                     Message <span className="text-red-500">*</span>
                   </label>
                   <textarea
@@ -355,7 +355,7 @@ function Contact() {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
                     placeholder="Tell us about your requirements, style preferences, or any questions you have..."
                   ></textarea>
                 </div>
@@ -391,16 +391,16 @@ function Contact() {
       </section>
 
       {/* Visit Our Studio Section */}
-<section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/50 backdrop-blur-sm">
+<section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/50 dark:bg-[#111827]/60 backdrop-blur-sm">
   <div className="max-w-7xl mx-auto">
     <div className="text-center mb-12">
-      <h2 className="text-4xl font-bold text-gray-900 mb-4">Visit Our Studio</h2>
-      <p className="text-xl text-gray-600">
+      <h2 className="text-4xl font-bold text-gray-900 dark:!text-white mb-4">Visit Our Studio</h2>
+      <p className="text-xl text-gray-600 dark:!text-white">
         Located in Thoothukudi, Tamil Nadu, our studio is equipped with the latest AI technology and traditional tailoring tools.
       </p>
     </div>
 
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden p-8">
+    <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl overflow-hidden p-8">
       <div className="text-center space-y-6">
         {/* Studio Icon */}
         <div className="w-24 h-24 mx-auto bg-purple-100 rounded-full flex items-center justify-center">
@@ -412,9 +412,9 @@ function Contact() {
 
         {/* Studio Address */}
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">DigiTailor Studio</h3>
-          <p className="text-gray-600 text-lg">16/9, West Street</p>
-          <p className="text-gray-600 text-lg">Thoothukudi, Tamil Nadu - 628721</p>
+          <h3 className="text-2xl font-bold text-gray-900 dark:!text-white mb-2">DigiTailor Studio</h3>
+          <p className="text-gray-600 dark:!text-white text-lg">16/9, West Street</p>
+          <p className="text-gray-600 dark:!text-white text-lg">Thoothukudi, Tamil Nadu - 628721</p>
         </div>
 
         {/* Get Directions Button */}
@@ -466,20 +466,20 @@ function Contact() {
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600">Find answers to common questions about our services</p>
+            <h2 className="text-4xl font-bold text-gray-900 dark:!text-white mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-600 dark:!text-white">Find answers to common questions about our services</p>
           </div>
 
           <div className="space-y-4">
             {faqData.map((faq, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+              <div key={index} className="bg-white dark:bg-[#111827] rounded-xl shadow-lg border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <button
                   onClick={() => toggleAccordion(index)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900">{faq.question}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:!text-white">{faq.question}</h3>
                   <svg
-                    className={`w-5 h-5 text-gray-500 transform transition-transform ${
+                    className={`w-5 h-5 text-gray-500 dark:text-white transform transition-transform ${
                       activeAccordion === index ? 'rotate-180' : ''
                     }`}
                     fill="none"
@@ -491,7 +491,7 @@ function Contact() {
                 </button>
                 {activeAccordion === index && (
                   <div className="px-6 pb-4">
-                    <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                    <p className="text-gray-600 dark:!text-white leading-relaxed">{faq.answer}</p>
                   </div>
                 )}
               </div>

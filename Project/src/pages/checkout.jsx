@@ -353,10 +353,10 @@ function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0B1220] py-8 dark:text-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white dark:bg-[#111827] rounded-lg shadow-lg overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
             <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
             <p className="text-gray-600 mt-1">Complete your order details</p>
           </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
+import ThemeToggle from "./ThemeToggle";
 
 // Role-based icon renderer with enhanced design
 const getRoleIcon = (role) => {
@@ -98,8 +99,8 @@ function Header({ user, onSignOut }) {
     <>
       <header className={`sticky top-0 z-40 transition-all duration-300 ${
         scrolled 
-          ? "bg-white/80 backdrop-blur-xl shadow-xl border-b border-gray-100" 
-          : "bg-white/60 backdrop-blur-md"
+          ? "bg-white/80 dark:bg-slate-900/70 backdrop-blur-xl shadow-xl border-b border-gray-100 dark:border-slate-800" 
+          : "bg-white/60 dark:bg-slate-900/50 backdrop-blur-md"
       }`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-20 items-center justify-between">
@@ -129,7 +130,7 @@ function Header({ user, onSignOut }) {
                   className={`group relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                     isActive(item.href)
                       ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25"
-                      : "text-gray-700 hover:text-purple-600 hover:bg-purple-50"
+                      : "text-gray-700 hover:text-purple-600 hover:bg-purple-50 dark:text-white dark:hover:text-purple-300 dark:hover:bg-slate-800"
                   }`}
                 >
                   <span className="relative z-10">{item.name}</span>
@@ -144,7 +145,7 @@ function Header({ user, onSignOut }) {
                   className={`group relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                     isActive("/orders")
                       ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25"
-                      : "text-gray-700 hover:text-purple-600 hover:bg-purple-50"
+                      : "text-gray-700 hover:text-purple-600 hover:bg-purple-50 dark:text-white dark:hover:text-purple-300 dark:hover:bg-slate-800"
                   }`}
                 >
                   <span className="relative z-10">Orders</span>
@@ -157,6 +158,10 @@ function Header({ user, onSignOut }) {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3">
+              {/* Theme toggle with annotation pointing to it */}
+              <div className="relative">
+                <ThemeToggle showLabel={false} />
+              </div>
               {!user ? (
                 <>
                   <Link
@@ -193,14 +198,14 @@ function Header({ user, onSignOut }) {
                         setUserMenuOpen(!userMenuOpen);
                         setHamburgerMenuOpen(false);
                       }}
-                      className="group flex items-center space-x-3 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 p-2 pr-4 hover:from-purple-50 hover:to-pink-50 transition-all duration-300 shadow-md hover:shadow-xl"
+                      className="group flex items-center space-x-3 rounded-2xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 p-2 pr-4 hover:from-purple-50 hover:to-pink-50 dark:hover:from-slate-700 dark:hover:to-slate-600 transition-all duration-300 shadow-md hover:shadow-xl dark:text-white dark:border dark:border-slate-700"
                     >
                       {getRoleIcon(user.role)}
                       <div className="hidden sm:block text-left">
-                        <p className="text-sm font-bold text-gray-900">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
                           {user.firstName}
                         </p>
-                        <p className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 font-semibold">
+                        <p className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:text-white">
                           {getRoleText(user.role)}
                         </p>
                       </div>

@@ -8,7 +8,7 @@ import RecentlyViewed from '../components/product/RecentlyViewed'
 function Home() {
   return (
     <div>
-      {/* Hero Section - EXACTLY as your original */}
+      {/* Hero Section */}
       <section 
         className="relative overflow-hidden min-h-screen flex items-center"
         style={{
@@ -118,51 +118,51 @@ function Home() {
         </div>
       </section>
 
-      {/* AI Features Section - EXACTLY as your original */}
-      <section className="py-20 bg-white">
+      {/* AI Features Section */}
+      <section className="py-20 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-4">
               Powered by Advanced AI Technology
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
               Our cutting-edge AI understands your style preferences and creates personalized designs
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group text-center p-8 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-purple-200 transition-all duration-300">
+            <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-purple-200 dark:hover:border-purple-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
               <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Smart Design Generation</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Smart Design Generation</h3>
+              <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
                 Our AI analyzes your preferences, body type, and occasion to generate unique, personalized designs just for you
               </p>
             </div>
             
-            <div className="group text-center p-8 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all duration-300">
+            <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
               <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Perfect Fit Technology</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Perfect Fit Technology</h3>
+              <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
                 Advanced measurement algorithms ensure every garment fits perfectly, reducing alterations by 95%
               </p>
             </div>
             
-            <div className="group text-center p-8 rounded-2xl border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300">
+            <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-green-200 dark:hover:border-green-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
               <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Lightning Fast Creation</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Lightning Fast Creation</h3>
+              <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
                 Generate hundreds of design variations in seconds. From concept to creation in record time
               </p>
             </div>
@@ -170,12 +170,12 @@ function Home() {
         </div>
       </section>
 
-      {/* Featured Designs - NOW with simple images instead of cards */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Featured Designs */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-slate-900 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured AI Creations</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-4">Featured AI Creations</h2>
+            <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
               Discover stunning designs created by our AI and brought to life by expert craftspeople
             </p>
           </div>
@@ -224,12 +224,12 @@ function Home() {
       {/* Recently Viewed */}
       <RecentlyViewed />
 
-      {/* Testimonials - EXACTLY as your original */}
-      <section className="py-20 bg-white">
+      {/* Testimonials */}
+      <section className="py-20 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
-            <p className="text-xl text-gray-600">Real experiences from satisfied customers</p>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-4">What Our Customers Say</h2>
+            <p className="text-xl text-gray-600 dark:text-slate-300">Real experiences from satisfied customers</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -241,11 +241,11 @@ function Home() {
                   className="w-12 h-12 rounded-full mr-4"
                 />
                 <div>
-                  <h4 className="font-semibold text-gray-900">Priya Sharma</h4>
-                  <p className="text-gray-600 text-sm">Fashion Designer</p>
+                  <h4 className="font-semibold text-gray-900 dark:!text-slate-900">Priya Sharma</h4>
+                  <p className="text-gray-600 text-sm dark:!text-slate-700">Fashion Designer</p>
                 </div>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed dark:!text-slate-900">
                 "The AI understood my style perfectly! The designs were exactly what I envisioned, and the quality is outstanding."
               </p>
             </div>
@@ -258,11 +258,11 @@ function Home() {
                   className="w-12 h-12 rounded-full mr-4"
                 />
                 <div>
-                  <h4 className="font-semibold text-gray-900">Raj Patel</h4>
-                  <p className="text-gray-600 text-sm">Business Owner</p>
+                  <h4 className="font-semibold text-gray-900 dark:!text-slate-900">Raj Patel</h4>
+                  <p className="text-gray-600 text-sm dark:!text-slate-700">Business Owner</p>
                 </div>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed dark:!text-slate-900">
                 "Incredible technology! I got a perfectly fitted suit in just 5 days. The AI suggestions were spot on."
               </p>
             </div>
@@ -275,11 +275,11 @@ function Home() {
                   className="w-12 h-12 rounded-full mr-4"
                 />
                 <div>
-                  <h4 className="font-semibold text-gray-900">Anita Singh</h4>
-                  <p className="text-gray-600 text-sm">Teacher</p>
+                  <h4 className="font-semibold text-gray-900 dark:!text-slate-900">Anita Singh</h4>
+                  <p className="text-gray-600 text-sm dark:!text-slate-700">Teacher</p>
                 </div>
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed dark:!text-slate-900">
                 "Amazing experience! The AI created beautiful ethnic wear designs that I absolutely love. Highly recommended!"
               </p>
             </div>

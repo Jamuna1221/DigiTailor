@@ -7,12 +7,16 @@ function DesignCard({ design, user, onWishlistToggle, isInWishlist, wishlistLoad
   const getDifficultyColor = (difficulty) => {
     switch (difficulty?.toLowerCase()) {
       case 'easy':
-      case 'beginner': return 'text-green-600 bg-green-100'
-      case 'medium': 
-      case 'intermediate': return 'text-amber-600 bg-amber-100'
+      case 'beginner':
+        return 'text-green-600 bg-green-100 dark:!text-green-300 dark:bg-green-400/20'
+      case 'medium':
+      case 'intermediate':
+        return 'text-amber-600 bg-amber-100 dark:!text-amber-300 dark:bg-amber-400/20'
       case 'hard':
-      case 'advanced': return 'text-red-600 bg-red-100'
-      default: return 'text-gray-600 bg-gray-100'
+      case 'advanced':
+        return 'text-red-600 bg-red-100 dark:!text-red-300 dark:bg-red-400/20'
+      default:
+        return 'text-gray-600 bg-gray-100 dark:!text-gray-300 dark:bg-gray-400/20'
     }
   }
 
