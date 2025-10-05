@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 // Utility function for status colors
 const getStatusColor = (status) => {
   switch (status) {
+    case 'placed': return 'bg-yellow-200 text-yellow-900';
     case 'pending': return 'bg-yellow-100 text-yellow-800'
     case 'assigned': return 'bg-blue-100 text-blue-800'
     case 'in_progress': return 'bg-indigo-100 text-indigo-800'
@@ -20,23 +21,42 @@ function ManageOrders() {
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState('all')
 
-  useEffect(() => {
-    const fetchAllOrders = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/orders/admin/all')
-        const data = await response.json()
-        if (data.success) {
-          setOrders(data.data)
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-      } finally {
-        setLoading(false)
+useEffect(() => {
+  const fetchAllOrders = async () => {
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('token') // get token
+      if (!token) {
+        console.error('No token found, redirect to login')
+        return
       }
-    }
 
-    fetchAllOrders()
-  }, [])
+      const response = await fetch('http://localhost:5000/api/orders/admin/all', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` // <-- include token
+        }
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setOrders(data.data)
+      } else if (data.message.includes('token expired')) {
+        console.error('Token expired, please login again')
+        localStorage.removeItem('token')
+        // optionally redirect to admin login page
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  fetchAllOrders()
+}, [])
+
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -108,9 +128,7 @@ function ManageOrders() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Items
-                </th>
+                
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Assigned Tailor
                 </th>
@@ -138,39 +156,30 @@ function ManageOrders() {
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{order.customer.name}</div>
-                      <div className="text-sm text-gray-500">{order.customer.email}</div>
-                      <div className="text-sm text-gray-500">{order.customer.phone}</div>
-                    </div>
-                  </td>
+  <div>
+    <div className="text-sm font-medium text-gray-900">{order.customer?.name || 'N/A'}</div>
+    <div className="text-sm text-gray-500">{order.customer?.email || 'N/A'}</div>
+    <div className="text-sm text-gray-500">{order.customer?.phone || 'N/A'}</div>
+  </div>
+</td>
+
                   
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
-                      {order.items.length} item{order.items.length > 1 ? 's' : ''}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {order.items.map(item => item.category).join(', ')}
-                    </div>
-                  </td>
                   
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {order.assignedTailor ? (
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {order.assignedTailor.name}
-                        </div>
-                        <div className="text-sm text-gray-500">{order.assignedTailor.email}</div>
-                        <div className="text-xs text-blue-600">
-                          {order.assignedTailor.specialties?.join(', ')}
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                        Unassigned
-                      </span>
-                    )}
-                  </td>
+                 <td className="px-6 py-4 whitespace-nowrap">
+  {order.assignedTailor ? (
+    <div>
+      <div className="text-sm font-medium text-gray-900">
+        {order.assignedTailor.name || 'N/A'}
+      </div>
+      <div className="text-sm text-gray-500">{order.assignedTailor.email || 'N/A'}</div>
+    </div>
+  ) : (
+    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+      Unassigned
+    </span>
+  )}
+</td>
+
                   
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>

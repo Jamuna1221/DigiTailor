@@ -155,8 +155,8 @@ function ProductDetails() {
     )
   }
 
-  const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
-  const availableColors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White']
+  // const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+  // const availableColors = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Black', 'White']
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -225,7 +225,7 @@ function ProductDetails() {
               </div>
 
               {/* Size Selection */}
-              <div>
+              {/* <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">Select Size</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {availableSizes.map(size => (
@@ -242,10 +242,10 @@ function ProductDetails() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Color Selection */}
-              <div>
+              {/* <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">Select Color</h3>
                 <div className="grid grid-cols-4 gap-3">
                   {availableColors.map(color => (
@@ -262,7 +262,7 @@ function ProductDetails() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Quantity */}
               <div>
