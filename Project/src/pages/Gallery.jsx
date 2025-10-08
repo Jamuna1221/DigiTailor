@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+// import { useTranslation } from 'react-i18next'
 
 const API_BASE_URL = 'http://localhost:5000/api'
 
 function Gallery() {
-  const { t } = useTranslation()
+  // const { t } = useTranslation()
   const [galleryItems, setGalleryItems] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [filteredItems, setFilteredItems] = useState([])
@@ -262,7 +262,7 @@ function Gallery() {
                 <div className="opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-300 ease-out text-center">
                   <div className="px-4 py-2 rounded-lg bg-black/60 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-white/20 shadow-lg">
                     <p className="text-sm sm:text-base font-semibold text-gray-100">
-                      📖 {t('gallery.tap_to_read')}
+📖 Tap to Read
                     </p>
                   </div>
                 </div>

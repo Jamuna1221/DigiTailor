@@ -64,13 +64,23 @@ const resources = {
   }}
 }
 
-i18n
+// Initialize i18next synchronously to prevent hook timing issues
+const initPromise = i18n
   .use(initReactI18next)
   .init({
     resources,
     lng: localStorage.getItem('digitailor_lang') || 'en',
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
+    react: {
+      useSuspense: false // Disable suspense to prevent timing issues
+    },
+    initImmediate: false, // Initialize immediately, not async
   })
+
+// Ensure i18n is ready before export
+if (initPromise instanceof Promise) {
+  console.warn('i18next initialized asynchronously, this may cause issues')
+}
 
 export default i18n

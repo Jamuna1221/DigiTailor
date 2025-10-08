@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSelector from "./LanguageSelector";
-import { useTranslation } from 'react-i18next'
+// import { useTranslation } from 'react-i18next'
 
 // Role-based icon renderer with enhanced design
 const getRoleIcon = (role) => {
@@ -97,13 +97,14 @@ function Header({ user, onSignOut }) {
     };
   }, []);
 
-  const { t } = useTranslation();
+  // Temporary static fallback to test if useTranslation is the issue
+  // const { t } = useTranslation();
   const navigation = [
-    { name: t('nav.home'), href: "/", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-    { name: t('nav.catalog'), href: "/catalog", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
-    { name: t('nav.ai_studio'), href: "/ai-studio", icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
-    { name: t('nav.gallery'), href: "/gallery", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
-    { name: t('nav.contact'), href: "/contact", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
+    { name: 'Home', href: "/", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
+    { name: 'Catalog', href: "/catalog", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
+    { name: 'AI Studio', href: "/ai-studio", icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
+    { name: 'Gallery', href: "/gallery", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
+    { name: 'Contact', href: "/contact", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -131,12 +132,8 @@ function Header({ user, onSignOut }) {
           <div className="flex h-20 items-center justify-between">
             {/* Logo with enhanced design */}
             <Link to="/" className="flex items-center space-x-3 group">
-<<<<<<< HEAD
-            <div id="google_translate_element"></div>
-=======
             {/* Language selector */}
               {/* <LanguageSelector /> */}
->>>>>>> b357019b8c8878a628ddadf4e338bd751bbc51cb
               <div className="relative">
                 <div 
                   className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-2xl"
@@ -224,7 +221,7 @@ function Header({ user, onSignOut }) {
                     }
                   }}
                 >
-                  <span className="relative z-10">{t('nav.orders')}</span>
+                  <span className="relative z-10">Orders</span>
                   {!isActive("/orders") && (
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                   )}

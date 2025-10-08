@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+// import { useTranslation } from 'react-i18next'
 
 function Contact() {
-  const { t } = useTranslation()
+  // const { t } = useTranslation()
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -124,7 +124,7 @@ function Contact() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            {t('contact.get_in_touch')}
+Get In Touch
           </h1>
           <p className="text-xl text-blue-100 leading-relaxed">
             Ready to transform your wardrobe? Let's discuss your vision and create something amazing together.
@@ -211,7 +211,7 @@ function Contact() {
 
             {/* Contact Form */}
             <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-slate-800">
-              <h2 className="text-3xl font-bold text-gray-900 dark:!text-white mb-6">{t('contact.send_message')}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:!text-white mb-6">Send us a Message</h2>
               
               {/* Success Message */}
               {success && (
@@ -232,7 +232,7 @@ function Contact() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
-                      {t('contact.full_name')} <span className="text-red-500">*</span>
+Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -242,13 +242,13 @@ function Contact() {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
-                      placeholder={t('contact.full_name')}
+                      placeholder="Full Name"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
-                      {t('contact.email')} <span className="text-red-500">*</span>
+Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
@@ -258,7 +258,7 @@ function Contact() {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
-                      placeholder={t('contact.email')}
+                      placeholder="Email Address"
                     />
                   </div>
                 </div>
@@ -267,7 +267,7 @@ function Contact() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
-                      {t('contact.phone')}
+Phone Number
                     </label>
                     <input
                       type="tel"
@@ -276,13 +276,13 @@ function Contact() {
                       value={form.phone}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
-                      placeholder={t('contact.phone')}
+                      placeholder="Phone Number"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="serviceInterested" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
-                      {t('contact.service_interested')}
+Service Interested In
                     </label>
                     <select
                       id="serviceInterested"
@@ -302,7 +302,7 @@ function Contact() {
                 {/* Consultation Type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:!text-white mb-3">
-                    {t('contact.consultation_type')}
+Consultation Type
                   </label>
                   <div className="flex space-x-6">
                     <label className="flex items-center text-gray-700 dark:!text-white">
@@ -314,7 +314,7 @@ function Contact() {
                         onChange={handleChange}
                         className="mr-2 text-indigo-600 focus:ring-indigo-500"
                       />
-                      <span>{t('contact.online_consultation')}</span>
+                      <span>Online Consultation</span>
                     </label>
                     <label className="flex items-center text-gray-700 dark:!text-white">
                       <input
@@ -325,7 +325,7 @@ function Contact() {
                         onChange={handleChange}
                         className="mr-2 text-indigo-600 focus:ring-indigo-500"
                       />
-                      <span>{t('contact.in_person_visit')}</span>
+                      <span>In-Person Visit</span>
                     </label>
                   </div>
                 </div>
@@ -333,7 +333,7 @@ function Contact() {
                 {/* Preferred Time */}
                 <div>
                   <label htmlFor="preferredTime" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
-                    {t('contact.preferred_time')}
+Preferred Time
                   </label>
                   <input
                     type="datetime-local"
@@ -348,7 +348,7 @@ function Contact() {
                 {/* Message */}
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:!text-white mb-2">
-                    {t('contact.message_label')} <span className="text-red-500">*</span>
+Message <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     id="message"
@@ -358,7 +358,7 @@ function Contact() {
                     required
                     rows={5}
                     className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-[#0f172a] dark:text-white"
-                    placeholder={t('contact.message_placeholder')}
+                    placeholder="Tell us about your requirements, style preferences, or any questions you have..."
                   ></textarea>
                 </div>
 
@@ -382,7 +382,7 @@ function Contact() {
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                       </svg>
-                      {t('contact.submit')}
+Send Message
                     </>
                   )}
                 </button>
