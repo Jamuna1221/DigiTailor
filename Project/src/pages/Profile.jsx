@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import MeasurementForm from '../components/order/MeasurementForm.jsx'
 import admin from '../assets/images/admin.jpg'
+import { useFont } from '../contexts/FontContext.jsx'
+import { useColorTheme } from '../contexts/ColorThemeContext.jsx'
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')
@@ -11,6 +13,8 @@ function Profile({ user }) {
   const [measurementsSaved, setMeasurementsSaved] = useState(false)
   const [profileUpdateLoading, setProfileUpdateLoading] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const { selectedFont, setFont, currentFont, availableFonts } = useFont()
+  const { selectedTheme, setColorTheme, currentTheme, availableThemes } = useColorTheme()
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -366,9 +370,9 @@ function Profile({ user }) {
           <div className="text-6xl mb-4">👤</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
           <p className="text-gray-600 mb-6">You need to sign in to view your profile</p>
-          <a href="/login" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-            Sign In
-          </a>
+                  <a href="/login" className="text-white px-6 py-3 rounded-lg transition-colors" style={{ background: 'var(--theme-gradient)' }}>
+                    Sign In
+                  </a>
         </div>
       </div>
     )
@@ -377,7 +381,7 @@ function Profile({ user }) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Profile Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white p-8 mb-8">
+      <div className="rounded-xl text-white p-8 mb-8" style={{ background: 'var(--theme-gradient)' }}>
         <div className="flex items-center space-x-6">
           <div className="relative">
             <img
@@ -420,9 +424,13 @@ function Profile({ user }) {
               onClick={() => setActiveTab(tab.id)}
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'text-white'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
+              style={{
+                borderColor: activeTab === tab.id ? 'var(--theme-primary)' : 'transparent',
+                color: activeTab === tab.id ? 'var(--theme-primary)' : undefined
+              }}
             >
               <span className="mr-2">{tab.icon}</span>
               {tab.name}
@@ -584,7 +592,7 @@ function Profile({ user }) {
                 <div className="text-6xl mb-4">📦</div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">No orders yet</h3>
                 <p className="text-gray-500 mb-6">Start by browsing our amazing design catalog</p>
-                <a href="/catalog" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="/catalog" className="text-white px-6 py-3 rounded-lg transition-all" style={{ background: 'var(--theme-gradient)' }}>
                   Browse Designs
                 </a>
               </div>
@@ -647,7 +655,8 @@ function Profile({ user }) {
                       <div className="space-y-2">
                         <button 
                           onClick={() => addToCartFromWishlist(item)}
-                          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                          className="w-full text-white py-2 rounded-lg transition-all font-medium"
+                          style={{ background: 'var(--theme-gradient)' }}
                         >
                           Add to Cart
                         </button>
@@ -664,7 +673,7 @@ function Profile({ user }) {
                 <div className="text-6xl mb-4">❤️</div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">Your wishlist is empty</h3>
                 <p className="text-gray-500 mb-6">Save designs you love for later by clicking the heart icon</p>
-                <a href="/catalog" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="/catalog" className="text-white px-6 py-3 rounded-lg transition-all" style={{ background: 'var(--theme-gradient)' }}>
                   Explore Designs
                 </a>
               </div>
@@ -712,11 +721,14 @@ function Profile({ user }) {
                     <div className="flex space-x-3">
                       <label
                         htmlFor="profileImageInput"
-                        className={`px-4 py-2 rounded-lg cursor-pointer transition-colors ${
+                        className={`px-4 py-2 rounded-lg cursor-pointer transition-all text-white ${
                           uploadingImage 
                             ? 'bg-gray-400 cursor-not-allowed' 
-                            : 'bg-blue-600 hover:bg-blue-700'
-                        } text-white`}
+                            : ''
+                        }`}
+                        style={{
+                          background: uploadingImage ? undefined : 'var(--theme-gradient)'
+                        }}
                       >
                         {uploadingImage ? 'Uploading...' : 'Upload New Picture'}
                       </label>
@@ -746,7 +758,19 @@ function Profile({ user }) {
                       type="text" 
                       value={profileData.firstName}
                       onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                      style={{
+                        '--tw-ring-color': 'var(--theme-primary)',
+                        '--tw-ring-opacity': '0.2'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = 'var(--theme-primary)'
+                        e.target.style.boxShadow = `0 0 0 3px var(--theme-primary)20`
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#d1d5db'
+                        e.target.style.boxShadow = 'none'
+                      }}
                       required
                     />
                   </div>
@@ -787,11 +811,14 @@ function Profile({ user }) {
                     <button 
                       type="submit" 
                       disabled={profileUpdateLoading}
-                      className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      className={`px-6 py-3 rounded-lg font-medium transition-all text-white ${
                         profileUpdateLoading
                           ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-blue-600 hover:bg-blue-700'
-                      } text-white`}
+                          : ''
+                      }`}
+                      style={{
+                        background: profileUpdateLoading ? undefined : 'var(--theme-gradient)'
+                      }}
                     >
                       {profileUpdateLoading ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -821,7 +848,12 @@ function Profile({ user }) {
                     <input 
                       type="checkbox" 
                       defaultChecked 
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                      className="rounded border-gray-300 focus:ring-2"
+                      style={{
+                        accentColor: 'var(--theme-primary)',
+                        '--tw-ring-color': 'var(--theme-primary)',
+                        '--tw-ring-opacity': '0.2'
+                      }}
                     />
                     <span className="ml-3 text-sm text-gray-700">Order updates and tracking notifications</span>
                   </label>
@@ -869,6 +901,202 @@ function Profile({ user }) {
                     />
                     <span className="ml-3 text-sm text-gray-700">Share my measurements with recommended tailors</span>
                   </label>
+                </div>
+              </div>
+
+              {/* Font Selection */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Font Preferences</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                    <div>
+                      <p className="font-medium text-gray-900">Current Font</p>
+                      <p className="text-sm text-gray-600">{currentFont.displayName}</p>
+                      <p className="text-xs text-gray-500">{currentFont.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div 
+                        className="px-4 py-2 bg-white rounded-lg border shadow-sm"
+                        style={{ fontFamily: currentFont.fontFamily }}
+                      >
+                        <span className="text-lg font-medium">Sample Text</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Choose Font</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {availableFonts.map((font) => (
+                        <div 
+                          key={font.id}
+                          onClick={() => setFont(font.id)}
+                          className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
+                            selectedFont === font.id 
+                              ? 'border-purple-500 bg-purple-50 shadow-md' 
+                              : 'border-gray-200 bg-white hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{font.displayName}</h4>
+                              <p className="text-xs text-gray-500">{font.category}</p>
+                            </div>
+                            <div className="flex items-center">
+                              <div 
+                                className="w-6 h-6 rounded-full border-2 transition-colors ${
+                                  selectedFont === font.id 
+                                    ? 'border-purple-500 bg-purple-500' 
+                                    : 'border-gray-300'
+                                }"
+                              >
+                                {selectedFont === font.id && (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div 
+                            className="text-center p-3 bg-gray-50 rounded-lg"
+                            style={{ fontFamily: font.fontFamily }}
+                          >
+                            <p className="text-lg font-medium text-gray-900">DigiTailor</p>
+                            <p className="text-sm text-gray-600">The quick brown fox jumps</p>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">{font.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex">
+                      <svg className="w-5 h-5 text-blue-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">Font changes apply instantly</p>
+                        <p className="text-xs text-blue-700 mt-1">Your font preference will be applied to the entire website and saved for future visits.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Color Theme Selection */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Color Theme</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                    <div>
+                      <p className="font-medium text-gray-900">Current Theme</p>
+                      <p className="text-sm text-gray-600">{currentTheme.displayName}</p>
+                      <p className="text-xs text-gray-500">{currentTheme.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div 
+                        className="flex space-x-1 p-2 bg-white rounded-lg border shadow-sm"
+                      >
+                        <div 
+                          className="w-6 h-6 rounded-full" 
+                          style={{ backgroundColor: currentTheme.colors.primary }}
+                        ></div>
+                        <div 
+                          className="w-6 h-6 rounded-full" 
+                          style={{ backgroundColor: currentTheme.colors.primaryLight }}
+                        ></div>
+                        <div 
+                          className="w-6 h-6 rounded-full" 
+                          style={{ backgroundColor: currentTheme.colors.secondary }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Choose Color Theme</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {availableThemes.map((theme) => (
+                        <div 
+                          key={theme.id}
+                          onClick={() => setColorTheme(theme.id)}
+                          className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
+                            selectedTheme === theme.id 
+                              ? 'border-2 shadow-md' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          style={{
+                            borderColor: selectedTheme === theme.id ? theme.colors.primary : undefined,
+                            backgroundColor: selectedTheme === theme.id ? `${theme.colors.primary}08` : 'white'
+                          }}
+                        >
+                          <div className="text-center">
+                            <div className="flex justify-center space-x-1 mb-3">
+                              <div 
+                                className="w-6 h-6 rounded-full border border-gray-200" 
+                                style={{ backgroundColor: theme.colors.primary }}
+                              ></div>
+                              <div 
+                                className="w-6 h-6 rounded-full border border-gray-200" 
+                                style={{ backgroundColor: theme.colors.primaryLight }}
+                              ></div>
+                              <div 
+                                className="w-6 h-6 rounded-full border border-gray-200" 
+                                style={{ backgroundColor: theme.colors.secondary }}
+                              ></div>
+                            </div>
+                            <h4 className="font-semibold text-sm text-gray-900 mb-1">{theme.displayName}</h4>
+                            <p className="text-xs text-gray-500 mb-2">{theme.category}</p>
+                            
+                            {/* Sample gradient button */}
+                            <div 
+                              className="w-full h-8 rounded-md flex items-center justify-center text-white text-xs font-medium transition-all"
+                              style={{ background: theme.colors.gradient }}
+                            >
+                              Sample
+                            </div>
+                            
+                            {/* Selection indicator */}
+                            <div className="flex justify-center mt-2">
+                              <div 
+                                className={`w-4 h-4 rounded-full border-2 transition-colors ${
+                                  selectedTheme === theme.id 
+                                    ? 'border-2' 
+                                    : 'border-gray-300'
+                                }`}
+                                style={{
+                                  borderColor: selectedTheme === theme.id ? theme.colors.primary : undefined,
+                                  backgroundColor: selectedTheme === theme.id ? theme.colors.primary : 'transparent'
+                                }}
+                              >
+                                {selectedTheme === theme.id && (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex">
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-green-900">Theme changes apply instantly</p>
+                        <p className="text-xs text-green-700 mt-1">Your color theme will be applied across the entire website including buttons, links, and accents.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

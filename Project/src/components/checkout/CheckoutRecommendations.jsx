@@ -49,7 +49,9 @@ export default function CheckoutRecommendations({ cartItems = [] }) {
             if (Array.isArray(data?.data)) {
               results = results.concat(data.data)
             }
-          } catch (_) {}
+          } catch {
+            // Intentionally ignored
+          }
         }
 
         // Fallback to top-items if nothing
@@ -58,7 +60,10 @@ export default function CheckoutRecommendations({ cartItems = [] }) {
             const res = await fetch(`${API_BASE}/catalog/top-items?type=views&limit=12`)
             const data = await res.json()
             if (Array.isArray(data?.data)) results = data.data
-          } catch (_) {}
+          } catch {
+            // Error intentionally ignored
+          }
+
         }
 
         // Exclude items already in cart and deduplicate
@@ -74,7 +79,7 @@ export default function CheckoutRecommendations({ cartItems = [] }) {
 
         if (cancelled) return
         setItems(normalizeItems(filtered).slice(0, 10))
-      } catch (_) {
+      } catch {
         if (!cancelled) setItems([])
       } finally {
         if (!cancelled) setLoading(false)

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSelector from "./LanguageSelector";
+import { useTranslation } from 'react-i18next'
 
 // Role-based icon renderer with enhanced design
 const getRoleIcon = (role) => {
@@ -73,12 +75,35 @@ function Header({ user, onSignOut }) {
     }
   }, [userMenuOpen, hamburgerMenuOpen]);
 
+  // Google Translate element loader (prevents duplicate load)
+  useEffect(() => {
+    if (!document.getElementById('google-translate-script')) {
+      const addScript = document.createElement('script');
+      addScript.id = 'google-translate-script';
+      addScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      document.body.appendChild(addScript);
+    }
+    window.googleTranslateElementInit = () => {
+      if (window.google && window.google.translate) {
+        new window.google.translate.TranslateElement(
+          {
+            pageLanguage: 'en',
+            includedLanguages: 'en,ta,hi,te,ml,kn,ur,gu',
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          'google_translate_element'
+        );
+      }
+    };
+  }, []);
+
+  const { t } = useTranslation();
   const navigation = [
-    { name: "Home", href: "/", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
-    { name: "Catalog", href: "/catalog", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
-    { name: "AI Studio", href: "/ai-studio", icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
-    { name: "Gallery", href: "/gallery", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
-    { name: "Contact", href: "/contact", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
+    { name: t('nav.home'), href: "/", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
+    { name: t('nav.catalog'), href: "/catalog", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
+    { name: t('nav.ai_studio'), href: "/ai-studio", icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
+    { name: t('nav.gallery'), href: "/gallery", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
+    { name: t('nav.contact'), href: "/contact", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -102,19 +127,33 @@ function Header({ user, onSignOut }) {
           ? "bg-white/80 dark:bg-slate-900/70 backdrop-blur-xl shadow-xl border-b border-gray-100 dark:border-slate-800" 
           : "bg-white/60 dark:bg-slate-900/50 backdrop-blur-md"
       }`}>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-0 sm:px-0 lg:px-0">
           <div className="flex h-20 items-center justify-between">
             {/* Logo with enhanced design */}
             <Link to="/" className="flex items-center space-x-3 group">
+            {/* Language selector */}
+              {/* <LanguageSelector /> */}
               <div className="relative">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-500 to-indigo-600 shadow-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-2xl group-hover:shadow-purple-500/30">
+                <div 
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-2xl"
+                  style={{ 
+                    background: 'var(--theme-gradient)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--theme-primary)20'
+                  }}
+                >
                   <span className="text-xl font-black text-white tracking-tight">DT</span>
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-500 to-indigo-600 blur-lg opacity-0 group-hover:opacity-75 transition-opacity"></div>
+                  <div 
+                    className="absolute inset-0 rounded-2xl blur-lg opacity-0 group-hover:opacity-75 transition-opacity"
+                    style={{ background: 'var(--theme-gradient)' }}
+                  ></div>
                 </div>
                 <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 border-2 border-white shadow-lg animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-transparent tracking-tight">
+                <h1 
+                  className="text-2xl font-black bg-clip-text text-transparent tracking-tight"
+                  style={{ backgroundImage: 'var(--theme-gradient)' }}
+                >
                   DigiTailor
                 </h1>
                 <p className="text-xs text-gray-500 font-medium tracking-wide">Smart Fashion Studio</p>
@@ -129,9 +168,26 @@ function Header({ user, onSignOut }) {
                   to={item.href}
                   className={`group relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                     isActive(item.href)
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25"
-                      : "text-gray-700 hover:text-purple-600 hover:bg-purple-50 dark:text-white dark:hover:text-purple-300 dark:hover:bg-slate-800"
+                      ? "text-white shadow-lg"
+                      : "text-gray-700 dark:text-white dark:hover:bg-slate-800"
                   }`}
+                  style={{
+                    background: isActive(item.href) ? 'var(--theme-gradient)' : 'transparent',
+                    boxShadow: isActive(item.href) ? `0 10px 15px -3px var(--theme-primary)25` : undefined,
+                    '--hover-color': 'var(--theme-primary)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive(item.href)) {
+                      e.target.style.color = 'var(--theme-primary)'
+                      e.target.style.backgroundColor = 'var(--theme-primary)08'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive(item.href)) {
+                      e.target.style.color = ''
+                      e.target.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
                   <span className="relative z-10">{item.name}</span>
                   {!isActive(item.href) && (
@@ -144,11 +200,27 @@ function Header({ user, onSignOut }) {
                   to="/orders"
                   className={`group relative rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                     isActive("/orders")
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25"
-                      : "text-gray-700 hover:text-purple-600 hover:bg-purple-50 dark:text-white dark:hover:text-purple-300 dark:hover:bg-slate-800"
+                      ? "text-white shadow-lg"
+                      : "text-gray-700 dark:text-white dark:hover:bg-slate-800"
                   }`}
+                  style={{
+                    background: isActive("/orders") ? 'var(--theme-gradient)' : 'transparent',
+                    boxShadow: isActive("/orders") ? `0 10px 15px -3px var(--theme-primary)25` : undefined
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive("/orders")) {
+                      e.target.style.color = 'var(--theme-primary)'
+                      e.target.style.backgroundColor = 'var(--theme-primary)08'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive("/orders")) {
+                      e.target.style.color = ''
+                      e.target.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
-                  <span className="relative z-10">Orders</span>
+                  <span className="relative z-10">{t('nav.orders')}</span>
                   {!isActive("/orders") && (
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                   )}
@@ -158,21 +230,46 @@ function Header({ user, onSignOut }) {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3">
-              {/* Theme toggle with annotation pointing to it */}
+              
+
+              {/* Theme toggle */}
               <div className="relative">
                 <ThemeToggle showLabel={false} />
               </div>
+              {/* Google Translate container */}
+              <div 
+                id="google_translate_element" 
+                className="hidden md:flex items-center justify-center min-w-fit transition-all duration-300 hover:scale-105"
+              />
               {!user ? (
                 <>
                   <Link
                     to="/login"
-                    className="hidden md:inline-flex items-center px-6 py-2.5 text-gray-700 font-semibold hover:text-purple-600 transition-colors"
+                    className="hidden md:inline-flex items-center px-6 py-2.5 text-gray-700 font-semibold transition-colors"
+                    onMouseEnter={(e) => {
+                      e.target.style.color = 'var(--theme-primary)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.color = ''
+                    }}
                   >
                     Log In
                   </Link>
                   <Link
                     to="/signup"
-                    className="inline-flex items-center px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-sm font-semibold text-white shadow-xl transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/25 hover:scale-105"
+                    className="inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105"
+                    style={{ 
+                      background: 'var(--theme-gradient)',
+                      boxShadow: `0 25px 50px -12px var(--theme-primary)25`
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'var(--theme-gradient-hover)'
+                      e.target.style.boxShadow = `0 25px 50px -12px var(--theme-primary)40`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'var(--theme-gradient)'
+                      e.target.style.boxShadow = `0 25px 50px -12px var(--theme-primary)25`
+                    }}
                   >
                     <span>Get Started</span>
                     <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

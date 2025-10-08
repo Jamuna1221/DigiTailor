@@ -103,13 +103,13 @@ function Login({ onSignIn }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, var(--theme-primary)08 0%, var(--theme-secondary)08 100%)' }}>
       <div className="max-w-md w-full space-y-8">
         
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center space-x-2 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'var(--theme-gradient)' }}>
               <span className="text-white font-bold text-xl">DT</span>
             </div>
             <span className="text-2xl font-bold gradient-text">DigiTailor</span>
@@ -148,9 +148,23 @@ function Login({ onSignIn }) {
                 onChange={handleChange}
                 required
                 autoComplete="email"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 ${
                   validationErrors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
                 }`}
+                style={{
+                  '--tw-ring-color': 'var(--theme-primary)',
+                  '--tw-ring-opacity': '0.2'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--theme-primary)'
+                  e.target.style.boxShadow = `0 0 0 3px var(--theme-primary)20`
+                }}
+                onBlur={(e) => {
+                  if (!validationErrors.email) {
+                    e.target.style.borderColor = '#d1d5db'
+                    e.target.style.boxShadow = 'none'
+                  }
+                }}
                 placeholder="Enter your email"
               />
               {validationErrors.email && (
@@ -188,7 +202,10 @@ function Login({ onSignIn }) {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-4 w-4 border-gray-300 rounded"
+                  style={{
+                    accentColor: 'var(--theme-primary)'
+                  }}
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
@@ -198,7 +215,14 @@ function Login({ onSignIn }) {
               <div className="text-sm">
                 <Link 
                   to="/forgot-password" 
-                  className="text-purple-600 hover:text-purple-500 text-sm font-medium"
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--theme-primary)' }}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = 'var(--theme-primary-dark)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = 'var(--theme-primary)'
+                  }}
                 >
                   Forgot password?
                 </Link>
@@ -209,11 +233,24 @@ function Login({ onSignIn }) {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white transition-all duration-200 ${
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white transition-all duration-200 transform hover:scale-105 ${
                 loading
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105'
+                  : ''
               }`}
+              style={{
+                background: loading ? undefined : 'var(--theme-gradient)'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.background = 'var(--theme-gradient-hover)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.target.style.background = 'var(--theme-gradient)'
+                }
+              }}
             >
               {loading ? (
                 <>
@@ -259,7 +296,7 @@ function Login({ onSignIn }) {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link to="/signup" className="font-medium" style={{ color: 'var(--theme-primary)' }}>
                 Sign up for free
               </Link>
             </p>

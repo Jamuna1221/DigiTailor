@@ -38,9 +38,9 @@ function Home() {
             
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-8 text-white">
-              Where <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">AI</span> Meets
+              Where <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--theme-gradient)' }}>AI</span> Meets
               <br />
-              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Artistry</span>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--theme-gradient)' }}>Artistry</span>
             </h1>
             
             {/* Subtitle */}
@@ -53,7 +53,8 @@ function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
               <Link 
                 to="/ai-studio" 
-                className="inline-flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                className="inline-flex items-center space-x-3 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                style={{ background: 'var(--theme-gradient)' }}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -132,7 +133,7 @@ function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-purple-200 dark:hover:border-purple-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
-              <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" style={{ background: 'var(--theme-gradient)' }}>
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
@@ -144,7 +145,7 @@ function Home() {
             </div>
             
             <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
-              <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" style={{ background: 'var(--theme-gradient)' }}>
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
                 </svg>
@@ -156,7 +157,7 @@ function Home() {
             </div>
             
             <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-green-200 dark:hover:border-green-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
-              <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" style={{ background: 'var(--theme-gradient)' }}>
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -210,7 +211,8 @@ function Home() {
           <div className="text-center">
             <Link 
               to="/catalog" 
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center space-x-2 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              style={{ background: 'var(--theme-gradient)' }}
             >
               <span>Explore All Designs</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,7 +235,7 @@ function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-8 rounded-2xl">
+            <div className="p-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, var(--theme-primary)08 0%, var(--theme-secondary)08 100%)' }}>
               <div className="flex items-center mb-4">
                 <img 
                   src="https://images.unsplash.com/photo-1494790108755-2616b612b647?w=100" 
@@ -250,7 +252,7 @@ function Home() {
               </p>
             </div>
             
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl">
+            <div className="p-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, var(--theme-primary)08 0%, var(--theme-accent)08 100%)' }}>
               <div className="flex items-center mb-4">
                 <img 
                   src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" 
@@ -267,7 +269,7 @@ function Home() {
               </p>
             </div>
             
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl">
+            <div className="p-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, var(--theme-secondary)08 0%, var(--theme-accent)08 100%)' }}>
               <div className="flex items-center mb-4">
                 <img 
                   src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100" 
@@ -287,19 +289,20 @@ function Home() {
         </div>
       </section>
 
-      {/* CTA Section - EXACTLY as your original */}
-      <section className="py-20 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+      {/* CTA Section */}
+      <section className="py-20 text-white" style={{ background: 'var(--theme-gradient)' }}>
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Ready to Experience the Future?
           </h2>
-          <p className="text-xl text-purple-100 mb-10 leading-relaxed">
+          <p className="text-xl mb-10 leading-relaxed opacity-90">
             Join thousands of fashion enthusiasts who are already creating stunning, personalized garments with AI
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link 
               to="/ai-studio" 
-              className="inline-flex items-center space-x-3 bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center space-x-3 bg-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+              style={{ color: 'var(--theme-primary)' }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -308,7 +311,16 @@ function Home() {
             </Link>
             <Link 
               to="/catalog" 
-              className="inline-flex items-center space-x-3 border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300"
+              className="inline-flex items-center space-x-3 border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white transition-all duration-300"
+              style={{ 
+                '--hover-text-color': 'var(--theme-primary)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.color = 'var(--theme-primary)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = 'white'
+              }}
             >
               <span>Browse Designs</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
