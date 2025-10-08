@@ -46,7 +46,7 @@ export const getAllCatalog = async (req, res) => {
     
     // Execute query
     let query = Catalog.find(filter)
-      .select('name primaryImage category basePrice tags estimatedDays isFeatured')
+      .select('name primaryImage category basePrice  estimatedDays isFeatured')
       .sort(sortOptions)
     
     if (limit) {

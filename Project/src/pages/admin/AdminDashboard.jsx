@@ -19,11 +19,25 @@ function AdminDashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true)
+        setError(null)
+        
+        const token = localStorage.getItem('token')
+        
+        if (!token) {
+          setError('Please login as admin to view dashboard')
+          setLoading(false)
+          return
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
         
         // Fetch dashboard statistics
         const [statsResponse, ordersResponse] = await Promise.all([
-          fetch('http://localhost:5000/api/admin/dashboard/stats'),
-          fetch('http://localhost:5000/api/admin/dashboard/recent-orders?limit=5')
+          fetch('http://localhost:5000/api/admin/dashboard/stats', { headers }),
+          fetch('http://localhost:5000/api/admin/dashboard/recent-orders?limit=5', { headers })
         ])
         
         if (statsResponse.ok) {
@@ -31,6 +45,8 @@ function AdminDashboard() {
           if (statsData.success) {
             setStats(statsData.data)
           }
+        } else if (statsResponse.status === 401 || statsResponse.status === 403) {
+          setError('Unauthorized: Please login as admin')
         }
         
         if (ordersResponse.ok) {
@@ -70,10 +86,11 @@ function AdminDashboard() {
   if (error) {
     return (
       <div className="text-center py-12">
+        <div className="text-red-500 mb-2">⚠️</div>
         <p className="text-red-600 mb-4">{error}</p>
         <button 
           onClick={() => window.location.reload()} 
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
         >
           Retry
         </button>
@@ -210,23 +227,32 @@ function AdminDashboard() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {recentOrders.map((order) => (
-                  <tr key={order._id}>
-                    <td className="py-3 text-sm font-medium text-gray-900">#{order._id.slice(-8)}</td>
-                    <td className="py-3 text-sm text-gray-900">{order.customerName || 'Guest'}</td>
+                  <tr key={order._id} className="hover:bg-gray-50">
+                    <td className="py-3 text-sm font-medium text-gray-900">
+                      #{order.orderId || order._id.slice(-8)}
+                    </td>
+                    <td className="py-3 text-sm text-gray-900">{order.customerName}</td>
                     <td className="py-3 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
                     </td>
                     <td className="py-3">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
                         order.status === 'Dispatched' ? 'bg-blue-100 text-blue-800' :
                         order.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
+                        order.status === 'Completed' ? 'bg-purple-100 text-purple-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
                         {order.status}
                       </span>
                     </td>
-                    <td className="py-3 text-sm font-medium text-gray-900">₹{order.total}</td>
+                    <td className="py-3 text-sm font-medium text-gray-900">
+                      ₹{order.total.toLocaleString()}
+                    </td>
                   </tr>
                 ))}
               </tbody>

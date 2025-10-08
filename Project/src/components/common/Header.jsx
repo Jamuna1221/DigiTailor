@@ -106,6 +106,7 @@ function Header({ user, onSignOut }) {
           <div className="flex h-20 items-center justify-between">
             {/* Logo with enhanced design */}
             <Link to="/" className="flex items-center space-x-3 group">
+            <div id="google_translate_element"></div>
               <div className="relative">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-500 to-indigo-600 shadow-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-2xl group-hover:shadow-purple-500/30">
                   <span className="text-xl font-black text-white tracking-tight">DT</span>

@@ -1,4 +1,5 @@
 import Order from '../models/order.model.js'
+import { sendOutForDeliveryEmail } from '../services/email.service.js'
 import { allocateTailorToOrder } from '../services/tailorAllocation.js'
 
 // Create new order with automatic tailor allocation
@@ -223,8 +224,17 @@ export const updateOrderByTailor = async (req, res) => {
       orderId,
       updateData,
       { new: true }
-    )
+    ).populate('userId', 'email firstName lastName')
     
+
+if (!updatedOrder) {
+  return res.status(404).json({ success: false, message: 'Order not found' })
+}
+
+// ✅ SEND EMAIL IF STATUS IS OUT FOR DELIVERY
+if (updatedOrder.status === 'shipped'||updatedOrder.status === 'shipped') {
+  await sendOutForDeliveryEmail(updatedOrder.userId.email, updatedOrder)
+}
     if (!updatedOrder) {
       return res.status(404).json({
         success: false,

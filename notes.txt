@@ -1,6 +1,6 @@
 o auth(contine with google)-completed-sikkal
 add to cart la user issue -completed
-recommandation-completed
+recommendation-completed
 most view -completed
 recently viewed -completed
 combo-completed
@@ -9,6 +9,7 @@ payment*
 order processing-ongoing
 tailot dashboard
 admin dashboard
-whatsapp notification-mail
-chatpot
-ai-studio potanum 
+mail
+chatpot -
+ai-studio thookanum XXXXXXX
+settings
