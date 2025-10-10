@@ -33,20 +33,19 @@ function Home() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              <span>AI-POWERED FASHION DESIGN</span>
+              <span>A FASHION ATELIER STUDIO</span>
             </div>
             
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-bold mb-8 text-white">
-              Where <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--theme-gradient)' }}>AI</span> Meets
+              Where every <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--theme-gradient)' }}>Stitch</span> tells <abbr title=""></abbr>
               <br />
-              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--theme-gradient)' }}>Artistry</span>
+              <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'var(--theme-gradient)' }}>Story</span>
             </h1>
             
             {/* Subtitle */}
             <p className="text-xl md:text-2xl text-gray-100 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Experience the future of fashion with our AI-powered design studio. Create, 
-              customize, and craft garments that perfectly match your vision and style.
+              Discover the art of fashion with our personalized studio. Design, customize, and create garments crafted uniquely to your style and vision
             </p>
             
             {/* CTA Buttons */}
@@ -65,12 +64,7 @@ function Home() {
                 </svg>
               </Link>
               
-              <button className="inline-flex items-center space-x-3 bg-white bg-opacity-20 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold text-lg border border-white border-opacity-30 hover:bg-opacity-30 transition-all duration-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Watch Demo</span>
-              </button>
+              
             </div>
             
             {/* Stats Section */}
@@ -124,10 +118,10 @@ function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-4">
-              Powered by Advanced AI Technology
+              Tailored Excellence, Modern Craftsmanship
             </h2>
             <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Our cutting-edge AI understands your style preferences and creates personalized designs
+            Experience styling, precision fitting, and rapid garment creation with our advanced tailoring studio. Unlock fashion made for you, by you.
             </p>
           </div>
           
@@ -138,9 +132,9 @@ function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Smart Design Generation</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Style Consultation</h3>
               <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
-                Our AI analyzes your preferences, body type, and occasion to generate unique, personalized designs just for you
+                Get personalized style recommendations to help you discover your best look and fabric choices 
               </p>
             </div>
             
@@ -152,8 +146,8 @@ function Home() {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Perfect Fit Technology</h3>
               <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
-                Advanced measurement algorithms ensure every garment fits perfectly, reducing alterations by 95%
-              </p>
+               Advanced digital measurements ensure every garment fits beautifully and comfortably 
+               </p>
             </div>
             
             <div className="group text-center p-8 rounded-2xl border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-green-200 dark:hover:border-green-400/30 transition-all duration-300 bg-white dark:bg-slate-950/40">
@@ -162,9 +156,9 @@ function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Lightning Fast Creation</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">Rapid Custom Creation	</h3>
               <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
-                Generate hundreds of design variations in seconds. From concept to creation in record time
+                Swift design-to-delivery process brings your unique ideas to life in record time
               </p>
             </div>
           </div>
@@ -175,9 +169,9 @@ function Home() {
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-slate-900 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-4">Featured AI Creations</h2>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-slate-100 mb-4">Featured Creations</h2>
             <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Discover stunning designs created by our AI and brought to life by expert craftspeople
+              Discover stunning designs created by us and brought to life by expert craftspeople
             </p>
           </div>
           
@@ -248,8 +242,7 @@ function Home() {
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed dark:!text-slate-900">
-                "The AI understood my style perfectly! The designs were exactly what I envisioned, and the quality is outstanding."
-              </p>
+               "The team understood my style perfectly! The designs matched what I envisioned, and the quality is outstanding" </p>
             </div>
             
             <div className="p-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, var(--theme-primary)08 0%, var(--theme-accent)08 100%)' }}>
@@ -265,8 +258,7 @@ function Home() {
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed dark:!text-slate-900">
-                "Incredible technology! I got a perfectly fitted suit in just 5 days. The AI suggestions were spot on."
-              </p>
+                "I received a perfectly fitted suit in just 5 days. The tailoring suggestions were exactly right."</p>
             </div>
             
             <div className="p-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, var(--theme-secondary)08 0%, var(--theme-accent)08 100%)' }}>
@@ -282,8 +274,7 @@ function Home() {
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed dark:!text-slate-900">
-                "Amazing experience! The AI created beautiful ethnic wear designs that I absolutely love. Highly recommended!"
-              </p>
+                "Amazing experience! Beautiful ethnic wear designs tailored to my preferences. Highly recommended!" </p>
             </div>
           </div>
         </div>
@@ -293,11 +284,10 @@ function Home() {
       <section className="py-20 text-white" style={{ background: 'var(--theme-gradient)' }}>
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Ready to Experience the Future?
+            Ready to Discover Your Signature Style?
           </h2>
           <p className="text-xl mb-10 leading-relaxed opacity-90">
-            Join thousands of fashion enthusiasts who are already creating stunning, personalized garments with AI
-          </p>
+            Join thousands of fashion lovers already enjoying unique, beautifully tailored garments made just for them</p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Link 
               to="/ai-studio" 

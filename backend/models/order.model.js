@@ -106,7 +106,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['placed', 'confirmed', 'assigned', 'in_progress', 'completed', 'shipped', 'delivered', 'cancelled'],
+    enum: ['placed', 'confirmed', 'assigned', 'in_progress', 'completed', 'shipped','out_for_delivery', 'delivered', 'cancelled'],
     default: 'placed'
   },
   assignedTailor: {

@@ -75,12 +75,13 @@ function Header({ user, onSignOut }) {
     }
   }, [userMenuOpen, hamburgerMenuOpen]);
 
-  // Google Translate element loader (prevents duplicate load)
+  // Google Translate initialization (hidden, controlled by our custom selector)
   useEffect(() => {
     if (!document.getElementById('google-translate-script')) {
       const addScript = document.createElement('script');
       addScript.id = 'google-translate-script';
       addScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      addScript.async = true;
       document.body.appendChild(addScript);
     }
     window.googleTranslateElementInit = () => {
@@ -89,7 +90,7 @@ function Header({ user, onSignOut }) {
           {
             pageLanguage: 'en',
             includedLanguages: 'en,ta,hi,te,ml,kn,ur,gu',
-            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
           },
           'google_translate_element'
         );
@@ -102,7 +103,7 @@ function Header({ user, onSignOut }) {
   const navigation = [
     { name: 'Home', href: "/", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
     { name: 'Catalog', href: "/catalog", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
-    { name: 'AI Studio', href: "/ai-studio", icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
+    { name: 'Custom Studio', href: "/ai-studio", icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
     { name: 'Gallery', href: "/gallery", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
     { name: 'Contact', href: "/contact", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
   ];
@@ -237,11 +238,13 @@ function Header({ user, onSignOut }) {
               <div className="relative">
                 <ThemeToggle showLabel={false} />
               </div>
-              {/* Google Translate container */}
-              <div 
-                id="google_translate_element" 
-                className="hidden md:flex items-center justify-center min-w-fit transition-all duration-300 hover:scale-105"
-              />
+              {/* Beautiful Google Translate Language Selector */}
+              <div className="relative group">
+                <div 
+                  id="google_translate_element" 
+                  className="google-translate-wrapper"
+                />  
+              </div>
               {!user ? (
                 <>
                   <Link

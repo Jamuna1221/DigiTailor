@@ -7,7 +7,7 @@ combo-completed
 order review
 payment*
 order processing-ongoing
-tailot dashboard
+tailor dashboard
 admin dashboard
 mail
 chatpot -

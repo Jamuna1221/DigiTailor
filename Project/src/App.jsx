@@ -4,7 +4,7 @@ import Header from './components/common/Header.jsx'
 import Footer from './components/common/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Catalog from './pages/Catalog.jsx'
-import AIStudio from './pages/AIStudio.jsx'
+import CustomStudio from './pages/CustomStudio.jsx'
 import Profile from './pages/Profile.jsx'
 import OrderTracking from './pages/OrderTracking.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -162,7 +162,7 @@ function App() {
                 <Route path="/signup" element={<SignUp onSignIn={handleSignIn} />} />
                 <Route path="/catalog" element={<Catalog user={user} />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/ai-studio" element={<AIStudio user={user} />} />
+                <Route path="/ai-studio" element={<CustomStudio user={user} />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />

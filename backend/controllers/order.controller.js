@@ -213,48 +213,66 @@ export const getOrdersForUser = async (req, res) => {
 // **TAILOR - Update order status and notes**
 export const updateOrderByTailor = async (req, res) => {
   try {
-    const { orderId } = req.params
-    const { status, tailorNotes } = req.body
-    
-    const updateData = {}
-    if (status) updateData.status = status
-    if (tailorNotes) updateData.tailorNotes = tailorNotes
-    
+    const { orderId } = req.params;
+    const { status, tailorNotes } = req.body;
+
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (tailorNotes) updateData.tailorNotes = tailorNotes;
+
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       updateData,
       { new: true }
-    ).populate('userId', 'email firstName lastName')
-    
+    ).populate('userId', 'email firstName lastName');
 
-if (!updatedOrder) {
-  return res.status(404).json({ success: false, message: 'Order not found' })
-}
-
-// ✅ SEND EMAIL IF STATUS IS OUT FOR DELIVERY
-if (updatedOrder.status === 'shipped'||updatedOrder.status === 'shipped') {
-  await sendOutForDeliveryEmail(updatedOrder.userId.email, updatedOrder)
-}
     if (!updatedOrder) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      })
+      console.log('🚫 Order not found with ID:', orderId);
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
-    
+
+    console.log(`🔄 Order status updated to: ${updatedOrder.status}`);
+    if (status === 'shipped') {
+  // Generate random number of days between 1 and 4
+  const minDays = 1;
+  const maxDays = 4;
+  const randomDays = Math.floor(Math.random() * (maxDays - minDays + 1)) + minDays;
+
+  // Set estimatedDelivery to randomDays after today
+  updateData.estimatedDelivery = new Date();
+  updateData.estimatedDelivery.setDate(updateData.estimatedDelivery.getDate() + randomDays);
+
+  console.log(`⏳ Setting estimatedDelivery to ${updateData.estimatedDelivery.toDateString()} (in ${randomDays} days)`);
+}
+
+    // Check if status matches trigger for email
+    if (['out_for_delivery', 'shipped'].includes(updatedOrder.status)) {
+      console.log('✉️ Triggering sendOutForDeliveryEmail...');
+      try {
+        await sendOutForDeliveryEmail(updatedOrder.userId.email, updatedOrder);
+        console.log('✅ sendOutForDeliveryEmail called successfully.');
+      } catch (emailError) {
+        console.error('❌ Error sending delivery email:', emailError);
+      }
+    } else {
+      console.log('ℹ️ Order status does not trigger delivery email.');
+    }
+
     res.status(200).json({
       success: true,
       message: 'Order updated successfully',
-      data: updatedOrder
-    })
-    
+      data: updatedOrder,
+    });
+
   } catch (error) {
+    console.error('❌ Error updating order:', error);
     res.status(500).json({
       success: false,
       message: 'Error updating order'
-    })
+    });
   }
-}
+};
+
 
 // Get single order details
 export const getOrderDetails = async (req, res) => {

@@ -136,29 +136,165 @@
   @apply bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200 transform hover:scale-105;
 }
 
-/* Google Translate Custom Styles - DigiTailor Design */
-#google_translate_element {
-  font-family: 'Poppins', sans-serif !important;
+/* Beautiful Google Translate Styling */
+.google-translate-wrapper {
+  position: relative;
 }
 
-/* Hide Google branding completely */
+/* Hide Google's default branding and banner */
 .goog-te-banner-frame,
-.goog-te-gadget .goog-te-combo option:first-child,
-.goog-logo-link {
+.goog-te-balloon-frame {
   display: none !important;
 }
 
-.goog-te-gadget .goog-te-combo:first-child option:first-child {
-  display: none;
+body {
+  top: 0px !important;
 }
 
-/* Remove Google's banner that appears at top */
+/* Style the Google Translate gadget */
+.goog-te-gadget {
+  font-family: inherit !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  position: relative !important;
+}
+
+/* Hide the default Google branding text */
+.goog-te-gadget span:first-child {
+  display: none !important;
+}
+
+/* Beautiful styling for the dropdown */
+.goog-te-gadget .goog-te-combo {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: white !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 12px 45px 12px 45px !important;
+  box-shadow: 0 4px 8px -2px rgba(139, 92, 246, 0.3), 0 2px 4px -1px rgba(236, 72, 153, 0.2) !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  min-width: 160px !important;
+  height: 44px !important;
+  text-align: center !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Add custom text before the dropdown */
+.goog-te-gadget .goog-te-combo::before {
+  content: '🌐 Language' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.goog-te-gadget .goog-te-combo:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #be185d 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 16px -4px rgba(139, 92, 246, 0.4), 0 4px 8px -2px rgba(236, 72, 153, 0.3) !important;
+}
+
+.goog-te-gadget .goog-te-combo:focus {
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.goog-te-gadget .goog-te-combo:active {
+  transform: translateY(0px) !important;
+  box-shadow: 0 2px 4px -1px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Style the dropdown options */
+.goog-te-gadget .goog-te-combo option {
+  background: white !important;
+  color: #374151 !important;
+  padding: 8px 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Hide the "Select Language" text */
+.goog-te-gadget .goog-te-combo option:first-child {
+  display: none !important;
+}
+
+/* Custom dropdown arrow */
+.google-translate-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid white;
+  pointer-events: none;
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+.google-translate-wrapper:hover::after {
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Remove Google Translate banner that pushes content down */
 body {
+  top: 0 !important;
+  position: static !important;
+}
+
+/* Hide the "Powered by Google" text */
+.goog-logo-link,
+.goog-te-gadget span,
+.goog-te-gadget > span > a {
+  display: none !important;
+}
+
+/* Ensure no Google Translate styling affects our site */
+html.translated-ltr,
+html.translated-rtl {
   top: 0 !important;
 }
 
-.goog-te-banner-frame {
+/* Hide any remaining Google branding */
+.goog-te-gadget .goog-te-combo option:first-child {
   display: none !important;
+}
+
+/* Custom Language Selector Styling */
+.custom-language-select {
+  background-image: none !important;
+}
+
+.custom-language-select option {
+  background-color: white !important;
+  color: #374151 !important;
+  padding: 8px 12px !important;
+  font-weight: 500 !important;
+}
+
+.custom-language-select option:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Ensure dropdown appears above other elements */
+.custom-language-select:focus {
+  z-index: 9999 !important;
 }
 
 .goog-te-menu-frame {

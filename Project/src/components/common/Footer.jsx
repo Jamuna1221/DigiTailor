@@ -17,7 +17,7 @@ const Footer = () => {
               <span className="text-2xl font-bold">DigiTailor</span>
             </Link>
             <p className="text-purple-200 leading-relaxed">
-              Revolutionizing traditional tailoring with AI-powered design technology. 
+             Experience styling, precision fitting, and rapid garment creation with our advanced tailoring studio. Unlock fashion made for you, by you
               Creating perfect fits and stunning designs for the modern wardrobe.
             </p>
             <div className="flex space-x-4">
@@ -40,7 +40,7 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-orange-300">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/ai-design-studio" className="text-purple-200 hover:text-white transition-colors">AI Design Studio</Link></li>
+              <li><Link to="/ai-design-studio" className="text-purple-200 hover:text-white transition-colors">Custom design Studio</Link></li>
               <li><Link to="/catalog" className="text-purple-200 hover:text-white transition-colors">Design Catalog</Link></li>
               <li><Link to="/gallery" className="text-purple-200 hover:text-white transition-colors">Customer Gallery</Link></li>
               <li><Link to="/services" className="text-purple-200 hover:text-white transition-colors">Our Services</Link></li>
