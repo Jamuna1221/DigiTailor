@@ -165,7 +165,7 @@ function Gallery() {
         </div>
         <div className="relative overflow-hidden rounded-2xl border border-purple-100 shadow-lg">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 opacity-20 animate-[shimmer_6s_linear_infinite]" />
-          <div className="relative flex gap-4 py-3 items-stretch whitespace-nowrap animate-[scrollLeft_25s_linear_infinite]">
+          <div className="relative flex gap-4 py-3 items-stretch whitespace-nowrap animate-[scrollLeft_80s_linear_infinite]">
             {[...topItems, ...topItems].map((item, idx) => (
               <Link
                 to={`/product/${item._id}`}

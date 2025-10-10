@@ -158,7 +158,7 @@ function Catalog({ user }) {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Design Catalog</h1>
           <p className="text-xl text-gray-600 dark:text-white/90 max-w-3xl mx-auto">
-            Browse our extensive collection of AI-generated and traditional designs
+            Browse our extensive collection of modern and traditional designs
           </p>
         </div>
 

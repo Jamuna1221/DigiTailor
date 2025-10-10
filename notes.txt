@@ -1,15 +1,26 @@
-o auth(contine with google)-completed-sikkal
-add to cart la user issue -completed
-recommendation-completed
-most view -completed
-recently viewed -completed
-combo-completed
+o auth(contine with google)-completed ✔
+add to cart la user issue -completed ✔
+recommendation-completed ✔
+most view -completed ✔
+recently viewed -completed ✔
+combo-completed ✔
+tailor dashboard ✔
+mail ✔
+ai-studio thookanum XXXXXXX ✔ , custom design studio backend -
+settings ✔
+order processing-ongoing 95%✔
+admin dashboard 85%✔
+chatbot - 45%✔
 order review
 payment*
-order processing-ongoing
-tailor dashboard
-admin dashboard
-mail
-chatpot -
-ai-studio thookanum XXXXXXX
-settings
+review-with details about how many people purchased the product , then likes,dislike for review,faq
+show orders completed
+custom studio -color picker
+scratch card -offers
+notifications,
+reports-pagination ,sort ,search filterring
+text dropdown-50%
+text size-
+order successfull issue , 
+urgent mode
+if login the crt dashboard should be displayed
