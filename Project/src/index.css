@@ -35,6 +35,21 @@
   --theme-accent: #f472b6;
   --theme-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
   --theme-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #be185d 100%);
+  
+  /* Text Size Variables (Default: Medium) */
+  --text-scale: 1;
+  --text-base-size: 16px;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
 }
 
 .dark {
@@ -53,6 +68,7 @@
   html, body { height: 100%; }
   body {
     font-family: var(--selected-font-family);
+    font-size: var(--text-base);
     background: var(--color-bg);
     line-height: 1.6;
     color: var(--color-text);
@@ -511,4 +527,126 @@ html.translated-rtl {
 .theme-selection {
   background-color: var(--theme-primary-light) !important;
   color: white !important;
+}
+
+/* Dynamic Text Size Classes */
+.text-dynamic-xs {
+  font-size: var(--text-xs) !important;
+}
+
+.text-dynamic-sm {
+  font-size: var(--text-sm) !important;
+}
+
+.text-dynamic-base {
+  font-size: var(--text-base) !important;
+}
+
+.text-dynamic-lg {
+  font-size: var(--text-lg) !important;
+}
+
+.text-dynamic-xl {
+  font-size: var(--text-xl) !important;
+}
+
+.text-dynamic-2xl {
+  font-size: var(--text-2xl) !important;
+}
+
+.text-dynamic-3xl {
+  font-size: var(--text-3xl) !important;
+}
+
+.text-dynamic-4xl {
+  font-size: var(--text-4xl) !important;
+}
+
+.text-dynamic-5xl {
+  font-size: var(--text-5xl) !important;
+}
+
+.text-dynamic-6xl {
+  font-size: var(--text-6xl) !important;
+}
+
+.text-dynamic-7xl {
+  font-size: var(--text-7xl) !important;
+}
+
+/* Apply dynamic sizing to common text elements */
+body {
+  font-size: var(--text-base);
+}
+
+h1 {
+  font-size: var(--text-4xl);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+}
+
+h3 {
+  font-size: var(--text-2xl);
+}
+
+h4 {
+  font-size: var(--text-xl);
+}
+
+h5 {
+  font-size: var(--text-lg);
+}
+
+h6 {
+  font-size: var(--text-base);
+}
+
+p {
+  font-size: var(--text-base);
+}
+
+.text-xs {
+  font-size: var(--text-xs) !important;
+}
+
+.text-sm {
+  font-size: var(--text-sm) !important;
+}
+
+.text-base {
+  font-size: var(--text-base) !important;
+}
+
+.text-lg {
+  font-size: var(--text-lg) !important;
+}
+
+.text-xl {
+  font-size: var(--text-xl) !important;
+}
+
+.text-2xl {
+  font-size: var(--text-2xl) !important;
+}
+
+.text-3xl {
+  font-size: var(--text-3xl) !important;
+}
+
+.text-4xl {
+  font-size: var(--text-4xl) !important;
+}
+
+.text-5xl {
+  font-size: var(--text-5xl) !important;
+}
+
+.text-6xl {
+  font-size: var(--text-6xl) !important;
+}
+
+.text-7xl {
+  font-size: var(--text-7xl) !important;
 }

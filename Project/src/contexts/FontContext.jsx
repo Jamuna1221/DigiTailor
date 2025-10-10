@@ -8,6 +8,39 @@ const FontContext = createContext({
 
 // Available font options with their display names and CSS font-family values
 export const AVAILABLE_FONTS = [
+  // Quick access fonts for dropdown
+  {
+    id: 'roboto',
+    name: 'Roboto',
+    displayName: 'Roboto',
+    fontFamily: "'Roboto', sans-serif",
+    category: 'Sans Serif',
+    description: 'Clean and modern Google font'
+  },
+  {
+    id: 'arial',
+    name: 'Arial',
+    displayName: 'Arial',
+    fontFamily: "'Arial', sans-serif",
+    category: 'Sans Serif',
+    description: 'Classic web-safe font'
+  },
+  {
+    id: 'georgia',
+    name: 'Georgia',
+    displayName: 'Georgia',
+    fontFamily: "'Georgia', serif",
+    category: 'Serif',
+    description: 'Elegant serif font for readability'
+  },
+  {
+    id: 'times',
+    name: 'Times New Roman',
+    displayName: 'Times New Roman',
+    fontFamily: "'Times New Roman', serif",
+    category: 'Serif',
+    description: 'Traditional serif font'
+  },
   {
     id: 'inter',
     name: 'Inter',

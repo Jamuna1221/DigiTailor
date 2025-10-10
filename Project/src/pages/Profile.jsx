@@ -3,6 +3,7 @@ import MeasurementForm from '../components/order/MeasurementForm.jsx'
 import admin from '../assets/images/admin.jpg'
 import { useFont } from '../contexts/FontContext.jsx'
 import { useColorTheme } from '../contexts/ColorThemeContext.jsx'
+import { useTextSize } from '../contexts/TextSizeContext.jsx'
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')
@@ -15,6 +16,7 @@ function Profile({ user }) {
   const [uploadingImage, setUploadingImage] = useState(false)
   const { selectedFont, setFont, currentFont, availableFonts } = useFont()
   const { selectedTheme, setColorTheme, currentTheme, availableThemes } = useColorTheme()
+  const { textSize, setTextSize, currentTextSize, availableTextSizes } = useTextSize()
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -1094,6 +1096,164 @@ function Profile({ user }) {
                       <div>
                         <p className="text-sm font-medium text-green-900">Theme changes apply instantly</p>
                         <p className="text-xs text-green-700 mt-1">Your color theme will be applied across the entire website including buttons, links, and accents.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Text Size Settings */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Text Size</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                    <div>
+                      <p className="font-medium text-gray-900">Current Size</p>
+                      <p className="text-sm text-gray-600">{currentTextSize.displayName}</p>
+                      <p className="text-xs text-gray-500">{currentTextSize.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="px-4 py-2 bg-white rounded-lg border shadow-sm">
+                        <span 
+                          className="font-medium text-gray-900"
+                          style={{ fontSize: `${currentTextSize.scale}rem` }}
+                        >
+                          Sample Text
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Choose Text Size</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {availableTextSizes.map((size) => (
+                        <button 
+                          key={size.id}
+                          onClick={() => setTextSize(size.id)}
+                          className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md text-center ${
+                            textSize === size.id 
+                              ? 'border-2 shadow-md' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          style={{
+                            borderColor: textSize === size.id ? 'var(--theme-primary)' : undefined,
+                            backgroundColor: textSize === size.id ? 'var(--theme-primary)08' : 'white'
+                          }}
+                        >
+                          <div className="mb-2">
+                            <span 
+                              className="font-semibold block mb-1"
+                              style={{ fontSize: `${size.scale}rem`, color: 'var(--theme-primary)' }}
+                            >
+                              Aa
+                            </span>
+                            <p className="text-xs font-medium text-gray-900">{size.displayName}</p>
+                          </div>
+                          <div 
+                            className={`w-4 h-4 rounded-full border-2 mx-auto transition-colors ${
+                              textSize === size.id 
+                                ? 'border-2' 
+                                : 'border-gray-300'
+                            }`}
+                            style={{
+                              borderColor: textSize === size.id ? 'var(--theme-primary)' : undefined,
+                              backgroundColor: textSize === size.id ? 'var(--theme-primary)' : 'transparent'
+                            }}
+                          >
+                            {textSize === size.id && (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="flex">
+                      <svg className="w-5 h-5 text-purple-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-purple-900">Text size changes apply instantly</p>
+                        <p className="text-xs text-purple-700 mt-1">All text across the website will be scaled to your preferred size.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Font Style Settings */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Font Style</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Choose Font Family</label>
+                    <div className="relative">
+                      <select
+                        value={selectedFont}
+                        onChange={(e) => setFont(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:border-transparent transition-all duration-200 appearance-none"
+                        style={{
+                          fontFamily: currentFont.fontFamily,
+                          '--tw-ring-color': 'var(--theme-primary)',
+                          '--tw-ring-opacity': '0.2'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = 'var(--theme-primary)'
+                          e.target.style.boxShadow = `0 0 0 3px var(--theme-primary)20`
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#d1d5db'
+                          e.target.style.boxShadow = 'none'
+                        }}
+                      >
+                        {availableFonts.slice(0, 4).map((font) => (
+                          <option key={font.id} value={font.id} style={{ fontFamily: font.fontFamily }}>
+                            {font.displayName}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gray-50 rounded-lg border">
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Font Preview:</p>
+                    </div>
+                    <div 
+                      className="p-4 bg-white rounded-lg border"
+                      style={{ fontFamily: currentFont.fontFamily }}
+                    >
+                      <h4 className="text-lg font-semibold mb-2 text-gray-900">DigiTailor</h4>
+                      <p className="text-base text-gray-700 mb-2">This is how your text will appear with the selected font family.</p>
+                      <p className="text-sm text-gray-600">The quick brown fox jumps over the lazy dog.</p>
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500">
+                        <span className="font-medium">Current:</span> {currentFont.displayName} - {currentFont.description}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <div className="flex">
+                      <svg className="w-5 h-5 text-orange-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-orange-900">Font changes apply instantly</p>
+                        <p className="text-xs text-orange-700 mt-1">Your selected font will be applied across the entire website immediately.</p>
                       </div>
                     </div>
                   </div>

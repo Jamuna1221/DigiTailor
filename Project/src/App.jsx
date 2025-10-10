@@ -35,6 +35,7 @@ import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import { LanguageProvider } from './contexts/LanguageContext.jsx'
 import { FontProvider } from './contexts/FontContext.jsx'
 import { ColorThemeProvider } from './contexts/ColorThemeContext.jsx'
+import { TextSizeProvider } from './contexts/TextSizeContext.jsx'
 
 // ✅ FIXED: Import Cart with correct path (lowercase)
 import Cart from './pages/Cart.jsx'
@@ -149,7 +150,8 @@ function App() {
           <LanguageProvider>
             <FontProvider>
               <ColorThemeProvider>
-                <Router>
+                <TextSizeProvider>
+                  <Router>
               <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white">
             
             <Header user={user} onSignOut={handleSignOut} onSignIn={handleSignIn} />
@@ -251,6 +253,7 @@ function App() {
             <ChatbotWidget />
           </div>
         </Router>
+                </TextSizeProvider>
               </ColorThemeProvider>
             </FontProvider>
           </LanguageProvider>
