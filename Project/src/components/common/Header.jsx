@@ -3,7 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSelector from "./LanguageSelector";
-// import { useTranslation } from 'react-i18next'
+import NotificationBell from "./NotificationBell";
+import { useTranslation } from 'react-i18next'
 
 // Role-based icon renderer with enhanced design
 const getRoleIcon = (role) => {
@@ -35,7 +36,6 @@ const getRoleIcon = (role) => {
       );
   }
 };
-
 const getRoleText = (role) => {
   switch (role) {
     case "admin":
@@ -46,15 +46,12 @@ const getRoleText = (role) => {
       return "Customer";
   }
 };
-
 function Header({ user, onSignOut }) {
   const location = useLocation();
   const { getTotalItems, toggleCart } = useCart();
-
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hamburgerMenuOpen, setHamburgerMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +60,6 @@ function Header({ user, onSignOut }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   useEffect(() => {
     const handleClickOutside = () => {
       setUserMenuOpen(false);
@@ -107,7 +103,6 @@ function Header({ user, onSignOut }) {
     { name: 'Gallery', href: "/gallery", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
     { name: 'Contact', href: "/contact", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" },
   ];
-
   const isActive = (path) => location.pathname === path;
 
   const toggleHamburgerMenu = (e) => {
@@ -115,13 +110,11 @@ function Header({ user, onSignOut }) {
     setHamburgerMenuOpen(!hamburgerMenuOpen);
     setUserMenuOpen(false);
   };
-
   const handleSignOut = () => {
     setUserMenuOpen(false);
     setHamburgerMenuOpen(false);
     onSignOut && onSignOut();
   };
-
   return (
     <>
       <header className={`sticky top-0 z-40 transition-all duration-300 ${
@@ -238,7 +231,13 @@ function Header({ user, onSignOut }) {
               <div className="relative">
                 <ThemeToggle showLabel={false} />
               </div>
-              {/* Beautiful Google Translate Language Selector */}
+              
+              {/* Notification Bell */}
+              {user && (
+                <NotificationBell />
+              )}
+              
+              {/* Google Translate container */}
               <div className="relative group">
                 <div 
                   id="google_translate_element" 
@@ -372,7 +371,7 @@ function Header({ user, onSignOut }) {
                               <div className="mx-4 my-2 border-t border-gray-100"></div>
                             </>
                           )}
-                          
+                        
                           <Link
                             to="/profile"
                             onClick={() => setUserMenuOpen(false)}

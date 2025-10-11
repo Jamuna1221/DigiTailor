@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useNotificationHelpers } from '../hooks/useNotificationHelpers'
 
 function OrderDetails() {
   const { orderId } = useParams()
   const navigate = useNavigate()
+  const { handleOrderStatusChange } = useNotificationHelpers()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showReview, setShowReview] = useState(false)
@@ -50,6 +52,43 @@ function OrderDetails() {
   useEffect(() => {
     fetchOrderDetails()
   }, [fetchOrderDetails])
+
+  // Watch for order status changes and trigger notifications
+  useEffect(() => {
+    if (!order || !order.status) return
+    
+    // Check if this is a status change (not initial load)
+    const lastNotifiedStatus = localStorage.getItem(`notified_status_${orderId}`)
+    if (lastNotifiedStatus !== order.status) {
+      // Trigger notification for the current status
+      const currentStatus = statusFlow.find(s => s.key === order.status)
+      if (currentStatus) {
+        const additionalInfo = {}
+        
+        // Add context-specific info based on status
+        if (order.status === 'assigned' && order.assignedTailor) {
+          additionalInfo.tailorInfo = {
+            firstName: order.assignedTailor.firstName,
+            lastName: order.assignedTailor.lastName,
+            phone: order.assignedTailor.phone
+          }
+        } else if (order.status === 'packed' && order.trackingNumber) {
+          additionalInfo.trackingNumber = order.trackingNumber
+        } else if (order.status === 'shipped' && order.trackingNumber) {
+          additionalInfo.trackingNumber = order.trackingNumber
+          additionalInfo.deliveryDate = order.expectedDelivery
+        }
+        
+        // Only trigger notification if status actually changed
+        if (lastNotifiedStatus !== null) {
+          handleOrderStatusChange(orderId, order.status, additionalInfo)
+        }
+        
+        // Remember this status to avoid duplicate notifications
+        localStorage.setItem(`notified_status_${orderId}`, order.status)
+      }
+    }
+  }, [order?.status, orderId, handleOrderStatusChange])
 
   // Rest of your component code remains the same...
   const submitReview = async () => {
@@ -99,6 +138,98 @@ function OrderDetails() {
     } catch (error) {
       console.error('Error submitting alteration request:', error)
     }
+  }
+
+  // Real-time order status progression with proper notification handling
+  const simulateOrderStatusProgression = () => {
+    const currentIndex = getCurrentStatusIndex()
+    const nextStatus = statusFlow[currentIndex + 1]
+    
+    if (nextStatus) {
+      // Create realistic order updates with additional info
+      let updatedOrder = { ...order, status: nextStatus.key }
+      let additionalInfo = {}
+      
+      if (nextStatus.key === 'assigned') {
+        updatedOrder.assignedTailor = {
+          firstName: 'Selvi',
+          lastName: 'K',
+          phone: '6374367712'
+        }
+        additionalInfo.tailorInfo = updatedOrder.assignedTailor
+      } else if (nextStatus.key === 'completed') {
+        updatedOrder.estimatedDelivery = 'Dec 25, 2024'
+        additionalInfo.estimatedDelivery = updatedOrder.estimatedDelivery
+      } else if (nextStatus.key === 'packed') {
+        updatedOrder.trackingNumber = `DT${Date.now().toString().slice(-8)}`
+        additionalInfo.trackingNumber = updatedOrder.trackingNumber
+      } else if (nextStatus.key === 'shipped') {
+        updatedOrder.trackingNumber = updatedOrder.trackingNumber || `DT${Date.now().toString().slice(-8)}`
+        updatedOrder.expectedDelivery = 'Tomorrow'
+        additionalInfo.trackingNumber = updatedOrder.trackingNumber
+        additionalInfo.deliveryDate = updatedOrder.expectedDelivery
+      } else if (nextStatus.key === 'delivered') {
+        updatedOrder.deliveredAt = new Date().toISOString()
+        additionalInfo.customerName = 'Customer'
+      }
+      
+      // Update order state - this will trigger the notification via useEffect
+      setOrder(updatedOrder)
+      
+      // Show success message
+      setTimeout(() => {
+        alert(`✅ Order status updated to: ${nextStatus.label}\n🔔 Check your notifications!`)
+      }, 100)
+      
+    } else {
+      alert('🎉 Order is already at the final status (Delivered)!')
+    }
+  }
+  
+  // Auto-progress through all statuses (for demo purposes)
+  const simulateFullOrderJourney = () => {
+    const currentIndex = getCurrentStatusIndex()
+    const remainingStatuses = statusFlow.slice(currentIndex + 1)
+    
+    if (remainingStatuses.length === 0) {
+      alert('Order is already completed!')
+      return
+    }
+    
+    remainingStatuses.forEach((status, index) => {
+      setTimeout(() => {
+        let updatedOrder = { ...order, status: status.key }
+        
+        // Add realistic data for each status
+        if (status.key === 'assigned') {
+          updatedOrder.assignedTailor = {
+            firstName: 'Selvi',
+            lastName: 'K',
+            phone: '6374367712'
+          }
+        } else if (status.key === 'completed') {
+          updatedOrder.estimatedDelivery = 'Dec 25, 2024'
+        } else if (status.key === 'packed') {
+          updatedOrder.trackingNumber = `DT${Date.now().toString().slice(-8)}`
+        } else if (status.key === 'shipped') {
+          updatedOrder.trackingNumber = updatedOrder.trackingNumber || `DT${Date.now().toString().slice(-8)}`
+          updatedOrder.expectedDelivery = 'Tomorrow'
+        } else if (status.key === 'delivered') {
+          updatedOrder.deliveredAt = new Date().toISOString()
+        }
+        
+        setOrder(updatedOrder)
+        
+        // Show progress for the last status
+        if (index === remainingStatuses.length - 1) {
+          setTimeout(() => {
+            alert(`🎉 Complete order journey simulated!\n📱 Check all ${remainingStatuses.length} new notifications!`)
+          }, 500)
+        }
+      }, (index + 1) * 2000) // 2 second intervals
+    })
+    
+    alert(`🚀 Starting full order journey simulation...\n⏱️ Will complete in ${remainingStatuses.length * 2} seconds`)
   }
 
   // ... rest of your component remains exactly the same
@@ -295,10 +426,62 @@ function OrderDetails() {
           </div>
         </div>
 
+        {/* Notification Information */}
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-6 mb-6">
+          <div className="flex items-center mb-4">
+            <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-4">
+              <span className="text-2xl text-white">🔔</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-purple-900">Real-time Order Notifications</h3>
+              <p className="text-purple-700 text-sm">Get notified instantly when your order status changes</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-purple-900">🔔 Notification Features:</h4>
+              <ul className="text-purple-700 space-y-1">
+                <li>• LinkedIn-style notification bell in header</li>
+                <li>• Purple theme for unread notifications</li>
+                <li>• Gray theme for read notifications</li>
+                <li>• Click notifications to view order details</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold text-purple-900">📦 You'll be notified when:</h4>
+              <ul className="text-purple-700 space-y-1">
+                <li>• Order is placed successfully</li>
+                <li>• Order is assigned to a tailor</li>
+                <li>• Stitching is completed</li>
+                <li>• Order is packed & ready to ship</li>
+                <li>• Order is out for delivery</li>
+                <li>• Order is delivered</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Actions */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Actions</h2>
+          <h2 className="text-xl font-semibold mb-4">Actions & Demo</h2>
           <div className="flex flex-wrap gap-4">
+            {/* Real-time Status Progression Buttons */}
+            <button
+              onClick={simulateOrderStatusProgression}
+              className="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition-colors font-medium"
+              title="Advance order to next status and trigger real-time notification"
+            >
+              ➡️ Next Status + Notification
+            </button>
+            
+            <button
+              onClick={simulateFullOrderJourney}
+              className="bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-600 transition-colors font-medium"
+              title="Simulate complete order journey with all notifications"
+            >
+              🚀 Complete Journey
+            </button>
             {/* Show review option only when delivered */}
             {order.status === 'delivered' && !order.review && (
               <button

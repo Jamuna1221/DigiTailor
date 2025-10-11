@@ -4,6 +4,9 @@ import admin from '../assets/images/admin.jpg'
 import { useFont } from '../contexts/FontContext.jsx'
 import { useColorTheme } from '../contexts/ColorThemeContext.jsx'
 import { useTextSize } from '../contexts/TextSizeContext.jsx'
+import { useNotificationHelpers, generateSampleNotifications } from '../hooks/useNotificationHelpers'
+import { useNotifications } from '../contexts/NotificationContext'
+import OrderNotificationDemo from '../components/demo/OrderNotificationDemo'
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')
@@ -17,6 +20,8 @@ function Profile({ user }) {
   const { selectedFont, setFont, currentFont, availableFonts } = useFont()
   const { selectedTheme, setColorTheme, currentTheme, availableThemes } = useColorTheme()
   const { textSize, setTextSize, currentTextSize, availableTextSizes } = useTextSize()
+  const { notifyMeasurementSaved, notifyAccountUpdate } = useNotificationHelpers()
+  const { addNotification } = useNotifications()
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -195,6 +200,9 @@ function Profile({ user }) {
           setMeasurementsSaved(true)
           setTimeout(() => setMeasurementsSaved(false), 3000)
           
+          // Add notification
+          notifyMeasurementSaved()
+          
           // Refresh measurements
           const measurementsResponse = await fetch('http://localhost:5000/api/measurements', {
             headers: {
@@ -315,6 +323,9 @@ function Profile({ user }) {
             localStorage.setItem('digitailor_user', JSON.stringify(savedUser))
           }
           
+          // Add notification
+          notifyAccountUpdate('profile')
+          
           alert('Profile updated successfully!')
           window.location.reload() // Refresh to show updated data
         }
@@ -355,6 +366,11 @@ function Profile({ user }) {
       console.error('Error deleting measurement:', error)
       alert('Error deleting measurement. Please try again.')
     }
+  }
+
+  // Demo notification generator function
+  const generateDemoNotifications = () => {
+    generateSampleNotifications(addNotification)
   }
 
   const tabs = [
@@ -1182,6 +1198,43 @@ function Profile({ user }) {
                       <div>
                         <p className="text-sm font-medium text-purple-900">Text size changes apply instantly</p>
                         <p className="text-xs text-purple-700 mt-1">All text across the website will be scaled to your preferred size.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Notification Testing */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Order Notification Testing</h3>
+                <OrderNotificationDemo />
+              </div>
+
+              {/* Quick Notification Demo */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Notification Demo</h3>
+                <div className="space-y-4">
+                  <div className="bg-gray-50 rounded-lg border p-4">
+                    <p className="text-sm text-gray-700 mb-4">
+                      Generate various sample notifications quickly. This will add several demo notifications to your notification bell.
+                    </p>
+                    <button
+                      onClick={generateDemoNotifications}
+                      className="px-6 py-3 rounded-lg font-medium transition-all text-white"
+                      style={{ background: 'var(--theme-gradient)' }}
+                    >
+                      🔔 Generate Sample Notifications
+                    </button>
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex">
+                      <svg className="w-5 h-5 text-blue-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900">Demo Mode</p>
+                        <p className="text-xs text-blue-700 mt-1">These are sample notifications to demonstrate the system. Real notifications will be generated based on your account activity.</p>
                       </div>
                     </div>
                   </div>

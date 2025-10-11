@@ -11,6 +11,8 @@ import Dashboard from './pages/Dashboard.jsx'
 import Gallery from './pages/Gallery.jsx'
 import LoadingSpinner from './components/common/LoadingSpinner.jsx'
 import OrderDetails from './pages/OrderDetails'
+import Notifications from './pages/Notifications.jsx'
+import NotificationTest from './pages/NotificationTest.jsx'
 // Import the existing admin components
 import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -36,6 +38,7 @@ import { LanguageProvider } from './contexts/LanguageContext.jsx'
 import { FontProvider } from './contexts/FontContext.jsx'
 import { ColorThemeProvider } from './contexts/ColorThemeContext.jsx'
 import { TextSizeProvider } from './contexts/TextSizeContext.jsx'
+import { NotificationProvider } from './contexts/NotificationContext.jsx'
 
 // ✅ FIXED: Import Cart with correct path (lowercase)
 import Cart from './pages/Cart.jsx'
@@ -151,7 +154,8 @@ function App() {
             <FontProvider>
               <ColorThemeProvider>
                 <TextSizeProvider>
-                  <Router>
+                  <NotificationProvider>
+                    <Router>
               <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white">
             
             <Header user={user} onSignOut={handleSignOut} onSignIn={handleSignIn} />
@@ -167,6 +171,7 @@ function App() {
                 <Route path="/ai-studio" element={<CustomStudio user={user} />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/gallery" element={<Gallery />} />
+                <Route path="/test-notifications" element={<NotificationTest />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/checkout" element={<Checkout />} />
@@ -204,6 +209,14 @@ function App() {
                   element={
                     <ProtectedRoute allowedRoles={['customer']}>
                       <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/notifications" 
+                  element={
+                    <ProtectedRoute allowedRoles={['customer', 'tailor', 'admin']}>
+                      <Notifications />
                     </ProtectedRoute>
                   } 
                 />
@@ -253,6 +266,7 @@ function App() {
             <ChatbotWidget />
           </div>
         </Router>
+                  </NotificationProvider>
                 </TextSizeProvider>
               </ColorThemeProvider>
             </FontProvider>
