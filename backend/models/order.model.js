@@ -133,7 +133,28 @@ const orderSchema = new mongoose.Schema({
   review: {
     rating: Number,
     comment: String,
+    images: [{
+      url: String,
+      filename: String,
+      uploadedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
     createdAt: Date
+  },
+  // ✅ ADDED: Delivery confirmation fields
+  deliveryToken: {
+    type: String,
+    default: null
+  },
+  deliveryConfirmedAt: {
+    type: Date,
+    default: null
+  },
+  deliveryConfirmedBy: {
+    type: String, // 'customer' or 'auto'
+    default: null
   },
   alterationRequests: [{
     request: String,

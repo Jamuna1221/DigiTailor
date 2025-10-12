@@ -1,6 +1,8 @@
 import Order from '../models/order.model.js'
 import { sendOutForDeliveryEmail } from '../services/email.service.js'
 import { allocateTailorToOrder } from '../services/tailorAllocation.js'
+import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 
 // Create new order with automatic tailor allocation
 export const createOrder = async (req, res) => {
@@ -220,6 +222,17 @@ export const updateOrderByTailor = async (req, res) => {
     if (status) updateData.status = status;
     if (tailorNotes) updateData.tailorNotes = tailorNotes;
 
+    // Generate delivery token when status changes to 'out_for_delivery'
+    if (status === 'out_for_delivery') {
+      const deliveryToken = crypto.randomBytes(32).toString('hex');
+      updateData.deliveryToken = deliveryToken;
+      console.log('\n🔑 ======= DELIVERY TOKEN DEBUG =======');
+      console.log(`📦 Order ID: ${orderId}`);
+      console.log(`🔑 Generated Token: ${deliveryToken}`);
+      console.log(`🔗 Will create URL: ${process.env.BACKEND_URL || 'http://localhost:5000'}/api/orders/confirm-delivery/${deliveryToken}`);
+      console.log('===================================\n');
+    }
+
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       updateData,
@@ -232,6 +245,7 @@ export const updateOrderByTailor = async (req, res) => {
     }
 
     console.log(`🔄 Order status updated to: ${updatedOrder.status}`);
+    console.log(`🔑 Token saved to DB: ${updatedOrder.deliveryToken || 'NOT SAVED'}`);
     if (status === 'shipped') {
   // Generate random number of days between 1 and 4
   const minDays = 1;
@@ -247,15 +261,27 @@ export const updateOrderByTailor = async (req, res) => {
 
     // Check if status matches trigger for email
     if (['out_for_delivery', 'shipped'].includes(updatedOrder.status)) {
-      console.log('✉️ Triggering sendOutForDeliveryEmail...');
+      console.log('\n📧 ======= EMAIL TRIGGER DEBUG =======');
+      console.log(`✉️ Triggering sendOutForDeliveryEmail...`);
+      console.log(`📦 Order ID: ${updatedOrder.orderId || updatedOrder._id}`);
+      console.log(`📧 Email Address: ${updatedOrder.userId.email}`);
+      console.log(`🔑 Has Token: ${!!updatedOrder.deliveryToken}`);
+      console.log(`🔑 Token Value: ${updatedOrder.deliveryToken}`);
+      console.log(`📋 Order Status: ${updatedOrder.status}`);
+      
       try {
         await sendOutForDeliveryEmail(updatedOrder.userId.email, updatedOrder);
-        console.log('✅ sendOutForDeliveryEmail called successfully.');
+        console.log('✅ sendOutForDeliveryEmail completed successfully.');
+        console.log('=====================================\n');
       } catch (emailError) {
+        console.error('\n❌ ======= EMAIL TRIGGER ERROR =======');
         console.error('❌ Error sending delivery email:', emailError);
+        console.error(`📦 Order: ${updatedOrder.orderId || updatedOrder._id}`);
+        console.error(`📧 Email: ${updatedOrder.userId.email}`);
+        console.error('==================================\n');
       }
     } else {
-      console.log('ℹ️ Order status does not trigger delivery email.');
+      console.log(`ℹ️ Order status '${updatedOrder.status}' does not trigger delivery email.`);
     }
 
     res.status(200).json({
@@ -413,6 +439,343 @@ export const addAlterationRequest = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error adding alteration request',
+      error: error.message
+    })
+  }
+}
+
+// Confirm delivery via email token
+export const confirmDelivery = async (req, res) => {
+  try {
+    const { token } = req.params
+    
+    console.log('\n✅ ======= DELIVERY CONFIRMATION DEBUG =======');
+    console.log(`🔑 Received Token: ${token}`);
+    console.log(`🔍 Searching for order with token and status 'out_for_delivery' or 'shipped'...`);
+    
+    // Find order with this delivery token
+    const order = await Order.findOne({ 
+      deliveryToken: token,
+      status: { $in: ['out_for_delivery', 'shipped'] } // Accept both statuses
+    }).populate('userId', 'firstName lastName email')
+    
+    console.log(`📦 Order Found: ${!!order}`);
+    if (order) {
+      console.log(`📦 Order ID: ${order.orderId || order._id}`);
+      console.log(`👤 Customer: ${order.userId.firstName} ${order.userId.lastName}`);
+      console.log(`📧 Email: ${order.userId.email}`);
+    }
+    
+    if (!order) {
+      console.log('❌ No order found with this token or wrong status');
+      console.log('==========================================\n');
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid delivery confirmation link or order already confirmed'
+      })
+    }
+    
+    console.log('✅ Order found! Updating to delivered status...');
+    
+    // Update order status to delivered
+    order.status = 'delivered'
+    order.deliveryConfirmedAt = new Date()
+    order.deliveryConfirmedBy = 'customer'
+    // Keep the token for security audit but it's now used
+    
+    await order.save()
+    
+    console.log(`✅ Delivery confirmed by customer for order: ${order.orderId}`);
+    console.log(`⏰ Confirmed at: ${order.deliveryConfirmedAt}`);
+    console.log('==========================================\n');
+    
+    // Return HTML page with confirmation and review prompt
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Delivery Confirmed - DigiTailor</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            margin: 20px;
+          }
+          .success-icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+          }
+          h1 {
+            color: #333;
+            margin-bottom: 10px;
+          }
+          h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+          }
+          p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+          }
+          .order-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+          }
+          .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin: 10px;
+            transition: transform 0.2s;
+          }
+          .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+          }
+          .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 14px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="success-icon">✅</div>
+          <h1>Delivery Confirmed!</h1>
+          <h2>Thank you, ${order.userId.firstName}!</h2>
+          
+          <div class="order-info">
+            <p><strong>Order ID:</strong> ${order.orderId}</p>
+            <p><strong>Confirmed at:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+          
+          <p>Your order has been successfully marked as delivered.</p>
+          <p><strong>We'd love to hear about your experience!</strong></p>
+          <p>Please consider leaving a review with photos to help other customers.</p>
+          
+          <a href="${process.env.FRONTEND_URL}/orders/${order._id}" class="btn">
+            📝 Write a Review
+          </a>
+          
+          <div class="footer">
+            <p>© 2025 DigiTailor - Your Style, Our Stitch 💖</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `)
+    
+  } catch (error) {
+    console.error('Error confirming delivery:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error confirming delivery',
+      error: error.message
+    })
+  }
+}
+
+// Enhanced review function with image support
+export const addReviewWithImages = async (req, res) => {
+  try {
+    const { orderId } = req.params
+    const { rating, comment } = req.body
+    const userId = req.user.id
+    const files = req.files // Assuming multer middleware for file uploads
+    
+    // Validate input
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'Rating must be between 1 and 5'
+      })
+    }
+    
+    if (files && files.length > 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum 5 images allowed'
+      })
+    }
+    
+    const order = await Order.findOne({
+      _id: orderId,
+      userId: userId,
+      status: 'delivered' // Only allow reviews for delivered orders
+    })
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found or not yet delivered'
+      })
+    }
+    
+    // Check if review already exists
+    if (order.review && order.review.rating) {
+      return res.status(400).json({
+        success: false,
+        message: 'Review already submitted for this order'
+      })
+    }
+    
+    // Process uploaded images
+    const images = []
+    if (files && files.length > 0) {
+      for (const file of files) {
+        images.push({
+          url: `/uploads/reviews/${file.filename}`,
+          filename: file.filename,
+          uploadedAt: new Date()
+        })
+      }
+    }
+    
+    // Add review with images
+    order.review = {
+      rating: Number(rating),
+      comment: comment || '',
+      images: images,
+      createdAt: new Date()
+    }
+    
+    await order.save()
+    
+    console.log(`✅ Review with ${images.length} images added for order: ${order.orderId}`)
+    
+    res.json({
+      success: true,
+      message: 'Review added successfully',
+      data: {
+        review: order.review,
+        imageCount: images.length
+      }
+    })
+  } catch (error) {
+    console.error('Error adding review with images:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error adding review',
+      error: error.message
+    })
+  }
+}
+
+// TEST: Manual delivery email trigger (for debugging)
+export const testDeliveryEmail = async (req, res) => {
+  try {
+    const { orderId } = req.params
+    
+    console.log('\n🧪 ======= MANUAL EMAIL TEST =======');
+    console.log(`📦 Testing email for order: ${orderId}`);
+    
+    const order = await Order.findById(orderId).populate('userId', 'firstName lastName email')
+    
+    if (!order) {
+      console.log('❌ Order not found');
+      return res.status(404).json({ success: false, message: 'Order not found' })
+    }
+    
+    // Generate test token if not exists
+    if (!order.deliveryToken) {
+      order.deliveryToken = crypto.randomBytes(32).toString('hex')
+      await order.save()
+      console.log(`🔑 Generated new token: ${order.deliveryToken}`);
+    }
+    
+    console.log(`📧 Sending test email to: ${order.userId.email}`);
+    
+    await sendOutForDeliveryEmail(order.userId.email, order)
+    
+    console.log('✅ Test email sent successfully!');
+    console.log('===============================\n');
+    
+    res.json({
+      success: true,
+      message: 'Test delivery email sent successfully',
+      data: {
+        orderId: order.orderId || order._id,
+        email: order.userId.email,
+        token: order.deliveryToken,
+        confirmationUrl: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/orders/confirm-delivery/${order.deliveryToken}`
+      }
+    })
+  } catch (error) {
+    console.error('\n❌ ======= TEST EMAIL ERROR =======');
+    console.error('Error in test email:', error);
+    console.error('===============================\n');
+    res.status(500).json({
+      success: false,
+      message: 'Error sending test email',
+      error: error.message
+    })
+  }
+}
+
+// Get delivery status for order (for frontend)
+export const getDeliveryStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params
+    const userId = req.user.id
+    
+    const order = await Order.findOne({
+      _id: orderId,
+      userId: userId
+    }).select('status deliveryConfirmedAt deliveryConfirmedBy review')
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      })
+    }
+    
+    const canReview = order.status === 'delivered' && order.deliveryConfirmedAt && (!order.review || !order.review.rating)
+    const isAwaitingDeliveryConfirmation = order.status === 'out_for_delivery'
+    
+    res.json({
+      success: true,
+      data: {
+        status: order.status,
+        deliveryConfirmed: !!order.deliveryConfirmedAt,
+        deliveryConfirmedAt: order.deliveryConfirmedAt,
+        deliveryConfirmedBy: order.deliveryConfirmedBy,
+        canReview: canReview,
+        hasReview: !!(order.review && order.review.rating),
+        isAwaitingDeliveryConfirmation: isAwaitingDeliveryConfirmation
+      }
+    })
+  } catch (error) {
+    console.error('Error getting delivery status:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error getting delivery status',
       error: error.message
     })
   }

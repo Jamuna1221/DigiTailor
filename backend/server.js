@@ -157,6 +157,10 @@ app.use('/api/gallery', galleryRoutes)
 app.use('/api/contact', contactRoutes)
 app.use('/api/admin', adminAuthRoutes)
 
+// ✅ PUBLIC ORDER CONFIRMATION (No auth needed for email links)
+import { confirmDelivery } from './controllers/order.controller.js'
+app.get('/api/orders/confirm-delivery/:token', confirmDelivery)
+
 
 // ✅ PROTECTED API ROUTES (Authentication required)
 app.use('/api/wishlist', protect, wishlistRoutes)

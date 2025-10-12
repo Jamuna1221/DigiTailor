@@ -7,8 +7,13 @@ import {
   updateOrderByTailor,
   getOrderDetails,
   addReview,
-  addAlterationRequest
+  addAlterationRequest,
+  confirmDelivery,
+  addReviewWithImages,
+  getDeliveryStatus,
+  testDeliveryEmail
 } from '../controllers/order.controller.js'
+import { uploadReviewImages, handleUploadError } from '../middleware/upload.js'
 
 const router = express.Router()
 
@@ -27,9 +32,22 @@ router.get('/user/:userId', getOrdersForUser)
 // Tailor - Update order status/notes
 router.put('/tailor/:orderId', updateOrderByTailor)
 
-// Add these routes to your order.routes.js
+// Original routes
 router.get('/:orderId', getOrderDetails)
 router.post('/:orderId/review', addReview)
 router.post('/:orderId/alteration', addAlterationRequest)
+
+// Delivery status route (protected - needs auth)
+router.get('/:orderId/delivery-status', getDeliveryStatus)
+
+// Enhanced review route with image upload
+router.post('/:orderId/review-with-images', 
+  uploadReviewImages, 
+  handleUploadError, 
+  addReviewWithImages
+)
+
+// 🧪 DEBUG: Test delivery email route
+router.post('/:orderId/test-delivery-email', testDeliveryEmail)
 
 export default router

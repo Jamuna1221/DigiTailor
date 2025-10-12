@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useNotificationHelpers } from '../hooks/useNotificationHelpers'
+import EnhancedReviewModal from '../components/EnhancedReviewModal'
+import DeliveryStatusBanner from '../components/DeliveryStatusBanner'
 
 function OrderDetails() {
   const { orderId } = useParams()
@@ -8,9 +10,7 @@ function OrderDetails() {
   const { handleOrderStatusChange } = useNotificationHelpers()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [showReview, setShowReview] = useState(false)
-  const [rating, setRating] = useState(0)
-  const [reviewText, setReviewText] = useState('')
+  const [showEnhancedReview, setShowEnhancedReview] = useState(false)
   const [showAlterations, setShowAlterations] = useState(false)
   const [alterationRequest, setAlterationRequest] = useState('')
 
@@ -90,30 +90,10 @@ function OrderDetails() {
     }
   }, [order?.status, orderId, handleOrderStatusChange])
 
-  // Rest of your component code remains the same...
-  const submitReview = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/review`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          rating,
-          review: reviewText
-        })
-      })
-      
-      if (response.ok) {
-        alert('Review submitted successfully!')
-        setShowReview(false)
-        fetchOrderDetails() // This will now work properly
-      }
-    } catch (error) {
-      console.error('Error submitting review:', error)
-    }
+  // Enhanced review submission handler
+  const handleReviewSubmitted = () => {
+    setShowEnhancedReview(false)
+    fetchOrderDetails() // Refresh order data
   }
 
   const submitAlterationRequest = async () => {
@@ -140,100 +120,7 @@ function OrderDetails() {
     }
   }
 
-  // Real-time order status progression with proper notification handling
-  const simulateOrderStatusProgression = () => {
-    const currentIndex = getCurrentStatusIndex()
-    const nextStatus = statusFlow[currentIndex + 1]
-    
-    if (nextStatus) {
-      // Create realistic order updates with additional info
-      let updatedOrder = { ...order, status: nextStatus.key }
-      let additionalInfo = {}
-      
-      if (nextStatus.key === 'assigned') {
-        updatedOrder.assignedTailor = {
-          firstName: 'Selvi',
-          lastName: 'K',
-          phone: '6374367712'
-        }
-        additionalInfo.tailorInfo = updatedOrder.assignedTailor
-      } else if (nextStatus.key === 'completed') {
-        updatedOrder.estimatedDelivery = 'Dec 25, 2024'
-        additionalInfo.estimatedDelivery = updatedOrder.estimatedDelivery
-      } else if (nextStatus.key === 'packed') {
-        updatedOrder.trackingNumber = `DT${Date.now().toString().slice(-8)}`
-        additionalInfo.trackingNumber = updatedOrder.trackingNumber
-      } else if (nextStatus.key === 'shipped') {
-        updatedOrder.trackingNumber = updatedOrder.trackingNumber || `DT${Date.now().toString().slice(-8)}`
-        updatedOrder.expectedDelivery = 'Tomorrow'
-        additionalInfo.trackingNumber = updatedOrder.trackingNumber
-        additionalInfo.deliveryDate = updatedOrder.expectedDelivery
-      } else if (nextStatus.key === 'delivered') {
-        updatedOrder.deliveredAt = new Date().toISOString()
-        additionalInfo.customerName = 'Customer'
-      }
-      
-      // Update order state - this will trigger the notification via useEffect
-      setOrder(updatedOrder)
-      
-      // Show success message
-      setTimeout(() => {
-        alert(`✅ Order status updated to: ${nextStatus.label}\n🔔 Check your notifications!`)
-      }, 100)
-      
-    } else {
-      alert('🎉 Order is already at the final status (Delivered)!')
-    }
-  }
   
-  // Auto-progress through all statuses (for demo purposes)
-  const simulateFullOrderJourney = () => {
-    const currentIndex = getCurrentStatusIndex()
-    const remainingStatuses = statusFlow.slice(currentIndex + 1)
-    
-    if (remainingStatuses.length === 0) {
-      alert('Order is already completed!')
-      return
-    }
-    
-    remainingStatuses.forEach((status, index) => {
-      setTimeout(() => {
-        let updatedOrder = { ...order, status: status.key }
-        
-        // Add realistic data for each status
-        if (status.key === 'assigned') {
-          updatedOrder.assignedTailor = {
-            firstName: 'Selvi',
-            lastName: 'K',
-            phone: '6374367712'
-          }
-        } else if (status.key === 'completed') {
-          updatedOrder.estimatedDelivery = 'Dec 25, 2024'
-        } else if (status.key === 'packed') {
-          updatedOrder.trackingNumber = `DT${Date.now().toString().slice(-8)}`
-        } else if (status.key === 'shipped') {
-          updatedOrder.trackingNumber = updatedOrder.trackingNumber || `DT${Date.now().toString().slice(-8)}`
-          updatedOrder.expectedDelivery = 'Tomorrow'
-        } else if (status.key === 'delivered') {
-          updatedOrder.deliveredAt = new Date().toISOString()
-        }
-        
-        setOrder(updatedOrder)
-        
-        // Show progress for the last status
-        if (index === remainingStatuses.length - 1) {
-          setTimeout(() => {
-            alert(`🎉 Complete order journey simulated!\n📱 Check all ${remainingStatuses.length} new notifications!`)
-          }, 500)
-        }
-      }, (index + 1) * 2000) // 2 second intervals
-    })
-    
-    alert(`🚀 Starting full order journey simulation...\n⏱️ Will complete in ${remainingStatuses.length * 2} seconds`)
-  }
-
-  // ... rest of your component remains exactly the same
-
 
   const getCurrentStatusIndex = () => {
     return statusFlow.findIndex(status => status.key === order?.status) || 0
@@ -300,6 +187,9 @@ function OrderDetails() {
           <h1 className="text-3xl font-bold text-gray-900">Order Details</h1>
           <p className="text-gray-600">Order #{order.orderId}</p>
         </div>
+
+        {/* Delivery Status Banner */}
+        <DeliveryStatusBanner orderId={orderId} />
 
         {/* Order Status Timeline */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -426,69 +316,21 @@ function OrderDetails() {
           </div>
         </div>
 
-        {/* Notification Information */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-6 mb-6">
-          <div className="flex items-center mb-4">
-            <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-4">
-              <span className="text-2xl text-white">🔔</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-purple-900">Real-time Order Notifications</h3>
-              <p className="text-purple-700 text-sm">Get notified instantly when your order status changes</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <h4 className="font-semibold text-purple-900">🔔 Notification Features:</h4>
-              <ul className="text-purple-700 space-y-1">
-                <li>• LinkedIn-style notification bell in header</li>
-                <li>• Purple theme for unread notifications</li>
-                <li>• Gray theme for read notifications</li>
-                <li>• Click notifications to view order details</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold text-purple-900">📦 You'll be notified when:</h4>
-              <ul className="text-purple-700 space-y-1">
-                <li>• Order is placed successfully</li>
-                <li>• Order is assigned to a tailor</li>
-                <li>• Stitching is completed</li>
-                <li>• Order is packed & ready to ship</li>
-                <li>• Order is out for delivery</li>
-                <li>• Order is delivered</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Actions */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Actions & Demo</h2>
+          <h2 className="text-xl font-semibold mb-4">Actions </h2>
           <div className="flex flex-wrap gap-4">
             {/* Real-time Status Progression Buttons */}
-            <button
-              onClick={simulateOrderStatusProgression}
-              className="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition-colors font-medium"
-              title="Advance order to next status and trigger real-time notification"
-            >
-              ➡️ Next Status + Notification
-            </button>
             
-            <button
-              onClick={simulateFullOrderJourney}
-              className="bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-600 transition-colors font-medium"
-              title="Simulate complete order journey with all notifications"
-            >
-              🚀 Complete Journey
-            </button>
-            {/* Show review option only when delivered */}
-            {order.status === 'delivered' && !order.review && (
+            {/* Show enhanced review option only when delivered and confirmed */}
+            {order.status === 'delivered' && order.deliveryConfirmedAt && !order.review?.rating && (
               <button
-                onClick={() => setShowReview(true)}
-                className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600"
+                onClick={() => setShowEnhancedReview(true)}
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-lg hover:from-yellow-600 hover:to-orange-600 font-semibold shadow-lg transition-all"
               >
-                ⭐ Write Review
+                ⭐ Write Review with Photos
               </button>
             )}
 
@@ -513,42 +355,13 @@ function OrderDetails() {
           </div>
         </div>
 
-        {/* Review Modal */}
-        {showReview && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold mb-4">Write Review</h3>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                <StarRating rating={rating} onRatingChange={setRating} />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Review</label>
-                <textarea
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Share your experience..."
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={submitReview}
-                  disabled={!rating}
-                  className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 disabled:bg-gray-300"
-                >
-                  Submit Review
-                </button>
-                <button
-                  onClick={() => setShowReview(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Enhanced Review Modal */}
+        {showEnhancedReview && (
+          <EnhancedReviewModal
+            orderId={orderId}
+            onClose={() => setShowEnhancedReview(false)}
+            onSubmit={handleReviewSubmitted}
+          />
         )}
 
         {/* Alteration Request Modal */}

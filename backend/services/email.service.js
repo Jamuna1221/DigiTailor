@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { logEmailConfig, validateEmailSetup, debugDeliveryUrl, logOrderEmailData } from '../utils/emailDebug.js'
 
 // Create transporter with proper method name
 const createTransporter = () => {
@@ -32,7 +33,16 @@ export const verifyEmailConnection = async () => {
 export const sendOutForDeliveryEmail = async (email, order) => {
   try {
     const transporter = createTransporter();
+    // 🧪 Use debug utilities
+    logEmailConfig();
+    validateEmailSetup();
+    logOrderEmailData(order);
+    
+    console.log('\n🚀 ======= DELIVERY EMAIL DEBUG =======');
     console.log(`📧 Sending "Out for Delivery" email to: ${email}`);
+    
+    // Get the delivery confirmation URL with debug
+    const deliveryConfirmURL = debugDeliveryUrl(order.deliveryToken);
     
     const mailOptions = {
       from: {
@@ -154,20 +164,28 @@ export const sendOutForDeliveryEmail = async (email, order) => {
       <h1>DigiTailor</h1>
       <p>Your order is on the way!</p>
     </div>
-    <div class="content">
-      <h2>Good News 🎉</h2>
-      <p>Your custom-tailored outfit is <strong>out for delivery</strong> and will reach you soon!</p>
-      
-      <div class="delivery-box">
-        <h3>Order Details</h3>
-        <p><b>Order ID:</b> #DTX23458</p>
-        <p><b>Expected Delivery:</b> Oct 12, 2025</p>
-        <p><b>Delivery Partner:</b> BlueDart Express</p>
-      </div>
+      <div class="content">
+        <h2>Good News 🎉</h2>
+        <p>Your custom-tailored outfit is <strong>out for delivery</strong> and will reach you soon!</p>
+        
+        <div class="delivery-box">
+          <h3>Order Details</h3>
+          <p><b>Order ID:</b> ${order.orderId || order.orderNumber}</p>
+          <p><b>Expected Delivery:</b> ${order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleDateString() : 'Soon'}</p>
+          <p><b>Items:</b> ${order.items ? order.items.length : '1'} custom item(s)</p>
+        </div>
 
-      <p>You can track your order status using the link below:</p>
-      <a href="#" class="btn">Track My Order</a>
-    </div>
+        <div style="margin: 30px 0; padding: 20px; background: #fff8e1; border: 2px solid #ffc107; border-radius: 15px; text-align: center;">
+          <h3 style="color: #f57c00; margin-bottom: 15px;">📦 Important!</h3>
+          <p style="margin-bottom: 20px;"><strong>Once you receive your order, please confirm delivery by clicking the button below:</strong></p>
+          <a href="${deliveryConfirmURL}" class="btn" style="background: linear-gradient(90deg, #ff6b35, #f7931e); font-size: 16px; padding: 15px 30px;">
+            ✅ Mark as Delivered
+          </a>
+          <p style="font-size: 12px; color: #666; margin-top: 15px;">This helps us improve our service and enables you to leave a review!</p>
+        </div>
+
+        <p style="text-align: center; margin-top: 20px;">Thank you for choosing DigiTailor!</p>
+      </div>
     <div class="footer">
       <p>Thank you for choosing <b>DigiTailor</b>. Your style, our stitch 💖</p>
       <p>© 2025 DigiTailor. All rights reserved.</p>
@@ -179,10 +197,35 @@ export const sendOutForDeliveryEmail = async (email, order) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ "Out for Delivery" email sent successfully to: ${email}`);
+    console.log('📤 Email options prepared:');
+    console.log(`   - To: ${mailOptions.to}`);
+    console.log(`   - Subject: ${mailOptions.subject}`);
+    console.log(`   - From: ${mailOptions.from.name} <${mailOptions.from.address}>`);
+    console.log(`   - HTML Length: ${mailOptions.html.length} characters`);
+    
+    console.log('🚀 Attempting to send email...');
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ Email sent successfully!');
+    console.log(`📬 Message ID: ${result.messageId}`);
+    console.log(`📨 Response: ${result.response}`);
+    console.log('======= EMAIL DEBUG COMPLETE =======\n');
+    
+    return result;
   } catch (error) {
-    console.error('❌ Error sending "Out for Delivery" email:', error);
+    console.error('\n❌ ======= EMAIL SEND ERROR =======');
+    console.error(`😱 Error sending "Out for Delivery" email to: ${email}`);
+    console.error(`📦 Order ID: ${order.orderId || order._id}`);
+    console.error(`🔑 Token: ${order.deliveryToken}`);
+    console.error(`😨 Error Details:`, {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode
+    });
+    console.error('================================\n');
     throw error;
   }
 };

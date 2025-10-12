@@ -8,19 +8,20 @@ tailor dashboard ✔
 mail ✔
 ai-studio thookanum XXXXXXX ✔ , custom design studio backend -
 settings ✔
+notifications✔,
 order processing-ongoing 95%✔
 admin dashboard 85%✔
 chatbot - 45%✔
+show orders completed✔
 order review
 payment*
 review-with details about how many people purchased the product , then likes,dislike for review,faq
-show orders completed
 custom studio -color picker
 scratch card -offers
-notifications,
 reports-pagination ,sort ,search filterring
 text dropdown-50%
 text size-
 order successfull issue , 
 urgent mode
 if login the crt dashboard should be displayed
+alteration request
