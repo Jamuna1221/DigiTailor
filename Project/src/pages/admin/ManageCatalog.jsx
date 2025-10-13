@@ -434,7 +434,7 @@ function CatalogForm({ item, onSubmit, onCancel, loading }) {
             <option value="">Select Category</option>
             <option value="blouse">Blouse</option>
             <option value="kurti">Kurti</option>
-            <option value="dress">Dress</option>
+            <option value="Western dress">Western dress</option>
             <option value="mens_shirt">Men's Shirt</option>
             <option value="kids">Kids</option>
             <option value="bridal">Bridal</option>
