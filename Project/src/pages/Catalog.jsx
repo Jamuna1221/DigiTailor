@@ -14,25 +14,40 @@ function Catalog({ user }) {
   const [searchInput, setSearchInput] = useState('')
   const [wishlistMessage, setWishlistMessage] = useState('')
 
-  // Wishlist context
+  const ITEMS_PER_PAGE = 20
+
   const { addToWishlist, removeFromWishlist, isInWishlist, isLoading: wishlistLoading } = useWishlist()
 
-  // Get filters from URL params
+  const currentPage = parseInt(searchParams.get('page')) || 1
+  const totalPages = Math.ceil(designs.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
+  const currentPageDesigns = designs.slice(startIndex, endIndex)
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.set('page', newPage.toString())
+      setSearchParams(newParams)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handlePreviousPage = () => handlePageChange(currentPage - 1)
+  const handleNextPage = () => handlePageChange(currentPage + 1)
+
   const selectedCategory = searchParams.get('category') || 'all'
   const searchQuery = searchParams.get('search') || ''
   const sortBy = searchParams.get('sortBy') || 'createdAt'
   const sortOrder = searchParams.get('sortOrder') || 'desc'
 
-  // Handle wishlist toggle
   const handleWishlistToggle = async (designId) => {
     if (!user) {
-      // You can add a login redirect here if needed
       alert('Please login to add items to wishlist')
       return
     }
 
     const inWishlist = isInWishlist(designId)
-    
     let result
     if (inWishlist) {
       result = await removeFromWishlist(designId)
@@ -44,42 +59,29 @@ function Catalog({ user }) {
     setTimeout(() => setWishlistMessage(''), 3000)
   }
 
-  // Fetch catalog data
   useEffect(() => {
     const fetchCatalogData = async () => {
       try {
         setLoading(true)
-        console.log('📋 Fetching catalog data...')
-        
-        // Build query parameters
         const params = new URLSearchParams({
           category: selectedCategory === 'all' ? '' : selectedCategory,
           search: searchQuery,
           sortBy: sortBy,
           sortOrder: sortOrder
         })
-        
-        // Fetch designs and categories in parallel
+
         const [designsRes, categoriesRes] = await Promise.all([
           fetch(`${API_BASE_URL}/catalog?${params}`),
           fetch(`${API_BASE_URL}/catalog/categories`)
         ])
-        
+
         const designsData = await designsRes.json()
         const categoriesData = await categoriesRes.json()
-        
-        if (designsData.success) {
-          setDesigns(designsData.data)
-        }
-        
-        if (categoriesData.success) {
-          setCategories(['all', ...categoriesData.data])
-        }
-        
-        console.log('✅ Catalog data loaded successfully')
-        
+
+        if (designsData.success) setDesigns(designsData.data)
+        if (categoriesData.success) setCategories(['all', ...categoriesData.data])
       } catch (err) {
-        console.error('❌ Error fetching catalog data:', err)
+        console.error('Error fetching catalog data:', err)
         setError('Failed to load catalog data')
       } finally {
         setLoading(false)
@@ -89,33 +91,25 @@ function Catalog({ user }) {
     fetchCatalogData()
   }, [selectedCategory, searchQuery, sortBy, sortOrder])
 
-  // Handle filter changes
   const handleCategoryChange = (e) => {
     const newParams = new URLSearchParams(searchParams)
     newParams.set('category', e.target.value)
+    newParams.set('page', '1')
     setSearchParams(newParams)
   }
 
-  const handleInputChange = (e) => {
-    setSearchInput(e.target.value)
-  }
+  const handleInputChange = (e) => setSearchInput(e.target.value)
 
-  // Handle search execution (triggered by button click or Enter key)
   const handleSearchExecute = () => {
     const newParams = new URLSearchParams(searchParams)
-    if (searchInput.trim()) {
-      newParams.set('search', searchInput.trim())
-    } else {
-      newParams.delete('search')
-    }
+    if (searchInput.trim()) newParams.set('search', searchInput.trim())
+    else newParams.delete('search')
+    newParams.set('page', '1')
     setSearchParams(newParams)
   }
 
-  // Handle Enter key press
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearchExecute()
-    }
+    if (e.key === 'Enter') handleSearchExecute()
   }
 
   const handleSortChange = (e) => {
@@ -123,6 +117,7 @@ function Catalog({ user }) {
     const newParams = new URLSearchParams(searchParams)
     newParams.set('sortBy', newSortBy)
     newParams.set('sortOrder', newSortOrder)
+    newParams.set('page', '1')
     setSearchParams(newParams)
   }
 
@@ -140,10 +135,7 @@ function Catalog({ user }) {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Catalog</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="bg-purple-600 text-white px-4 py-2 rounded-md"
-          >
+          <button onClick={() => window.location.reload()} className="bg-purple-600 text-white px-4 py-2 rounded-md">
             Reload Page
           </button>
         </div>
@@ -154,6 +146,7 @@ function Catalog({ user }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-[#0B1220] dark:to-[#0B1220] py-12 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Design Catalog</h1>
@@ -179,9 +172,7 @@ function Catalog({ user }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Search */}
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 dark:text-white mb-2">
-                Search
-              </label>
+              <label className="text-sm font-medium text-gray-600 dark:text-white mb-2">Search</label>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -191,7 +182,7 @@ function Catalog({ user }) {
                   onKeyPress={handleKeyPress}
                   className="flex-1 h-12 px-4 border border-gray-300 rounded-lg text-base bg-white dark:bg-[#0f172a] text-gray-700 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                 />
-                <button 
+                <button
                   onClick={handleSearchExecute}
                   className="h-12 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
                   type="button"
@@ -204,11 +195,9 @@ function Catalog({ user }) {
               </div>
             </div>
 
-            {/* Category Filter */}
+            {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
-                Category
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Category</label>
               <select
                 value={selectedCategory}
                 onChange={handleCategoryChange}
@@ -222,15 +211,13 @@ function Catalog({ user }) {
               </select>
             </div>
 
-            {/* Sort Options */}
+            {/* Sort */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sort By
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Sort By</label>
               <select
                 value={`${sortBy}-${sortOrder}`}
                 onChange={handleSortChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 <option value="createdAt-desc">Newest First</option>
                 <option value="createdAt-asc">Oldest First</option>
@@ -245,27 +232,100 @@ function Catalog({ user }) {
 
         {/* Results Summary */}
         <div className="mb-6">
-          <p className="text-gray-600">
-            Showing {designs.length} {designs.length === 1 ? 'design' : 'designs'}
-            {selectedCategory !== 'all' && ` in ${selectedCategory}`}
-            {searchQuery && ` matching "${searchQuery}"`}
+          <p className="text-gray-600 dark:text-white/70">
+            {designs.length > 0 ? (
+              <>
+                Showing {startIndex + 1}-{Math.min(endIndex, designs.length)} of {designs.length} designs
+                {selectedCategory !== 'all' && ` in ${selectedCategory}`}
+                {searchQuery && ` matching "${searchQuery}"`}
+              </>
+            ) : (
+              <>No designs found</>
+            )}
           </p>
         </div>
 
         {/* Design Grid */}
         {designs.length > 0 ? (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
-            {designs.map(design => (
-              <DesignCard 
-                key={design._id} 
-                design={design}
-                user={user}
-                onWishlistToggle={handleWishlistToggle}
-                isInWishlist={isInWishlist(design._id)}
-                wishlistLoading={wishlistLoading}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
+              {currentPageDesigns.map(design => (
+                <DesignCard
+                  key={design._id}
+                  design={design}
+                  user={user}
+                  onWishlistToggle={handleWishlistToggle}
+                  isInWishlist={isInWishlist(design._id)}
+                  wishlistLoading={wishlistLoading}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div className="text-sm text-gray-600 dark:text-gray-300 mb-4 sm:mb-0">
+                  Page {currentPage} of {totalPages}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === 1
+                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                        : 'bg-purple-600 hover:bg-purple-700 text-white'
+                    }`}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                  </button>
+
+                  <div className="hidden sm:flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNumber
+                      if (totalPages <= 5) pageNumber = i + 1
+                      else if (currentPage <= 3) pageNumber = i + 1
+                      else if (currentPage >= totalPages - 2) pageNumber = totalPages - 4 + i
+                      else pageNumber = currentPage - 2 + i
+
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => handlePageChange(pageNumber)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === pageNumber
+                              ? 'bg-purple-600 text-white'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === totalPages
+                        ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                        : 'bg-purple-600 hover:bg-purple-700 text-white'
+                    }`}
+                  >
+                    Next
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-6">
@@ -274,12 +334,11 @@ function Catalog({ user }) {
               </svg>
             </div>
             <h3 className="text-xl font-medium text-gray-900 mb-2">No designs found</h3>
-            <p className="text-gray-600 mb-6">
-              Try adjusting your search or filter criteria
-            </p>
+            <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
             <button
               onClick={() => {
-                setSearchParams(new URLSearchParams())
+                setSearchInput('')
+                setSearchParams(new URLSearchParams({ page: '1' }))
               }}
               className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
