@@ -222,8 +222,8 @@ export const updateOrderByTailor = async (req, res) => {
     if (status) updateData.status = status;
     if (tailorNotes) updateData.tailorNotes = tailorNotes;
 
-    // Generate delivery token when status changes to 'out_for_delivery'
-    if (status === 'out_for_delivery') {
+    // Generate delivery token when status changes to 'out_for_delivery' or 'shipped'
+    if (status === 'out_for_delivery' || status === 'shipped') {
       const deliveryToken = crypto.randomBytes(32).toString('hex');
       updateData.deliveryToken = deliveryToken;
       console.log('\n🔑 ======= DELIVERY TOKEN DEBUG =======');
@@ -451,29 +451,55 @@ export const confirmDelivery = async (req, res) => {
     
     console.log('\n✅ ======= DELIVERY CONFIRMATION DEBUG =======');
     console.log(`🔑 Received Token: ${token}`);
-    console.log(`🔍 Searching for order with token and status 'out_for_delivery' or 'shipped'...`);
+    console.log(`🔍 Searching for order with token...`);
     
-    // Find order with this delivery token
-    const order = await Order.findOne({ 
-      deliveryToken: token,
-      status: { $in: ['out_for_delivery', 'shipped'] } // Accept both statuses
+    // First, find ANY order with this token (regardless of status)
+    const anyOrder = await Order.findOne({ 
+      deliveryToken: token
     }).populate('userId', 'firstName lastName email')
     
-    console.log(`📦 Order Found: ${!!order}`);
-    if (order) {
-      console.log(`📦 Order ID: ${order.orderId || order._id}`);
-      console.log(`👤 Customer: ${order.userId.firstName} ${order.userId.lastName}`);
-      console.log(`📧 Email: ${order.userId.email}`);
+    console.log(`📦 Any Order Found: ${!!anyOrder}`);
+    if (anyOrder) {
+      console.log(`📦 Order ID: ${anyOrder.orderId || anyOrder._id}`);
+      console.log(`👤 Customer: ${anyOrder.userId.firstName} ${anyOrder.userId.lastName}`);
+      console.log(`📧 Email: ${anyOrder.userId.email}`);
+      console.log(`📋 Current Status: ${anyOrder.status}`);
+      console.log(`✅ Already Confirmed At: ${anyOrder.deliveryConfirmedAt || 'Not confirmed'}`);
     }
     
-    if (!order) {
-      console.log('❌ No order found with this token or wrong status');
+    if (!anyOrder) {
+      console.log('❌ No order found with this token at all');
       console.log('==========================================\n');
       return res.status(404).json({
         success: false,
-        message: 'Invalid delivery confirmation link or order already confirmed'
+        message: 'Invalid delivery confirmation link - token not found'
       })
     }
+    
+    // Check if already confirmed
+    if (anyOrder.deliveryConfirmedAt) {
+      console.log('⚠️ Order already confirmed!');
+      console.log(`⏰ Previously confirmed at: ${anyOrder.deliveryConfirmedAt}`);
+      console.log('==========================================\n');
+      return res.status(400).json({
+        success: false,
+        message: 'This order has already been confirmed as delivered'
+      })
+    }
+    
+    // Check if order is in a valid status for confirmation
+    const validStatuses = ['out_for_delivery', 'shipped', 'delivered']
+    if (!validStatuses.includes(anyOrder.status)) {
+      console.log(`❌ Order status '${anyOrder.status}' is not valid for delivery confirmation`);
+      console.log(`✅ Valid statuses: ${validStatuses.join(', ')}`);
+      console.log('==========================================\n');
+      return res.status(400).json({
+        success: false,
+        message: `Cannot confirm delivery for order with status: ${anyOrder.status}`
+      })
+    }
+    
+    const order = anyOrder // Use the found order
     
     console.log('✅ Order found! Updating to delivered status...');
     

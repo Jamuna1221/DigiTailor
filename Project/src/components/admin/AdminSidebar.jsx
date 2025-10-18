@@ -6,7 +6,8 @@ function AdminSidebar({ isOpen, onClose }) {
   const menuItems = [
     { path: '/admin', icon: '📊', label: 'Dashboard', exact: true },
     { path: '/admin/catalog', icon: '👗', label: 'Manage Catalog' },
-    { path: '/admin/gallery', icon: '🎨', label: 'Manage Gallery' },
+    { path: '/admin/custom-designs', icon: '🎨', label: 'Manage Custom Designs' },
+    { path: '/admin/gallery', icon: '🖼️', label: 'Manage Gallery' },
     { path: '/admin/orders', icon: '📦', label: 'Manage Orders' },
     { path: '/admin/users', icon: '👥', label: 'Manage Users' },
   ]

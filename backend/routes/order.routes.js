@@ -50,4 +50,14 @@ router.post('/:orderId/review-with-images',
 // 🧪 DEBUG: Test delivery email route
 router.post('/:orderId/test-delivery-email', testDeliveryEmail)
 
+// 🧪 DEBUG: Test token endpoint
+router.get('/test-token/:token', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Token endpoint is working',
+    token: req.params.token,
+    timestamp: new Date().toISOString()
+  })
+})
+
 export default router

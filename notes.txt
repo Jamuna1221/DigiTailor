@@ -6,22 +6,33 @@ recently viewed -completed ✔
 combo-completed ✔
 tailor dashboard ✔
 mail ✔
-ai-studio thookanum XXXXXXX ✔ , custom design studio backend -
 settings ✔
 notifications✔,
+show orders completed✔
+text dropdown✔
+text size-✔
+pagination✔
+sort✔
 order processing-ongoing 95%✔
 admin dashboard 85%✔
 chatbot - 45%✔
-show orders completed✔
-order review
+ai-studio thookanum XXXXXXX ✔ , custom design studio backend -
+order review 30%
+supercoins-scratch card -offers
 payment*
 review-with details about how many people purchased the product , then likes,dislike for review,faq
 custom studio -color picker
-scratch card -offers
-reports-pagination ,sort ,search filterring
-text dropdown-50%
-text size-
+reports- ,sort ,search filterring
 order successfull issue , 
 urgent mode
 if login the crt dashboard should be displayed
 alteration request
+analytics reports
+=>top user
+=>per day sale, monthly sale, yearly sale
+=> top tailor with best review
+=> top product bought
+=> top rated product
+=> profit,loss
+=> expenses calculator
+=> salary assignment

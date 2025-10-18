@@ -22,16 +22,13 @@ function AdminDashboard() {
         setError(null)
         
         const token = localStorage.getItem('token')
-        
-        if (!token) {
-          setError('Please login as admin to view dashboard')
-          setLoading(false)
-          return
-        }
 
         const headers = {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
+        }
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
         }
         
         // Fetch dashboard statistics
@@ -45,8 +42,6 @@ function AdminDashboard() {
           if (statsData.success) {
             setStats(statsData.data)
           }
-        } else if (statsResponse.status === 401 || statsResponse.status === 403) {
-          setError('Unauthorized: Please login as admin')
         }
         
         if (ordersResponse.ok) {

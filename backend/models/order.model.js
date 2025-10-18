@@ -129,20 +129,10 @@ const orderSchema = new mongoose.Schema({
       ref: 'User'
     }
   }],
-  // ✅ ADDED: Review and alteration fields INSIDE the schema
-  review: {
-    rating: Number,
-    comment: String,
-    images: [{
-      url: String,
-      filename: String,
-      uploadedAt: {
-        type: Date,
-        default: Date.now
-      }
-    }],
-    createdAt: Date
-  },
+  // ✅ NEW: Track which products in this order have been reviewed
+  reviewsSubmitted: [{
+    type: String // Product IDs that have been reviewed
+  }],
   // ✅ ADDED: Delivery confirmation fields
   deliveryToken: {
     type: String,

@@ -255,14 +255,6 @@ function OrderTracking({ user }) {
             </div>
           </div>
 
-          {/* Tailor Information */}
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <span className="text-purple-600">👨‍🎨</span>
-              <span className="text-sm font-medium text-gray-700">Tailor:</span>
-              <span className="text-sm font-semibold text-purple-600">{getTailorName(order)}</span>
-            </div>
-          </div>
 
           {/* Order Items */}
           <div className="mb-4">
@@ -286,7 +278,7 @@ function OrderTracking({ user }) {
           <div className="flex justify-between items-center pt-4 border-t border-gray-100">
             <div>
               <span className="text-sm text-gray-500">Total Amount</span>
-              <p className="text-2xl font-bold text-gray-900">₹{order.totalAmount?.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">₹{order.total?.toLocaleString()}</p>
             </div>
             
             <Link 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
 import Header from './components/common/Header.jsx'
 import Footer from './components/common/Footer.jsx'
 import Home from './pages/Home.jsx'
@@ -17,6 +18,7 @@ import NotificationTest from './pages/NotificationTest.jsx'
 import AdminLayout from './components/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageCatalog from './pages/admin/ManageCatalog.jsx'
+import ManageCustomDesigns from './pages/admin/ManageCustomDesigns.jsx'
 import ManageGallery from './pages/admin/ManageGallery.jsx'
 import ManageUsers from './pages/admin/ManageUsers.jsx'
 
@@ -232,6 +234,7 @@ function App() {
                 >
                   <Route index element={<AdminDashboard />} />
                   <Route path="catalog" element={<ManageCatalog />} />
+                  <Route path="custom-designs" element={<ManageCustomDesigns />} />
                   <Route path="gallery" element={<ManageGallery />} />
                   <Route path="users" element={<ManageUsers />} />
                   <Route path="orders" element={<ManageOrders />} />
@@ -264,6 +267,30 @@ function App() {
               position="bottom-right"
             />
             <ChatbotWidget />
+            
+            {/* Toast Notifications */}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  duration: 3000,
+                  style: {
+                    background: '#059669',
+                  },
+                },
+                error: {
+                  duration: 5000,
+                  style: {
+                    background: '#DC2626',
+                  },
+                },
+              }}
+            />
           </div>
         </Router>
                   </NotificationProvider>

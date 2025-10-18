@@ -106,7 +106,9 @@ function Home() {
                   </svg>
                 </div>
                 <div className="text-3xl font-bold text-white mb-2">24/7</div>
-                <div className="text-gray-200 font-medium">AI Assistance</div>
+                <div className="text-gray-200 font-medium">
+                  
+       Assistance</div>
               </div>
             </div>
           </div>

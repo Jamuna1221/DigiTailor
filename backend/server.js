@@ -22,6 +22,8 @@ import wishlistRoutes from './routes/wishlist.routes.js'
 import measurementRoutes from './routes/measurement.routes.js'
 import profileRoutes from './routes/profile.routes.js'
 import recentlyViewedRoutes from './routes/recentlyViewed.routes.js'
+import designElementRoutes from './routes/designElement.routes.js'
+import reviewRoutes from './routes/review.routes.js'
 //import dashboardRouter from './routes/adminDashboard.routes.js';
 
 // ES modules dirname equivalent
@@ -155,7 +157,9 @@ app.use('/api/categories', categoryRoutes)
 app.use('/api/homepage', homepageRoutes)
 app.use('/api/gallery', galleryRoutes)  
 app.use('/api/contact', contactRoutes)
+app.use('/api/reviews', reviewRoutes)
 app.use('/api/admin', adminAuthRoutes)
+app.use('/api', designElementRoutes)
 
 // ✅ PUBLIC ORDER CONFIRMATION (No auth needed for email links)
 import { confirmDelivery } from './controllers/order.controller.js'
