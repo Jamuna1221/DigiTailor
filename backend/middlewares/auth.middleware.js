@@ -23,36 +23,27 @@ export const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     console.log('🔑 Token decoded:', { id: decoded.id, type: decoded.type || 'user' })
 
-    // Determine if it's admin or user token
-    if (decoded.type === 'admin') {
-      // Get admin from database
-      const admin = await Admin.findById(decoded.id)
-      
-      if (!admin || !admin.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: 'Not authorized, admin not found or inactive'
-        })
-      }
+    // Get user from database (admin users are also stored in User model)
+    const user = await User.findById(decoded.id)
 
-      req.admin = admin
-      req.user = admin // ✅ Also set req.user for consistency
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized, user not found or inactive'
+      })
+    }
+
+    // Set request properties
+    req.user = user
+    
+    // Determine user type based on role or token type
+    if (user.role === 'admin' || decoded.type === 'admin') {
+      req.admin = user // ✅ Set admin reference for compatibility
       req.userType = 'admin'
-      console.log('👑 Admin authenticated:', admin.email)
-      
+      console.log('👑 Admin authenticated:', user.email, 'Role:', user.role)
     } else {
-      // Get regular user from database
-      const user = await User.findById(decoded.id)
-
-      if (!user || !user.isActive) {
-        return res.status(401).json({
-          success: false,
-          message: 'Not authorized, user not found or inactive'
-        })
-      }
-      req.user = user
       req.userType = 'user'
-      console.log('👤 User authenticated:', user.email)
+      console.log('👤 User authenticated:', user.email, 'Role:', user.role)
     }
 
     next()
@@ -146,18 +137,16 @@ export const optionalAuth = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    // Determine if it's admin or user token
-    if (decoded.type === 'admin') {
-      const admin = await Admin.findById(decoded.id)
-      if (admin && admin.isActive) {
-        req.admin = admin
-        req.user = admin
+    // Get user from database (admin users are also stored in User model)
+    const user = await User.findById(decoded.id)
+    if (user && user.isActive) {
+      req.user = user
+      
+      // Determine user type based on role or token type
+      if (user.role === 'admin' || decoded.type === 'admin') {
+        req.admin = user
         req.userType = 'admin'
-      }
-    } else {
-      const user = await User.findById(decoded.id)
-      if (user && user.isActive) {
-        req.user = user
+      } else {
         req.userType = 'user'
       }
     }

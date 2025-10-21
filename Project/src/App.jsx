@@ -21,6 +21,7 @@ import ManageCatalog from './pages/admin/ManageCatalog.jsx'
 import ManageCustomDesigns from './pages/admin/ManageCustomDesigns.jsx'
 import ManageGallery from './pages/admin/ManageGallery.jsx'
 import ManageUsers from './pages/admin/ManageUsers.jsx'
+import AdminSignup from './pages/admin/AdminSignup.jsx'
 
 // Import new components for role-based routing
 import TailorDashboard from './pages/TailorDashboard.jsx'
@@ -168,6 +169,7 @@ function App() {
                 <Route path="/" element={<Home user={user} onDemoSignIn={demoSignIn} />} />
                 <Route path="/login" element={<Login onSignIn={handleSignIn} />} />
                 <Route path="/signup" element={<SignUp onSignIn={handleSignIn} />} />
+                <Route path="/admin-signup" element={<AdminSignup />} />
                 <Route path="/catalog" element={<Catalog user={user} />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/ai-studio" element={<CustomStudio user={user} />} />

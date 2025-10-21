@@ -6,8 +6,15 @@ import OTP from '../models/otp.model.js'
 import { sendOTPEmail, verifyEmailConnection, sendPasswordResetEmail } from '../services/email.service.js'
 
 // Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+const generateToken = (userId, userRole = 'customer') => {
+  const payload = { id: userId }
+  
+  // Add type field for admin users (required by auth middleware)
+  if (userRole === 'admin') {
+    payload.type = 'admin'
+  }
+  
+  return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   })
 }
@@ -182,7 +189,7 @@ export const verifyOtp = async (req, res) => {
     await OTP.findByIdAndDelete(otpData._id)
 
     // Generate token
-    const token = generateToken(user._id)
+    const token = generateToken(user._id, userData.role)
 
     // Create clean user response object
     const userResponse = {
@@ -308,8 +315,35 @@ export const register = async (req, res) => {
       password, 
       phone, 
       role = 'customer',
-      specializations = [] 
+      specializations = [],
+      adminKey // ✅ NEW: Admin key for admin registration
     } = req.body
+
+    // ✅ Admin key validation
+    if (role === 'admin') {
+      const ADMIN_KEY = process.env.ADMIN_REGISTRATION_KEY || 'DIGITAILOR_ADMIN_2024_SECURE_KEY'
+      
+      console.log('🔑 Expected admin key:', ADMIN_KEY)
+      console.log('🔑 Received admin key:', adminKey)
+      
+      if (!adminKey) {
+        return res.status(400).json({
+          success: false,
+          message: 'Admin authorization key is required for admin registration'
+        })
+      }
+      
+      if (adminKey !== ADMIN_KEY) {
+        console.log('❌ Invalid admin key attempt:', adminKey)
+        console.log('❌ Expected:', ADMIN_KEY)
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid admin authorization key'
+        })
+      }
+      
+      console.log('✅ Admin key validated successfully')
+    }
 
     // Validation
     if (!firstName || !lastName || !email || !password || !phone) {
@@ -329,7 +363,7 @@ export const register = async (req, res) => {
       })
     }
 
-    console.log('🆕 Creating new user...')
+    console.log(`🆕 Creating new ${role}...`)
     
     // Create new user (password will be hashed by pre-save middleware)
     const user = new User({
@@ -341,15 +375,15 @@ export const register = async (req, res) => {
       role,
       specializations: role === 'tailor' ? specializations : [],
       isActive: true,
-      loyaltyPoints: 0,
-      createdBy: 'direct-registration'
+      loyaltyPoints: role === 'admin' ? 0 : 0, // Admins don't need loyalty points but keep consistent
+      createdBy: role === 'admin' ? 'admin-registration' : 'direct-registration'
     })
 
     await user.save()
     console.log('✅ User saved successfully:', user._id)
 
     // Generate token
-    const token = generateToken(user._id)
+    const token = generateToken(user._id, user.role)
 
     // Create clean user response
     const userResponse = {
@@ -457,7 +491,7 @@ export const login = async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(user._id)
+    const token = generateToken(user._id, user.role)
 
     // Create clean user response
     const userResponse = {
@@ -610,7 +644,7 @@ export const resetPassword = async (req, res) => {
     console.log('✅ Password reset successful for user:', user.email)
 
     // Generate new login token
-    const loginToken = generateToken(user._id)
+    const loginToken = generateToken(user._id, user.role)
 
     res.status(200).json({
       success: true,
@@ -883,7 +917,7 @@ export const googleAuth = async (req, res) => {
     }
     
     // Generate JWT token
-    const token = generateToken(user._id)
+    const token = generateToken(user._id, user.role)
     
     // Create clean user response (no admin data)
     const userResponse = {
@@ -998,7 +1032,7 @@ export const facebookAuth = async (req, res) => {
     }
     
     // Generate JWT token
-    const token = generateToken(user._id)
+    const token = generateToken(user._id, user.role)
     
     // Create user data for URL (keep it minimal)
     const userData = {

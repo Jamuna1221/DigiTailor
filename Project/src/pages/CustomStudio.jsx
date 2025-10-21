@@ -70,13 +70,13 @@ const CustomStudio = () => {
     fetchGarmentTypes()
   }, [])
 
-  // Fetch design categories (all categories, garment filtering happens when clicking on category)
+  // Fetch design categories for the selected garment type
   useEffect(() => {
     const fetchDesignCategories = async () => {
       try {
         setApiLoading(true)
-        // Get all unique categories across all garment types
-        const categories = await DesignElementAPI.getAllDesignCategories()
+        // Get categories for the selected garment type
+        const categories = await DesignElementAPI.getAllDesignCategories(selectedGarmentType)
         
         // Validate and clean the data
         const validCategories = categories.filter(category => {
@@ -88,7 +88,7 @@ const CustomStudio = () => {
         })
         
         setDesignCategories(validCategories)
-        console.log('📦 Fetched and validated categories from API:', validCategories)
+        console.log(`📦 Fetched categories for ${selectedGarmentType}:`, validCategories)
       } catch (error) {
         console.error('❌ Error fetching design categories:', error)
         // You could show an error message to the user here
@@ -98,21 +98,23 @@ const CustomStudio = () => {
       }
     }
 
-    fetchDesignCategories()
-  }, [])
+    // Only fetch if we have a selected garment type
+    if (selectedGarmentType) {
+      fetchDesignCategories()
+    }
+  }, [selectedGarmentType])
 
   // Handle garment type change
   const handleGarmentTypeChange = (newGarmentType) => {
     setSelectedGarmentType(newGarmentType)
-    // If we're currently viewing a category, reload its designs for the new garment type
-    if (selectedCategory) {
-      handleCategoryClick({ 
-        id: selectedCategory.id, 
-        name: selectedCategory.name,
-        emoji: selectedCategory.emoji,
-        description: selectedCategory.description
-      })
-    }
+    // Clear the selected category since design counts will change
+    setSelectedCategory(null)
+    // Clear any existing selections since they're for the previous garment type
+    setModularDesign(prev => ({
+      ...prev,
+      selections: {},
+      totalPrice: 180 // Reset to base price
+    }))
   }
 
   // Handle category click - fetch designs for the selected garment type

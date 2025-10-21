@@ -4,6 +4,24 @@ const API_BASE_URL = 'http://localhost:5000/api'
 
 function ManageCustomDesigns() {
 
+  // ✅ Helper: Get auth headers with JWT token
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token')
+    const user = JSON.parse(localStorage.getItem('digitailor_user') || 'null')
+    
+    if (!token || !user || user.role !== 'admin') {
+      throw new Error('Admin authentication required')
+    }
+    
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }
+
+  // Note: Admin access validation is handled by ProtectedRoute in App.jsx
+  // No need for redundant check here
+
   const [designElements, setDesignElements] = useState([])
   const [garmentTypes, setGarmentTypes] = useState([])
   const [categories, setCategories] = useState([])
@@ -18,7 +36,7 @@ function ManageCustomDesigns() {
     search: ''
   })
 
-  // Fetch design elements from backend
+  // ✅ Fetch design elements from backend with authentication
   const fetchDesignElements = useCallback(async () => {
     try {
       setLoading(true)
@@ -33,9 +51,7 @@ function ManageCustomDesigns() {
 
       
       const response = await fetch(`${API_BASE_URL}/admin/design-elements?${queryParams}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: getAuthHeaders() // ✅ Now includes JWT token
       })
       if (response.ok) {
         const data = await response.json()
@@ -43,25 +59,38 @@ function ManageCustomDesigns() {
           setDesignElements(data.data.designElements || [])
           console.log(`✅ Loaded ${data.data.designElements?.length || 0} design elements`)
         }
+      } else if (response.status === 401 || response.status === 403) {
+        // ✅ Handle authentication errors
+        toast.error('Authentication failed. Please login as admin.')
+        // Redirect to login or clear invalid auth
+        localStorage.removeItem('token')
+        localStorage.removeItem('digitailor_user')
+        window.location.href = '/login'
+        return
       } else {
-        // Handle 401/403 silently - just show empty state
         console.log('API call failed, showing empty state')
         setDesignElements([])
         setError('')
       }
     } catch (err) {
       console.error('❌ Error fetching design elements:', err)
-      // Don't show error to user - just log it
+      if (err.message === 'Admin authentication required') {
+        toast.error('Admin access required. Please login as admin.')
+        window.location.href = '/login'
+        return
+      }
       setError('')
     } finally {
       setLoading(false)
     }
   }, [filters])
 
-  // Fetch garment types
+  // ✅ Fetch garment types with authentication
   const fetchGarmentTypes = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/garment-types`)
+      const response = await fetch(`${API_BASE_URL}/garment-types`, {
+        headers: getAuthHeaders() // ✅ Add JWT token
+      })
       const data = await response.json()
       if (data.success) {
         setGarmentTypes(data.data)
@@ -71,10 +100,12 @@ function ManageCustomDesigns() {
     }
   }
 
-  // Fetch all categories
+  // ✅ Fetch all categories with authentication
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/all-design-categories`)
+      const response = await fetch(`${API_BASE_URL}/all-design-categories`, {
+        headers: getAuthHeaders() // ✅ Add JWT token
+      })
       const data = await response.json()
       if (data.success) {
         setCategories(data.data)
@@ -97,16 +128,14 @@ function ManageCustomDesigns() {
     return () => clearTimeout(timeout)
   }, [filters, fetchDesignElements])
 
-  // Create new design element
+  // ✅ Create new design element with authentication
   const handleCreate = async (newElement) => {
     try {
       setLoading(true)
       
       const response = await fetch(`${API_BASE_URL}/admin/design-elements`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: getAuthHeaders(), // ✅ Add JWT token
         body: JSON.stringify({
           categoryId: newElement.categoryId,
           categoryName: newElement.categoryName,
@@ -126,27 +155,36 @@ function ManageCustomDesigns() {
         await fetchDesignElements()
         setShowForm(false)
         alert('Design element created successfully!')
+      } else if (response.status === 401 || response.status === 403) {
+        toast.error('Authentication failed. Please login as admin.')
+        localStorage.removeItem('token')
+        localStorage.removeItem('digitailor_user')
+        window.location.href = '/login'
+        return
       } else {
         alert(`Error: ${data.message}`)
       }
     } catch (err) {
       console.error('❌ Error creating design element:', err)
+      if (err.message === 'Admin authentication required') {
+        toast.error('Admin access required. Please login as admin.')
+        window.location.href = '/login'
+        return
+      }
       toast.error('Failed to create design element')
     } finally {
       setLoading(false)
     }
   }
 
-  // Update design element
+  // ✅ Update design element with authentication
   const handleUpdate = async (updatedElement) => {
     try {
       setLoading(true)
      
       const response = await fetch(`${API_BASE_URL}/admin/design-elements/${updatedElement._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: getAuthHeaders(), // ✅ Add JWT token
         body: JSON.stringify({
           categoryId: updatedElement.categoryId,
           categoryName: updatedElement.categoryName,
@@ -167,18 +205,29 @@ function ManageCustomDesigns() {
         setEditingElement(null)
         setShowForm(false)
         alert('Design element updated successfully!')
+      } else if (response.status === 401 || response.status === 403) {
+        toast.error('Authentication failed. Please login as admin.')
+        localStorage.removeItem('token')
+        localStorage.removeItem('digitailor_user')
+        window.location.href = '/login'
+        return
       } else {
         alert(`Error: ${data.message}`)
       }
     } catch (err) {
       console.error('❌ Error updating design element:', err)
+      if (err.message === 'Admin authentication required') {
+        toast.error('Admin access required. Please login as admin.')
+        window.location.href = '/login'
+        return
+      }
       toast.error('Failed to update design element')
     } finally {
       setLoading(false)
     }
   }
 
-  // Delete design element
+  // ✅ Delete design element with authentication
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this design element?')) return
 
@@ -187,9 +236,7 @@ function ManageCustomDesigns() {
      
       const response = await fetch(`${API_BASE_URL}/admin/design-elements/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: getAuthHeaders() // ✅ Add JWT token
       })
 
       const data = await response.json()
@@ -197,11 +244,22 @@ function ManageCustomDesigns() {
       if (data.success) {
         await fetchDesignElements()
         alert('Design element deleted successfully!')
+      } else if (response.status === 401 || response.status === 403) {
+        toast.error('Authentication failed. Please login as admin.')
+        localStorage.removeItem('token')
+        localStorage.removeItem('digitailor_user')
+        window.location.href = '/login'
+        return
       } else {
         alert(`Error: ${data.message}`)
       }
     } catch (err) {
       console.error('❌ Error deleting design element:', err)
+      if (err.message === 'Admin authentication required') {
+        toast.error('Admin access required. Please login as admin.')
+        window.location.href = '/login'
+        return
+      }
       toast.error('Failed to delete design element')
     } finally {
       setLoading(false)

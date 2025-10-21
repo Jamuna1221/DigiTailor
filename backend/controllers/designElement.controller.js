@@ -54,11 +54,25 @@ const getDesignsByCategory = async (req, res) => {
     const { categoryId } = req.params
     const { garmentType = 'kurti' } = req.query
     
-    const designs = await DesignElement.find({ 
+    const elements = await DesignElement.find({ 
       categoryId: categoryId, 
       garmentType: garmentType,
       isActive: true 
     }).sort({ displayOrder: 1 })
+
+    // Format the designs to match frontend expectations
+    const designs = elements.map(element => ({
+      id: element._id.toString(),
+      name: element.name,
+      price: element.price,
+      image: element.image,
+      description: element.description,
+      categoryId: element.categoryId,
+      categoryName: element.categoryName,
+      garmentType: element.garmentType,
+      displayOrder: element.displayOrder,
+      isActive: element.isActive
+    }))
 
     res.status(200).json({
       success: true,
@@ -138,9 +152,17 @@ const submitModularOrder = async (req, res) => {
 // Get all unique design categories across all garment types
 const getAllDesignCategories = async (req, res) => {
   try {
-    // Get all unique categories from all garment types
+    const { garmentType } = req.query // Allow filtering by garment type
+
+    // Build match condition
+    const matchCondition = { isActive: true }
+    if (garmentType) {
+      matchCondition.garmentType = garmentType
+    }
+
+    // Get all unique categories, optionally filtered by garment type
     const allCategories = await DesignElement.aggregate([
-      { $match: { isActive: true } },
+      { $match: matchCondition },
       {
         $group: {
           _id: '$categoryId',
@@ -156,7 +178,7 @@ const getAllDesignCategories = async (req, res) => {
       name: category.categoryName,
       emoji: getCategoryEmoji(category._id),
       description: getCategoryDescription(category._id),
-      // Show total designs available across all garment types for this category
+      // Show design count for the specified garment type (or all if no filter)
       designs: category.sampleDesigns.length
     }))
 
