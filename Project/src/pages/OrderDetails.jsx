@@ -273,12 +273,34 @@ function OrderDetails() {
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
             <div className="text-gray-600">
-              <p className="font-medium text-gray-900">{order.shippingInfo.fullName}</p>
-              <p>{order.shippingInfo.address.street}</p>
-              <p>{order.shippingInfo.address.city}, {order.shippingInfo.address.state}</p>
-              <p>{order.shippingInfo.address.zipCode}</p>
-              <p className="mt-2">📧 {order.shippingInfo.email}</p>
-              <p>📱 {order.shippingInfo.phone}</p>
+              <p className="font-medium text-gray-900">{order.shippingInfo?.fullName || 'Not provided'}</p>
+              
+              {/* Handle different address structures */}
+              {order.shippingInfo?.address?.street && (
+                <>
+                  <p>{order.shippingInfo.address.street}</p>
+                  <p>{order.shippingInfo.address.city}, {order.shippingInfo.address.state}</p>
+                  <p>{order.shippingInfo.address.zipCode}</p>
+                </>
+              )}
+              
+              {/* For modular orders or different structures */}
+              {!order.shippingInfo?.address?.street && (
+                <div className="text-gray-500 italic">
+                  {order.orderType === 'modular' ? (
+                    <p>Shipping details will be collected separately</p>
+                  ) : (
+                    <p>Address details not available</p>
+                  )}
+                </div>
+              )}
+              
+              {order.shippingInfo?.email && (
+                <p className="mt-2">📧 {order.shippingInfo.email}</p>
+              )}
+              {order.shippingInfo?.phone && (
+                <p>📱 {order.shippingInfo.phone}</p>
+              )}
             </div>
           </div>
 

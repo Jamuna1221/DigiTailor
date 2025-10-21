@@ -3,7 +3,6 @@ import mongoose from 'mongoose'
 const modularOrderSchema = new mongoose.Schema({
   orderId: {
     type: String,
-    required: true,
     unique: true
   },
   customerInfo: {
@@ -18,6 +17,49 @@ const modularOrderSchema = new mongoose.Schema({
       trim: true
     },
     email: {
+      type: String,
+      trim: true,
+      default: ''
+    }
+  },
+  shippingInfo: {
+    fullName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      trim: true
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    address: {
+      street: {
+        type: String,
+        required: true,
+        trim: true
+      },
+      city: {
+        type: String,
+        required: true,
+        trim: true
+      },
+      state: {
+        type: String,
+        required: true,
+        trim: true
+      },
+      zipCode: {
+        type: String,
+        required: true,
+        trim: true
+      }
+    },
+    specialInstructions: {
       type: String,
       trim: true,
       default: ''
@@ -63,6 +105,19 @@ const modularOrderSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  paymentMethod: {
+    type: String,
+    enum: ['cash_on_delivery', 'razorpay', 'stripe'],
+    default: 'cash_on_delivery'
+  },
+  estimatedDelivery: {
+    type: Date,
+    default: () => {
+      const date = new Date()
+      date.setDate(date.getDate() + 7) // 7 days from now
+      return date
+    }
+  },
   status: {
     type: String,
     enum: ['pending', 'confirmed', 'in-production', 'ready', 'delivered', 'cancelled'],
@@ -83,6 +138,16 @@ const modularOrderSchema = new mongoose.Schema({
 
 // Generate order ID
 modularOrderSchema.pre('save', function(next) {
+  if (!this.orderId) {
+    const timestamp = Date.now().toString(36)
+    const random = Math.random().toString(36).substr(2, 5)
+    this.orderId = `MOD-${timestamp}-${random}`.toUpperCase()
+  }
+  next()
+})
+
+// Also generate orderId before validation
+modularOrderSchema.pre('validate', function(next) {
   if (!this.orderId) {
     const timestamp = Date.now().toString(36)
     const random = Math.random().toString(36).substr(2, 5)

@@ -28,7 +28,7 @@ function CartProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null) // ✅ Track current user
 
   // ✅ Load cart based on current user
-  const loadUserCart = () => {
+  const loadUserCart = useCallback(() => {
     const cartKey = getCartKey()
     console.log('🔑 Loading cart with key:', cartKey)
     
@@ -48,7 +48,7 @@ function CartProvider({ children }) {
     } else {
       setCartItems([])
     }
-  }
+  }, [])
 
   // ✅ Initial cart load
   useEffect(() => {
@@ -84,10 +84,10 @@ function CartProvider({ children }) {
 
   // ✅ Switch cart when user logs in/out
   const switchUserCart = useCallback((newUser) => {
-  console.log('🔄 Switching cart for new user:', newUser?.id || newUser?._id)
-  setCurrentUser(newUser)
-  loadUserCart()
-}, []);
+    console.log('🔄 Switching cart for new user:', newUser?.id || newUser?._id)
+    setCurrentUser(newUser)
+    loadUserCart()
+  }, [loadUserCart])
   const addToCart = (item) => {
     // ✅ Check if user is logged in
     const user = JSON.parse(localStorage.getItem('digitailor_user') || '{}')
@@ -97,6 +97,8 @@ function CartProvider({ children }) {
         'Please login to add items to your cart. Would you like to login now?'
       )
       if (shouldLogin) {
+        // Note: We can't use navigate here since CartContext doesn't have router access
+        // This is acceptable as it's a rare case that needs a full redirect
         window.location.href = '/login'
       }
       return false

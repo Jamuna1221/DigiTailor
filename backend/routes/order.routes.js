@@ -4,6 +4,7 @@ import {
   getAllOrdersForAdmin,
   getOrdersForTailor,
   getOrdersForUser,
+  getCombinedOrdersForUser,
   updateOrderByTailor,
   getOrderDetails,
   addReview,
@@ -28,6 +29,9 @@ router.get('/tailor/:tailorId', getOrdersForTailor)
 
 // User - Get user orders (no tailor info)
 router.get('/user/:userId', getOrdersForUser)
+
+// User - Get combined orders (regular + modular)
+router.get('/user/:userId/combined', getCombinedOrdersForUser)
 
 // Tailor - Update order status/notes
 router.put('/tailor/:orderId', updateOrderByTailor)

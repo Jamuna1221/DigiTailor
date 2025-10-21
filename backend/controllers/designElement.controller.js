@@ -93,6 +93,13 @@ const submitModularOrder = async (req, res) => {
   try {
     const { customerInfo, selections, totalPrice } = req.body
 
+    // Log the incoming request for debugging
+    console.log('📦 Received order data:', {
+      customerInfo,
+      selections: selections?.length,
+      totalPrice
+    })
+
     // Validate required fields
     if (!customerInfo?.name || !customerInfo?.phone) {
       return res.status(400).json({
@@ -108,8 +115,14 @@ const submitModularOrder = async (req, res) => {
       })
     }
 
-    // Create new modular order
-    const order = new ModularOrder({
+    // Generate orderId manually first
+    const timestamp = Date.now().toString(36)
+    const random = Math.random().toString(36).substr(2, 5)
+    const generatedOrderId = `MOD-${timestamp}-${random}`.toUpperCase()
+
+    // Create new modular order with explicit orderId
+    const orderData = {
+      orderId: generatedOrderId,
       customerInfo: {
         name: customerInfo.name.trim(),
         phone: customerInfo.phone.trim(),
@@ -126,9 +139,14 @@ const submitModularOrder = async (req, res) => {
       })),
       totalPrice: totalPrice || 180,
       basePrice: 180
-    })
+    }
 
+    console.log('💾 Creating order with data:', orderData)
+
+    const order = new ModularOrder(orderData)
     await order.save()
+
+    console.log('✅ Order saved successfully:', order.orderId)
 
     res.status(201).json({
       success: true,
@@ -136,15 +154,18 @@ const submitModularOrder = async (req, res) => {
       data: {
         orderId: order.orderId,
         totalPrice: order.totalPrice,
-        status: order.status
+        status: order.status,
+        customerInfo: order.customerInfo
       }
     })
   } catch (error) {
-    console.error('Error submitting modular order:', error)
+    console.error('❌ Error submitting modular order:', error)
+    console.error('Error details:', error.stack)
     res.status(500).json({
       success: false,
       message: 'Error placing order',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     })
   }
 }
@@ -308,11 +329,33 @@ const getGarmentDescription = (garmentType) => {
   return descriptions[garmentType] || 'Traditional Indian wear'
 }
 
+// Get all modular orders
+const getAllModularOrders = async (req, res) => {
+  try {
+    const modularOrders = await ModularOrder.find({}
+      ).sort({ createdAt: -1 })
+    
+    res.status(200).json({
+      success: true,
+      data: modularOrders,
+      count: modularOrders.length
+    })
+  } catch (error) {
+    console.error('Error fetching modular orders:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching modular orders',
+      error: error.message
+    })
+  }
+}
+
 export {
   getDesignCategories,
   getAllDesignCategories,
   getDesignsByCategory,
   getGarmentTypes,
   submitModularOrder,
-  getOrderById
+  getOrderById,
+  getAllModularOrders
 }

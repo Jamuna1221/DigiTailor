@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Modal from '../components/common/Modal'
 import DesignElementCard from '../components/design/DesignElementCard'
 import DesignElementAPI from '../services/designElementAPI'
 
 const CustomStudio = () => {
+  const navigate = useNavigate()
+  
   // State for main workflow toggle
   const [workflow, setWorkflow] = useState('modular') // 'modular' or 'reference'
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -178,62 +181,34 @@ const CustomStudio = () => {
     }
   }
 
-  // Handle modular design order submission
-  const handleModularOrderSubmit = async () => {
-    if (!modularDesign.customerInfo.name.trim() || !modularDesign.customerInfo.phone.trim()) {
-      alert('Please fill in your name and phone number.')
-      return
-    }
-
+  // Handle navigate to checkout
+  const handleProceedToCheckout = () => {
     if (Object.keys(modularDesign.selections).length === 0) {
-      alert('Please select at least one design element.')
+      alert('Please select at least one design element before proceeding to checkout.')
       return
     }
 
-    setLoading(true)
-    try {
-      // Prepare order data for API
-      const orderData = {
-        customerInfo: modularDesign.customerInfo,
-        selections: Object.entries(modularDesign.selections).map(([categoryId, selection]) => ({
-          categoryId: categoryId,
-          categoryName: selection.categoryName || designCategories.find(cat => cat.id === categoryId)?.name,
-          id: selection.id,
-          name: selection.name,
-          price: selection.price,
-          image: selection.image,
-          description: selection.description
-        })),
-        totalPrice: modularDesign.totalPrice
-      }
-
-      console.log('📦 Submitting order data:', orderData)
-      
-      const response = await DesignElementAPI.submitModularOrder(orderData)
-      
-      console.log('✅ Order submitted successfully:', response)
-      
-      setModalContent({
-        title: 'Order Placed Successfully! 🎉',
-        message: `Your custom design order has been placed successfully for ₹${modularDesign.totalPrice.toLocaleString()}! Order ID: ${response.data.orderId}. Our team will start working on it immediately.`,
-        type: 'success'
-      })
-      setShowModal(true)
-      
-      // Reset form
-      setModularDesign({
-        category: null,
-        selections: {},
-        totalPrice: 180, // Reset to base price
-        customerInfo: { name: '', phone: '', email: '' }
-      })
-      setSelectedCategory(null)
-    } catch (error) {
-      console.error('❌ Order submission failed:', error)
-      alert(`Failed to submit order: ${error.message}. Please try again.`)
-    } finally {
-      setLoading(false)
+    // Prepare order data to pass to checkout
+    const orderData = {
+      customerInfo: modularDesign.customerInfo,
+      selections: Object.entries(modularDesign.selections).map(([categoryId, selection]) => ({
+        categoryId: categoryId,
+        categoryName: selection.categoryName || designCategories.find(cat => cat.id === categoryId)?.name,
+        id: selection.id,
+        name: selection.name,
+        price: selection.price,
+        image: selection.image,
+        description: selection.description
+      })),
+      totalPrice: modularDesign.totalPrice,
+      garmentType: garmentTypes.find(g => g.id === selectedGarmentType)
     }
+
+    // Navigate to checkout page with order data
+    navigate('/modular-checkout', {
+      state: { orderData },
+      replace: false
+    })
   }
 
   // Handle reference order enquiry submission
@@ -591,106 +566,52 @@ const CustomStudio = () => {
               </div>
             )}
             
-            {/* Order Summary & Customer Info */}
+            {/* Order Summary & Proceed to Checkout */}
             {Object.keys(modularDesign.selections).length > 0 && (
               <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 dark:border-slate-800">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Order Summary */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">📋 Order Summary</h3>
-                    <div className="space-y-4">
-                      <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-gray-600 dark:text-slate-300">Base Price</span>
-                          <span className="font-bold text-gray-800 dark:text-white">₹180</span>
-                        </div>
-                        <div className="border-t border-gray-200 dark:border-slate-700 pt-2">
-                          {Object.entries(modularDesign.selections).map(([categoryId, selection]) => {
-                            const category = designCategories.find(cat => cat.id === categoryId)
-                            return (
-                              <div key={categoryId} className="flex justify-between items-center mb-1">
-                                <span className="text-sm text-gray-600 dark:text-slate-300">
-                                  {category?.name}: {selection.name}
-                                </span>
-                                <span className="text-sm font-medium text-gray-800 dark:text-white">
-                                  {selection.price === 0 ? 'Free' : `+₹${selection.price}`}
-                                </span>
-                              </div>
-                            )
-                          })}
-                        </div>
-                        <div className="border-t-2 border-purple-200 dark:border-purple-700 pt-2 mt-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-lg font-bold text-purple-600 dark:text-purple-400">Total Price</span>
-                            <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">₹{modularDesign.totalPrice.toLocaleString()}</span>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">📋 Order Summary</h3>
+                
+                <div className="max-w-2xl mx-auto">
+                  <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-gray-600 dark:text-slate-300">Base Price</span>
+                      <span className="font-bold text-gray-800 dark:text-white">₹180</span>
+                    </div>
+                    
+                    <div className="border-t border-gray-200 dark:border-slate-700 pt-4 space-y-2">
+                      {Object.entries(modularDesign.selections).map(([categoryId, selection]) => {
+                        const category = designCategories.find(cat => cat.id === categoryId)
+                        return (
+                          <div key={categoryId} className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600 dark:text-slate-300">
+                              {category?.name}: {selection.name}
+                            </span>
+                            <span className="text-sm font-medium text-gray-800 dark:text-white">
+                              {selection.price === 0 ? 'Free' : `+₹${selection.price}`}
+                            </span>
                           </div>
-                        </div>
+                        )
+                      })}
+                    </div>
+                    
+                    <div className="border-t-2 border-purple-200 dark:border-purple-700 pt-4 mt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xl font-bold text-purple-600 dark:text-purple-400">Total Price</span>
+                        <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">₹{modularDesign.totalPrice.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
                   
-                  {/* Customer Information */}
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">📝 Customer Information</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Your Name *</label>
-                        <input
-                          type="text"
-                          value={modularDesign.customerInfo.name}
-                          onChange={(e) => setModularDesign(prev => ({
-                            ...prev,
-                            customerInfo: { ...prev.customerInfo, name: e.target.value }
-                          }))}
-                          placeholder="Enter your full name"
-                          className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Phone Number *</label>
-                        <input
-                          type="tel"
-                          value={modularDesign.customerInfo.phone}
-                          onChange={(e) => setModularDesign(prev => ({
-                            ...prev,
-                            customerInfo: { ...prev.customerInfo, phone: e.target.value }
-                          }))}
-                          placeholder="Enter your phone number"
-                          className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Email (Optional)</label>
-                        <input
-                          type="email"
-                          value={modularDesign.customerInfo.email}
-                          onChange={(e) => setModularDesign(prev => ({
-                            ...prev,
-                            customerInfo: { ...prev.customerInfo, email: e.target.value }
-                          }))}
-                          placeholder="Enter your email address"
-                          className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                        />
-                      </div>
-                      <button
-                        onClick={handleModularOrderSubmit}
-                        disabled={loading}
-                        className={`w-full py-4 px-6 rounded-xl font-bold text-white text-lg transition-all duration-300 transform hover:scale-105 ${
-                          loading
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
-                        }`}
-                      >
-                        {loading ? (
-                          <span className="flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                            Processing Order...
-                          </span>
-                        ) : (
-                          `📲 Place Order Now - ₹${modularDesign.totalPrice.toLocaleString()}`
-                        )}
-                      </button>
-                    </div>
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={handleProceedToCheckout}
+                      className="w-full py-4 px-6 rounded-xl font-bold text-white text-lg transition-all duration-300 transform hover:scale-105 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl"
+                    >
+                      🛍️ Proceed to Checkout - ₹{modularDesign.totalPrice.toLocaleString()}
+                    </button>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
+                      You'll provide shipping details and payment method on the next page
+                    </p>
                   </div>
                 </div>
               </div>

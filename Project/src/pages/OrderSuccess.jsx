@@ -1,12 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ConfettiBurst from '../components/common/ConfettiBurst.jsx'
-import { useCart } from '../contexts/CartContext'
 
 export default function OrderSuccess() {
   const navigate = useNavigate()
   const { state } = useLocation()
-  const { clearCart } = useCart()
   const orderNumber = state?.orderNumber || 'N/A'
   const orderId = state?.orderId || 'N/A'
 
@@ -15,9 +13,6 @@ export default function OrderSuccess() {
   const redirectTimerRef = useRef(null)
 
   useEffect(() => {
-    // Clear the cart now that we're safely on the success page
-    clearCart()
-
     confettiTimerRef.current = setTimeout(() => setShowConfetti(false), 3200)
     // Auto-redirect to orders shortly after
     redirectTimerRef.current = setTimeout(() => navigate('/orders'), 3800)
@@ -26,7 +21,7 @@ export default function OrderSuccess() {
       if (confettiTimerRef.current) clearTimeout(confettiTimerRef.current)
       if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current)
     }
-  }, [navigate, clearCart])
+  }, [navigate])
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-4 py-16 bg-gray-50 relative">

@@ -1,4 +1,5 @@
 import Order from '../models/order.model.js'
+import ModularOrder from '../models/modularOrder.model.js'
 import { sendOutForDeliveryEmail } from '../services/email.service.js'
 import { allocateTailorToOrder } from '../services/tailorAllocation.js'
 import jwt from 'jsonwebtoken'
@@ -212,6 +213,93 @@ export const getOrdersForUser = async (req, res) => {
   }
 }
 
+// **USER - Get combined orders (regular + modular)**
+export const getCombinedOrdersForUser = async (req, res) => {
+  try {
+    const { userId } = req.params
+    
+    // Get regular orders
+    const regularOrders = await Order.find({ userId: userId })
+      .select('-assignedTailor -tailorNotes -allocationTimestamp -adminNotes')
+      .sort({ createdAt: -1 })
+    
+    // Get modular orders for this user (match by phone number since modular orders don't have userId)
+    // First get user info to match by phone
+    const user = await Order.findOne({ userId: userId })
+      .populate('userId', 'phone')
+      .select('userId')
+    
+    let modularOrders = []
+    if (user?.userId?.phone) {
+      modularOrders = await ModularOrder.find({ 
+        'customerInfo.phone': user.userId.phone 
+      }).sort({ createdAt: -1 })
+    }
+    
+    // Transform modular orders to match regular order format
+    const transformedModularOrders = modularOrders.map(modularOrder => ({
+      _id: modularOrder._id,
+      orderId: modularOrder.orderId,
+      orderNumber: modularOrder.orderId,
+      status: modularOrder.status,
+      createdAt: modularOrder.createdAt,
+      updatedAt: modularOrder.updatedAt,
+      pricing: {
+        total: modularOrder.totalPrice,
+        subtotal: modularOrder.totalPrice - modularOrder.basePrice,
+        delivery: 0,
+        tax: 0
+      },
+      items: modularOrder.selections.map(selection => ({
+        name: selection.designName,
+        category: selection.categoryName,
+        price: selection.price,
+        quantity: 1,
+        image: selection.image,
+        customizations: {
+          type: 'modular-design',
+          category: selection.categoryId
+        }
+      })),
+      orderType: 'modular', // Add identifier
+      estimatedDelivery: modularOrder.estimatedDelivery,
+      shippingInfo: {
+        fullName: modularOrder.customerInfo.name,
+        phone: modularOrder.customerInfo.phone,
+        email: modularOrder.customerInfo.email
+      }
+    }))
+    
+    // Add orderType identifier to regular orders
+    const transformedRegularOrders = regularOrders.map(order => ({
+      ...order.toObject(),
+      orderType: 'regular'
+    }))
+    
+    // Combine and sort by creation date
+    const allOrders = [...transformedRegularOrders, ...transformedModularOrders]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    
+    res.status(200).json({
+      success: true,
+      data: allOrders,
+      count: allOrders.length,
+      breakdown: {
+        regular: transformedRegularOrders.length,
+        modular: transformedModularOrders.length,
+        total: allOrders.length
+      }
+    })
+    
+  } catch (error) {
+    console.error('Error fetching combined user orders:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching user orders'
+    })
+  }
+}
+
 // **TAILOR - Update order status and notes**
 export const updateOrderByTailor = async (req, res) => {
   try {
@@ -300,30 +388,123 @@ export const updateOrderByTailor = async (req, res) => {
 };
 
 
-// Get single order details
+// Get single order details (handles both regular and modular orders)
 export const getOrderDetails = async (req, res) => {
   try {
     const { orderId } = req.params
-    const userId = req.user.id // From auth middleware
+    console.log(`🔍 Looking for order details: ${orderId}`)
     
-    const order = await Order.findOne({ 
-      _id: orderId,
-      userId: userId // Ensure user can only see their own orders
-    }).populate('assignedTailor', 'firstName lastName email phone')
+    // First try to find as regular order by MongoDB _id
+    let order = null
+    let orderType = null
+    
+    try {
+      order = await Order.findById(orderId).populate('assignedTailor', 'firstName lastName email phone')
+      if (order) {
+        orderType = 'regular'
+        console.log(`✅ Found regular order: ${order.orderNumber || order._id}`)
+      }
+    } catch (err) {
+      console.log(`ℹ️ Not a valid MongoDB ObjectId, checking modular orders...`)
+    }
+    
+    // If not found as regular order, try modular orders by orderId string
+    if (!order) {
+      order = await ModularOrder.findOne({ orderId: orderId })
+      if (order) {
+        orderType = 'modular'
+        console.log(`✅ Found modular order: ${order.orderId}`)
+      }
+    }
+    
+    // If still not found, try regular orders by orderNumber/orderId
+    if (!order) {
+      order = await Order.findOne({ 
+        $or: [
+          { orderNumber: orderId },
+          { orderId: orderId }
+        ]
+      }).populate('assignedTailor', 'firstName lastName email phone')
+      if (order) {
+        orderType = 'regular'
+        console.log(`✅ Found regular order by orderNumber: ${order.orderNumber}`)
+      }
+    }
     
     if (!order) {
+      console.log(`❌ Order not found: ${orderId}`)
       return res.status(404).json({
         success: false,
         message: 'Order not found'
       })
     }
     
+    // Transform modular order to match regular order format for frontend
+    if (orderType === 'modular') {
+      const transformedOrder = {
+        _id: order._id,
+        orderId: order.orderId,
+        orderNumber: order.orderId,
+        status: order.status,
+        orderType: 'modular',
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        estimatedDelivery: order.estimatedDelivery,
+        pricing: {
+          total: order.totalPrice,
+          subtotal: order.totalPrice - order.basePrice,
+          delivery: 50, // Standard delivery for modular orders
+          tax: 0,
+          basePrice: order.basePrice
+        },
+        items: order.selections.map(selection => ({
+          name: selection.name || selection.designName,
+          category: selection.categoryName,
+          price: selection.price,
+          quantity: 1,
+          image: selection.image,
+          customizations: {
+            type: 'modular-design',
+            category: selection.categoryId
+          }
+        })),
+        shippingInfo: order.shippingInfo ? {
+          fullName: order.shippingInfo.fullName,
+          phone: order.shippingInfo.phone,
+          email: order.shippingInfo.email,
+          address: order.shippingInfo.address
+        } : {
+          fullName: order.customerInfo?.name,
+          phone: order.customerInfo?.phone,
+          email: order.customerInfo?.email
+          // Note: No address for basic modular orders
+        },
+        payment: {
+          method: order.paymentMethod || 'cash_on_delivery',
+          status: 'pending'
+        },
+        customerInfo: order.customerInfo
+      }
+      
+      console.log(`📦 Returning transformed modular order`)
+      return res.json({
+        success: true,
+        data: transformedOrder
+      })
+    }
+    
+    // Return regular order as-is
+    console.log(`📦 Returning regular order`)
     res.json({
       success: true,
-      data: order
+      data: {
+        ...order.toObject(),
+        orderType: 'regular'
+      }
     })
+    
   } catch (error) {
-    console.error('Error fetching order details:', error)
+    console.error('❌ Error fetching order details:', error)
     res.status(500).json({
       success: false,
       message: 'Error fetching order details',

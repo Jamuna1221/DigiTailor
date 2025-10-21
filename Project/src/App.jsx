@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Header from './components/common/Header.jsx'
 import Footer from './components/common/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Catalog from './pages/Catalog.jsx'
 import CustomStudio from './pages/CustomStudio.jsx'
+import ModularCheckout from './pages/ModularCheckout.jsx'
 import Profile from './pages/Profile.jsx'
 import OrderTracking from './pages/OrderTracking.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -88,7 +89,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children
 }
 
-function App() {
+// Create a wrapper component that has access to navigate
+function AppContent() {
+  const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -113,11 +116,11 @@ function App() {
     
     // Role-based redirection after login
     if (userData.role === 'admin') {
-      window.location.href = '/admin'
+      navigate('/admin')
     } else if (userData.role === 'tailor') {
-      window.location.href = '/tailor/dashboard'
+      navigate('/tailor/dashboard')
     } else {
-      window.location.href = '/dashboard'
+      navigate('/dashboard')
     }
   }
 
@@ -128,7 +131,7 @@ function App() {
     localStorage.removeItem('token')
     // ✅ Keep cart items after logout - removed this line:
     // localStorage.removeItem('digitailor_cart')
-    window.location.href = '/'
+    navigate('/')
   }
 
   // Demo Sign In function
@@ -150,16 +153,7 @@ function App() {
   }
 
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <ThemeProvider>
-          <LanguageProvider>
-            <FontProvider>
-              <ColorThemeProvider>
-                <TextSizeProvider>
-                  <NotificationProvider>
-                    <Router>
-              <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-[#0B1220] dark:via-[#0B1220] dark:to-[#0B1220] dark:text-white">
             
             <Header user={user} onSignOut={handleSignOut} onSignIn={handleSignIn} />
 
@@ -173,6 +167,8 @@ function App() {
                 <Route path="/catalog" element={<Catalog user={user} />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/ai-studio" element={<CustomStudio user={user} />} />
+                <Route path="/custom-studio" element={<CustomStudio user={user} />} />
+                <Route path="/modular-checkout" element={<ModularCheckout />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/test-notifications" element={<NotificationTest />} />
@@ -293,8 +289,24 @@ function App() {
                 },
               }}
             />
-          </div>
-        </Router>
+    </div>
+  )
+}
+
+// Main App component that wraps AppContent with Router
+function App() {
+  return (
+    <CartProvider>
+      <WishlistProvider>
+        <ThemeProvider>
+          <LanguageProvider>
+            <FontProvider>
+              <ColorThemeProvider>
+                <TextSizeProvider>
+                  <NotificationProvider>
+                    <Router>
+                      <AppContent />
+                    </Router>
                   </NotificationProvider>
                 </TextSizeProvider>
               </ColorThemeProvider>

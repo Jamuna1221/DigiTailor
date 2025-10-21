@@ -5,7 +5,8 @@ import {
   getDesignsByCategory,
   getGarmentTypes,
   submitModularOrder,
-  getOrderById
+  getOrderById,
+  getAllModularOrders
 } from '../controllers/designElement.controller.js'
 
 const router = express.Router()
@@ -24,6 +25,9 @@ router.get('/designs/:categoryId', getDesignsByCategory)
 
 // POST /api/modular-orders - Submit modular design order
 router.post('/modular-orders', submitModularOrder)
+
+// GET /api/modular-orders - Get all modular orders
+router.get('/modular-orders', getAllModularOrders)
 
 // GET /api/modular-orders/:orderId - Get order by ID
 router.get('/modular-orders/:orderId', getOrderById)

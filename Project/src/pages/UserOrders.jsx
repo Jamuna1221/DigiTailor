@@ -15,10 +15,11 @@ const getStatusColor = (status) => {
 
 function UserOrders() {
   const [orders, setOrders] = useState([])
-  const [isLoading, setIsLoading] = useState(true) // ✅ Renamed to be used
- // At the top of your component
-const navigate = useNavigate()
-  // ✅ Use useCallback to fix dependency warning
+  const [modularOrders, setModularOrders] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('all') // all, regular, modular
+  const navigate = useNavigate()
+  // Fetch both regular and modular orders
   const fetchUserOrders = useCallback(async () => {
     try {
       setIsLoading(true)
@@ -29,19 +30,32 @@ const navigate = useNavigate()
         return
       }
 
-      const response = await fetch('http://localhost:5000/api/orders/user', {
+      // Fetch regular orders
+      const regularResponse = await fetch('http://localhost:5000/api/orders/user', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
 
-      if (response.ok) {
-        const data = await response.json()
+      // Fetch modular orders
+      const modularResponse = await fetch('http://localhost:5000/api/modular-orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (regularResponse.ok) {
+        const data = await regularResponse.json()
         setOrders(data.data || [])
-      } else {
-        console.error('Failed to fetch orders:', response.status)
       }
+
+      if (modularResponse.ok) {
+        const data = await modularResponse.json()
+        setModularOrders(data.data || [])
+      }
+
     } catch (error) {
       console.error('Error fetching orders:', error)
     } finally {
@@ -87,23 +101,70 @@ const navigate = useNavigate()
           <p className="text-gray-600 mt-2">Track and manage your tailoring orders</p>
         </div>
 
-        {orders.length === 0 ? (
+        {/* Order Type Tabs */}
+        <div className="bg-white rounded-lg shadow-md mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'all'
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                All Orders ({orders.length + modularOrders.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('regular')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'regular'
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Regular Orders ({orders.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('modular')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'modular'
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Custom Design Orders ({modularOrders.length})
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {orders.length === 0 && modularOrders.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
               📦
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">No Orders Yet</h2>
             <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
-            <button
-              onClick={() => window.location.href = '/catalog'}
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Browse Catalog
-            </button>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => window.location.href = '/catalog'}
+                className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Browse Catalog
+              </button>
+              <button
+                onClick={() => window.location.href = '/custom-studio'}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Custom Design Studio
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map((order) => (
+            {/* Regular Orders */}
+            {(activeTab === 'all' || activeTab === 'regular') && orders.map((order) => (
               <div key={order._id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-6">
                   {/* Order Header */}
@@ -190,6 +251,105 @@ const navigate = useNavigate()
                       <button
                         onClick={() => {
                           if (window.confirm('Are you sure you want to cancel this order?')) {
+                            // Handle order cancellation
+                          }
+                        }}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors"
+                      >
+                        Cancel Order
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {/* Modular Orders */}
+            {(activeTab === 'all' || activeTab === 'modular') && modularOrders.map((order) => (
+              <div key={order._id} className="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-blue-500">
+                <div className="p-6">
+                  {/* Order Header with Custom Design Badge */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {order.orderId}
+                        </h3>
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          🎨 Custom Design
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm">
+                        Placed on {formatDate(order.createdAt)}
+                      </p>
+                    </div>
+                    <div className="mt-2 sm:mt-0">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        {order.status.replace('-', ' ').toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Customer Info */}
+                  <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                    <h5 className="font-medium text-blue-900 text-sm mb-1">Customer Information</h5>
+                    <p className="text-blue-700 text-sm">
+                      {order.customerInfo.name} • {order.customerInfo.phone}
+                      {order.customerInfo.email && ` • ${order.customerInfo.email}`}
+                    </p>
+                  </div>
+
+                  {/* Design Elements */}
+                  <div className="space-y-3 mb-4">
+                    <h5 className="font-medium text-gray-900 text-sm">Selected Design Elements:</h5>
+                    {order.selections.map((selection, index) => (
+                      <div key={index} className="flex items-center space-x-3 py-2 border-b border-gray-100 last:border-b-0">
+                        <img
+                          src={selection.image || 'https://via.placeholder.com/60x60?text=Design'}
+                          alt={selection.designName}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900 text-sm">{selection.designName}</h4>
+                          <p className="text-gray-600 text-xs">{selection.categoryName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {selection.price === 0 ? 'FREE' : formatPrice(selection.price)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Order Footer */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-200">
+                    <div className="text-sm text-gray-600 mb-2 sm:mb-0">
+                      <span className="inline-flex items-center">
+                        <span className="text-blue-600 mr-1">🎨</span>
+                        Custom Design Order • {order.selections.length} elements
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-gray-500">Base: ₹{order.basePrice}</div>
+                      <p className="text-lg font-bold text-blue-600">
+                        Total: {formatPrice(order.totalPrice)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="mt-4 flex space-x-3">
+                    <button
+                      onClick={() => navigate(`/modular-orders/${order._id}`)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                    >
+                      View Details
+                    </button>
+                    {order.status === 'pending' && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to cancel this custom design order?')) {
                             // Handle order cancellation
                           }
                         }}
