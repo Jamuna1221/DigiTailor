@@ -124,7 +124,7 @@ export const createOrder = async (req, res) => {
   }
 }
 
-// **ADMIN - Get all orders with tailor details**
+// **ADMIN - Get all orders with tailor details (includes both regular and modular orders)**
 export const getAllOrdersForAdmin = async (req, res) => {
   try {
     const { status, limit } = req.query
@@ -134,21 +134,85 @@ export const getAllOrdersForAdmin = async (req, res) => {
       filter.status = status
     }
     
-    let query = Order.find(filter)
-      .populate('assignedTailor', 'firstName lastName email phone specialties experience') // Include tailor details
+    // Fetch regular orders
+    let regularQuery = Order.find(filter)
+      .populate('assignedTailor', 'firstName lastName email phone specialties experience')
       .populate('userId', 'firstName lastName email')
       .sort({ createdAt: -1 })
     
     if (limit) {
-      query = query.limit(parseInt(limit))
+      regularQuery = regularQuery.limit(parseInt(limit))
     }
     
-    const orders = await query
+    const regularOrders = await regularQuery
+    
+    // Fetch modular orders
+    let modularQuery = ModularOrder.find(filter)
+      .populate('assignedTailor', 'firstName lastName email phone specialties experience')
+      .sort({ createdAt: -1 })
+    
+    if (limit) {
+      modularQuery = modularQuery.limit(parseInt(limit))
+    }
+    
+    const modularOrders = await modularQuery
+    
+    // Transform modular orders
+    const transformedModularOrders = modularOrders.map(modularOrder => ({
+      _id: modularOrder._id,
+      orderId: modularOrder.orderId,
+      orderNumber: modularOrder.orderId,
+      status: modularOrder.status,
+      orderType: 'modular',
+      createdAt: modularOrder.createdAt,
+      updatedAt: modularOrder.updatedAt,
+      estimatedDelivery: modularOrder.estimatedDelivery,
+      assignedTailor: modularOrder.assignedTailor,
+      allocationTimestamp: modularOrder.allocationTimestamp,
+      pricing: {
+        total: modularOrder.totalPrice,
+        subtotal: modularOrder.totalPrice - modularOrder.basePrice,
+        delivery: 50,
+        tax: 0
+      },
+      items: modularOrder.selections.map(selection => ({
+        name: selection.designName,
+        category: selection.categoryName,
+        price: selection.price,
+        quantity: 1,
+        image: selection.image
+      })),
+      shippingInfo: modularOrder.shippingInfo,
+      customerInfo: modularOrder.customerInfo,
+      userId: {
+        firstName: modularOrder.customerInfo?.name?.split(' ')[0] || 'Customer',
+        lastName: modularOrder.customerInfo?.name?.split(' ').slice(1).join(' ') || '',
+        email: modularOrder.customerInfo?.email
+      }
+    }))
+    
+    // Add orderType to regular orders
+    const transformedRegularOrders = regularOrders.map(order => {
+      const orderObj = order.toObject()
+      return {
+        ...orderObj,
+        orderType: 'regular'
+      }
+    })
+    
+    // Combine and sort
+    const allOrders = [...transformedRegularOrders, ...transformedModularOrders]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     
     res.status(200).json({
       success: true,
-      data: orders,
-      count: orders.length
+      data: allOrders,
+      count: allOrders.length,
+      breakdown: {
+        regular: transformedRegularOrders.length,
+        modular: transformedModularOrders.length,
+        total: allOrders.length
+      }
     })
     
   } catch (error) {
@@ -160,7 +224,7 @@ export const getAllOrdersForAdmin = async (req, res) => {
   }
 }
 
-// **TAILOR - Get orders assigned to specific tailor**
+// **TAILOR - Get orders assigned to specific tailor (includes both regular and modular orders)**
 export const getOrdersForTailor = async (req, res) => {
   try {
     const { tailorId } = req.params
@@ -172,17 +236,81 @@ export const getOrdersForTailor = async (req, res) => {
       filter.status = status
     }
     
-    const orders = await Order.find(filter)
+    // Fetch regular orders
+    const regularOrders = await Order.find(filter)
       .populate('userId', 'firstName lastName')
       .sort({ createdAt: -1 })
     
+    // Fetch modular orders
+    const modularOrders = await ModularOrder.find(filter)
+      .sort({ createdAt: -1 })
+    
+    // Transform modular orders to match regular order format
+    const transformedModularOrders = modularOrders.map(modularOrder => ({
+      _id: modularOrder._id,
+      orderId: modularOrder.orderId,
+      orderNumber: modularOrder.orderId,
+      status: modularOrder.status,
+      orderType: 'modular',
+      createdAt: modularOrder.createdAt,
+      updatedAt: modularOrder.updatedAt,
+      estimatedDelivery: modularOrder.estimatedDelivery,
+      pricing: {
+        total: modularOrder.totalPrice,
+        subtotal: modularOrder.totalPrice - modularOrder.basePrice,
+        delivery: 50,
+        tax: 0,
+        basePrice: modularOrder.basePrice
+      },
+      items: modularOrder.selections.map(selection => ({
+        name: selection.designName,
+        category: selection.categoryName,
+        price: selection.price,
+        quantity: 1,
+        image: selection.image,
+        customizations: {
+          type: 'modular-design',
+          category: selection.categoryId
+        }
+      })),
+      shippingInfo: modularOrder.shippingInfo || {
+        fullName: modularOrder.customerInfo?.name,
+        phone: modularOrder.customerInfo?.phone,
+        email: modularOrder.customerInfo?.email
+      },
+      customerInfo: modularOrder.customerInfo,
+      userId: {
+        firstName: modularOrder.customerInfo?.name?.split(' ')[0] || 'Customer',
+        lastName: modularOrder.customerInfo?.name?.split(' ').slice(1).join(' ') || ''
+      }
+    }))
+    
+    // Add orderType to regular orders
+    const transformedRegularOrders = regularOrders.map(order => {
+      const orderObj = order.toObject()
+      return {
+        ...orderObj,
+        orderType: 'regular'
+      }
+    })
+    
+    // Combine and sort all orders by creation date
+    const allOrders = [...transformedRegularOrders, ...transformedModularOrders]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    
     res.status(200).json({
       success: true,
-      data: orders,
-      count: orders.length
+      data: allOrders,
+      count: allOrders.length,
+      breakdown: {
+        regular: transformedRegularOrders.length,
+        modular: transformedModularOrders.length,
+        total: allOrders.length
+      }
     })
     
   } catch (error) {
+    console.error('Error fetching tailor orders:', error)
     res.status(500).json({
       success: false,
       message: 'Error fetching tailor orders'
@@ -233,7 +361,9 @@ export const getCombinedOrdersForUser = async (req, res) => {
     if (user?.userId?.phone) {
       modularOrders = await ModularOrder.find({ 
         'customerInfo.phone': user.userId.phone 
-      }).sort({ createdAt: -1 })
+      })
+      .populate('assignedTailor', 'firstName lastName email phone')
+      .sort({ createdAt: -1 })
     }
     
     // Transform modular orders to match regular order format
@@ -270,11 +400,16 @@ export const getCombinedOrdersForUser = async (req, res) => {
       }
     }))
     
-    // Add orderType identifier to regular orders
-    const transformedRegularOrders = regularOrders.map(order => ({
-      ...order.toObject(),
-      orderType: 'regular'
-    }))
+    // Add orderType identifier to regular orders and ensure orderId/orderNumber exist
+    const transformedRegularOrders = regularOrders.map(order => {
+      const orderObj = order.toObject()
+      return {
+        ...orderObj,
+        orderId: orderObj.orderId || orderObj.orderNumber || orderObj._id.toString(),
+        orderNumber: orderObj.orderNumber || orderObj.orderId || orderObj._id.toString(),
+        orderType: 'regular'
+      }
+    })
     
     // Combine and sort by creation date
     const allOrders = [...transformedRegularOrders, ...transformedModularOrders]
@@ -300,15 +435,46 @@ export const getCombinedOrdersForUser = async (req, res) => {
   }
 }
 
-// **TAILOR - Update order status and notes**
+// **TAILOR - Update order status and notes (handles both regular and modular orders)**
 export const updateOrderByTailor = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status, tailorNotes } = req.body;
 
+    console.log(`🔄 Updating order: ${orderId} with status: ${status}`);
+
     const updateData = {};
     if (status) updateData.status = status;
     if (tailorNotes) updateData.tailorNotes = tailorNotes;
+
+    // Try to find the order first (regular or modular)
+    let updatedOrder = null;
+    let orderType = null;
+
+    // Try regular order first
+    try {
+      updatedOrder = await Order.findById(orderId).populate('userId', 'email firstName lastName');
+      if (updatedOrder) {
+        orderType = 'regular';
+        console.log('✅ Found regular order');
+      }
+    } catch (err) {
+      console.log('ℹ️ Not a valid MongoDB ObjectId for regular order');
+    }
+
+    // If not found, try modular order
+    if (!updatedOrder) {
+      updatedOrder = await ModularOrder.findById(orderId);
+      if (updatedOrder) {
+        orderType = 'modular';
+        console.log('✅ Found modular order');
+      }
+    }
+
+    if (!updatedOrder) {
+      console.log('🚫 Order not found with ID:', orderId);
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
 
     // Generate delivery token when status changes to 'out_for_delivery' or 'shipped'
     if (status === 'out_for_delivery' || status === 'shipped') {
@@ -321,15 +487,20 @@ export const updateOrderByTailor = async (req, res) => {
       console.log('===================================\n');
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
-      updateData,
-      { new: true }
-    ).populate('userId', 'email firstName lastName');
-
-    if (!updatedOrder) {
-      console.log('🚫 Order not found with ID:', orderId);
-      return res.status(404).json({ success: false, message: 'Order not found' });
+    // Update the order based on type
+    if (orderType === 'regular') {
+      updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        updateData,
+        { new: true }
+      ).populate('userId', 'email firstName lastName');
+    } else {
+      // For modular orders
+      updatedOrder = await ModularOrder.findByIdAndUpdate(
+        orderId,
+        updateData,
+        { new: true }
+      );
     }
 
     console.log(`🔄 Order status updated to: ${updatedOrder.status}`);
@@ -349,24 +520,34 @@ export const updateOrderByTailor = async (req, res) => {
 
     // Check if status matches trigger for email
     if (['out_for_delivery', 'shipped'].includes(updatedOrder.status)) {
-      console.log('\n📧 ======= EMAIL TRIGGER DEBUG =======');
-      console.log(`✉️ Triggering sendOutForDeliveryEmail...`);
-      console.log(`📦 Order ID: ${updatedOrder.orderId || updatedOrder._id}`);
-      console.log(`📧 Email Address: ${updatedOrder.userId.email}`);
-      console.log(`🔑 Has Token: ${!!updatedOrder.deliveryToken}`);
-      console.log(`🔑 Token Value: ${updatedOrder.deliveryToken}`);
-      console.log(`📋 Order Status: ${updatedOrder.status}`);
+      // Get email address based on order type
+      const customerEmail = orderType === 'regular' 
+        ? updatedOrder.userId?.email 
+        : (updatedOrder.shippingInfo?.email || updatedOrder.customerInfo?.email);
       
-      try {
-        await sendOutForDeliveryEmail(updatedOrder.userId.email, updatedOrder);
-        console.log('✅ sendOutForDeliveryEmail completed successfully.');
-        console.log('=====================================\n');
-      } catch (emailError) {
-        console.error('\n❌ ======= EMAIL TRIGGER ERROR =======');
-        console.error('❌ Error sending delivery email:', emailError);
-        console.error(`📦 Order: ${updatedOrder.orderId || updatedOrder._id}`);
-        console.error(`📧 Email: ${updatedOrder.userId.email}`);
-        console.error('==================================\n');
+      if (customerEmail) {
+        console.log('\n📧 ======= EMAIL TRIGGER DEBUG =======');
+        console.log(`✉️ Triggering sendOutForDeliveryEmail...`);
+        console.log(`📦 Order ID: ${updatedOrder.orderId || updatedOrder._id}`);
+        console.log(`📦 Order Type: ${orderType}`);
+        console.log(`📧 Email Address: ${customerEmail}`);
+        console.log(`🔑 Has Token: ${!!updatedOrder.deliveryToken}`);
+        console.log(`🔑 Token Value: ${updatedOrder.deliveryToken}`);
+        console.log(`📋 Order Status: ${updatedOrder.status}`);
+        
+        try {
+          await sendOutForDeliveryEmail(customerEmail, updatedOrder);
+          console.log('✅ sendOutForDeliveryEmail completed successfully.');
+          console.log('=====================================\n');
+        } catch (emailError) {
+          console.error('\n❌ ======= EMAIL TRIGGER ERROR =======');
+          console.error('❌ Error sending delivery email:', emailError);
+          console.error(`📦 Order: ${updatedOrder.orderId || updatedOrder._id}`);
+          console.error(`📧 Email: ${customerEmail}`);
+          console.error('==================================\n');
+        }
+      } else {
+        console.log(`⚠️ No email address found for ${orderType} order`);
       }
     } else {
       console.log(`ℹ️ Order status '${updatedOrder.status}' does not trigger delivery email.`);
@@ -411,6 +592,7 @@ export const getOrderDetails = async (req, res) => {
     // If not found as regular order, try modular orders by orderId string
     if (!order) {
       order = await ModularOrder.findOne({ orderId: orderId })
+        .populate('assignedTailor', 'firstName lastName email phone')
       if (order) {
         orderType = 'modular'
         console.log(`✅ Found modular order: ${order.orderId}`)
@@ -450,6 +632,7 @@ export const getOrderDetails = async (req, res) => {
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
         estimatedDelivery: order.estimatedDelivery,
+        assignedTailor: order.assignedTailor || null, // Include tailor info
         pricing: {
           total: order.totalPrice,
           subtotal: order.totalPrice - order.basePrice,
@@ -625,7 +808,7 @@ export const addAlterationRequest = async (req, res) => {
   }
 }
 
-// Confirm delivery via email token
+// Confirm delivery via email token (handles both regular and modular orders)
 export const confirmDelivery = async (req, res) => {
   try {
     const { token } = req.params
@@ -634,18 +817,40 @@ export const confirmDelivery = async (req, res) => {
     console.log(`🔑 Received Token: ${token}`);
     console.log(`🔍 Searching for order with token...`);
     
-    // First, find ANY order with this token (regardless of status)
-    const anyOrder = await Order.findOne({ 
+    // Try to find order in both collections
+    let anyOrder = null
+    let orderType = null
+    
+    // First try regular orders
+    anyOrder = await Order.findOne({ 
       deliveryToken: token
     }).populate('userId', 'firstName lastName email')
     
-    console.log(`📦 Any Order Found: ${!!anyOrder}`);
     if (anyOrder) {
+      orderType = 'regular'
+      console.log(`📦 Regular Order Found: ${!!anyOrder}`);
       console.log(`📦 Order ID: ${anyOrder.orderId || anyOrder._id}`);
       console.log(`👤 Customer: ${anyOrder.userId.firstName} ${anyOrder.userId.lastName}`);
       console.log(`📧 Email: ${anyOrder.userId.email}`);
       console.log(`📋 Current Status: ${anyOrder.status}`);
       console.log(`✅ Already Confirmed At: ${anyOrder.deliveryConfirmedAt || 'Not confirmed'}`);
+    }
+    
+    // If not found, try modular orders
+    if (!anyOrder) {
+      anyOrder = await ModularOrder.findOne({ 
+        deliveryToken: token
+      })
+      
+      if (anyOrder) {
+        orderType = 'modular'
+        console.log(`📦 Modular Order Found: ${!!anyOrder}`);
+        console.log(`📦 Order ID: ${anyOrder.orderId || anyOrder._id}`);
+        console.log(`👤 Customer: ${anyOrder.customerInfo?.name}`);
+        console.log(`📧 Email: ${anyOrder.customerInfo?.email || anyOrder.shippingInfo?.email}`);
+        console.log(`📋 Current Status: ${anyOrder.status}`);
+        console.log(`✅ Already Confirmed At: ${anyOrder.deliveryConfirmedAt || 'Not confirmed'}`);
+      }
     }
     
     if (!anyOrder) {
@@ -695,6 +900,11 @@ export const confirmDelivery = async (req, res) => {
     console.log(`✅ Delivery confirmed by customer for order: ${order.orderId}`);
     console.log(`⏰ Confirmed at: ${order.deliveryConfirmedAt}`);
     console.log('==========================================\n');
+    
+    // Get customer name based on order type
+    const customerName = orderType === 'regular' 
+      ? order.userId.firstName 
+      : (order.customerInfo?.name?.split(' ')[0] || 'Valued Customer');
     
     // Return HTML page with confirmation and review prompt
     res.send(`
@@ -775,10 +985,10 @@ export const confirmDelivery = async (req, res) => {
         <div class="container">
           <div class="success-icon">✅</div>
           <h1>Delivery Confirmed!</h1>
-          <h2>Thank you, ${order.userId.firstName}!</h2>
+          <h2>Thank you, ${customerName}!</h2>
           
           <div class="order-info">
-            <p><strong>Order ID:</strong> ${order.orderId}</p>
+            <p><strong>Order ID:</strong> ${order.orderId || order._id}</p>
             <p><strong>Confirmed at:</strong> ${new Date().toLocaleString()}</p>
           </div>
           
@@ -786,7 +996,7 @@ export const confirmDelivery = async (req, res) => {
           <p><strong>We'd love to hear about your experience!</strong></p>
           <p>Please consider leaving a review with photos to help other customers.</p>
           
-          <a href="${process.env.FRONTEND_URL}/orders/${order._id}" class="btn">
+          <a href="${process.env.FRONTEND_URL}/orders/${order.orderId || order._id}" class="btn">
             📝 Write a Review
           </a>
           
@@ -945,16 +1155,39 @@ export const testDeliveryEmail = async (req, res) => {
   }
 }
 
-// Get delivery status for order (for frontend)
+// Get delivery status for order (for frontend - handles both regular and modular orders)
 export const getDeliveryStatus = async (req, res) => {
   try {
     const { orderId } = req.params
     const userId = req.user.id
     
-    const order = await Order.findOne({
-      _id: orderId,
-      userId: userId
-    }).select('status deliveryConfirmedAt deliveryConfirmedBy review')
+    let order = null
+    let orderType = null
+    
+    // Try to find as regular order first
+    try {
+      order = await Order.findOne({
+        _id: orderId,
+        userId: userId
+      }).select('status deliveryConfirmedAt deliveryConfirmedBy review')
+      
+      if (order) {
+        orderType = 'regular'
+      }
+    } catch (err) {
+      // Not a valid ObjectId, might be a modular order
+    }
+    
+    // If not found, try modular orders by orderId string
+    if (!order) {
+      order = await ModularOrder.findOne({
+        orderId: orderId
+      }).select('status deliveryConfirmedAt deliveryConfirmedBy review')
+      
+      if (order) {
+        orderType = 'modular'
+      }
+    }
     
     if (!order) {
       return res.status(404).json({
@@ -964,12 +1197,13 @@ export const getDeliveryStatus = async (req, res) => {
     }
     
     const canReview = order.status === 'delivered' && order.deliveryConfirmedAt && (!order.review || !order.review.rating)
-    const isAwaitingDeliveryConfirmation = order.status === 'out_for_delivery'
+    const isAwaitingDeliveryConfirmation = order.status === 'out_for_delivery' || order.status === 'shipped'
     
     res.json({
       success: true,
       data: {
         status: order.status,
+        orderType: orderType,
         deliveryConfirmed: !!order.deliveryConfirmedAt,
         deliveryConfirmedAt: order.deliveryConfirmedAt,
         deliveryConfirmedBy: order.deliveryConfirmedBy,

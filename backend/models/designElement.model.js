@@ -34,7 +34,7 @@ const designElementSchema = new mongoose.Schema({
   garmentType: {
     type: String,
     required: true,
-    enum: ['kurti', 'blouse', 'saree', 'lehenga', 'dress'],
+    enum: ['kurti', 'blouse'],
     trim: true,
     lowercase: true
   },

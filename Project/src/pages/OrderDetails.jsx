@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useNotificationHelpers } from '../hooks/useNotificationHelpers'
 import EnhancedReviewModal from '../components/EnhancedReviewModal'
 import DeliveryStatusBanner from '../components/DeliveryStatusBanner'
+import OrderReviewsSection from '../components/OrderReviewsSection'
 
 function OrderDetails() {
   const { orderId } = useParams()
@@ -212,9 +213,7 @@ function OrderDetails() {
                   {/* Status icon */}
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
                     isCompleted 
-                      ? isCurrent 
-                        ? `bg-${status.color}-500 text-white animate-pulse` 
-                        : 'bg-green-500 text-white'
+                      ? 'bg-green-500 text-white' + (isCurrent ? ' ring-4 ring-green-300 animate-pulse' : '')
                       : 'bg-gray-200 text-gray-400'
                   }`}>
                     {isCompleted && !isCurrent ? '✓' : status.icon}
@@ -338,7 +337,8 @@ function OrderDetails() {
           </div>
         </div>
 
-        
+        {/* Reviews Section - Show user's own reviews for this order */}
+        <OrderReviewsSection orderId={orderId} />
 
         {/* Actions */}
         <div className="bg-white rounded-lg shadow-lg p-6">

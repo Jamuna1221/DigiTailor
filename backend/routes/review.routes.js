@@ -4,6 +4,7 @@ import {
   getProductReviews,
   getUserReviews,
   getReviewableProducts,
+  getOrderReviews,
   updateReview,
   deleteReview
 } from '../controllers/review.controller.js'
@@ -21,6 +22,9 @@ router.use(protect)
 
 // Get reviewable products for a delivered order
 router.get('/order/:orderId/products', getReviewableProducts)
+
+// Get all reviews for a specific order (for order details page)
+router.get('/order/:orderId', getOrderReviews)
 
 // Create a review for a specific product in an order
 router.post('/order/:orderId/product/:productId', 

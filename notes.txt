@@ -36,3 +36,6 @@ analytics reports
 => profit,loss
 => expenses calculator
 => salary assignment
+
+
+ok now let us come to reviews, the reviews provided by the user should be displayed under the order details page(both modular orders, and catalog orders) , alreday it has the functionlaity to write review once the order came to status delivered ,now it should be stored in the db(already has the collection review), ok then i tshould show the review posted by the user (only to the user under the order details page ) and the reviews should be posted publicly unedr the separate products of the order can you imagine ? 

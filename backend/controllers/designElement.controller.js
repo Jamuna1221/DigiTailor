@@ -1,5 +1,6 @@
 import DesignElement from '../models/designElement.model.js'
 import ModularOrder from '../models/modularOrder.model.js'
+import { allocateTailorToOrder } from '../services/tailorAllocation.js'
 
 // Get all design categories with their elements
 const getDesignCategories = async (req, res) => {
@@ -91,13 +92,14 @@ const getDesignsByCategory = async (req, res) => {
 // Submit modular design order
 const submitModularOrder = async (req, res) => {
   try {
-    const { customerInfo, selections, totalPrice } = req.body
+    const { customerInfo, selections, totalPrice, basePrice, shippingInfo, paymentMethod } = req.body
 
     // Log the incoming request for debugging
-    console.log('📦 Received order data:', {
+    console.log('📦 Received modular order data:', {
       customerInfo,
       selections: selections?.length,
-      totalPrice
+      totalPrice,
+      hasShippingInfo: !!shippingInfo
     })
 
     // Validate required fields
@@ -113,6 +115,16 @@ const submitModularOrder = async (req, res) => {
         success: false,
         message: 'At least one design selection is required'
       })
+    }
+
+    // **SMART TAILOR ALLOCATION** - Same as regular orders
+    console.log('🎯 Allocating tailor for modular order...')
+    const assignedTailorId = await allocateTailorToOrder()
+    
+    if (assignedTailorId) {
+      console.log('✅ Tailor allocated:', assignedTailorId)
+    } else {
+      console.log('⚠️ No tailor available, order will be placed without assignment')
     }
 
     // Generate orderId manually first
@@ -137,8 +149,25 @@ const submitModularOrder = async (req, res) => {
         image: selection.image,
         description: selection.description
       })),
+      shippingInfo: shippingInfo ? {
+        fullName: shippingInfo.fullName?.trim(),
+        email: shippingInfo.email?.trim(),
+        phone: shippingInfo.phone?.trim(),
+        address: {
+          street: shippingInfo.address?.street?.trim(),
+          city: shippingInfo.address?.city?.trim(),
+          state: shippingInfo.address?.state?.trim(),
+          zipCode: shippingInfo.address?.zipCode?.trim()
+        },
+        specialInstructions: shippingInfo.specialInstructions?.trim() || ''
+      } : undefined,
+      paymentMethod: paymentMethod || 'cash_on_delivery',
       totalPrice: totalPrice || 180,
-      basePrice: 180
+      basePrice: basePrice || 180,
+      // Set status based on tailor allocation (same as regular orders)
+      status: assignedTailorId ? 'assigned' : 'placed',
+      assignedTailor: assignedTailorId,
+      allocationTimestamp: assignedTailorId ? new Date() : null
     }
 
     console.log('💾 Creating order with data:', orderData)
@@ -146,6 +175,11 @@ const submitModularOrder = async (req, res) => {
     const order = new ModularOrder(orderData)
     await order.save()
 
+    if (assignedTailorId) {
+      console.log('✅ Modular order created and assigned to tailor')
+    } else {
+      console.log('⚠️ Modular order created but no tailor available')
+    }
     console.log('✅ Order saved successfully:', order.orderId)
 
     res.status(201).json({
@@ -155,6 +189,7 @@ const submitModularOrder = async (req, res) => {
         orderId: order.orderId,
         totalPrice: order.totalPrice,
         status: order.status,
+        estimatedDelivery: order.estimatedDelivery,
         customerInfo: order.customerInfo
       }
     })
@@ -275,34 +310,28 @@ const getOrderById = async (req, res) => {
 // Helper functions
 const getCategoryEmoji = (categoryId) => {
   const emojis = {
-    'sleeves': '👕',
-    'front-neck-designs': '💎',
-    'back-neck-designs': '✨',
-    'ropes-strings': '🎀',
-    'aari-work': '🧵',
-    'embroidery': '🌺',
-    'borders-lace': '🎭',
+    'aari-work': '✨',
     'buttons-closures': '🔘',
-    'prints-patterns': '🎨',
-    'fabric-type': '🧶',
-    'length': '📏'
+    'borders-laces': '🎭',
+    'front-neck': '💎',
+    'back-neck': '🎀',
+    'sleeve': '👕',
+    'ropes': '🧵',
+    'mirror-work': '🕸️'
   }
   return emojis[categoryId] || '🎨'
 }
 
 const getCategoryDescription = (categoryId) => {
   const descriptions = {
-    'sleeves': 'Choose your sleeve style',
-    'front-neck-designs': 'Front neckline designs',
-    'back-neck-designs': 'Back neckline designs',
-    'ropes-strings': 'Decorative ropes and strings',
-    'aari-work': 'Traditional Aari embroidery',
-    'embroidery': 'Beautiful embroidery work',
-    'borders-lace': 'Decorative borders and lace',
+    'aari-work': 'Traditional Aari embroidery work',
     'buttons-closures': 'Buttons and closure styles',
-    'prints-patterns': 'Design element options',
-    'fabric-type': 'Choose your fabric',
-    'length': 'Length and fitting options'
+    'borders-laces': 'Decorative borders and laces',
+    'front-neck': 'Front neck designs',
+    'back-neck': 'Back neck designs',
+    'sleeve': 'Sleeve designs and styles',
+    'ropes': 'Decorative ropes',
+    'mirror-work': 'Traditional mirror work embellishments'
   }
   return descriptions[categoryId] || 'Design element options'
 }
@@ -310,10 +339,7 @@ const getCategoryDescription = (categoryId) => {
 const getGarmentEmoji = (garmentType) => {
   const emojis = {
     'kurti': '👕',
-    'blouse': '👗', 
-    'saree': '🎀',
-    'lehenga': '👠',
-    'dress': '👗'
+    'blouse': '👗'
   }
   return emojis[garmentType] || '👕'
 }
@@ -321,10 +347,7 @@ const getGarmentEmoji = (garmentType) => {
 const getGarmentDescription = (garmentType) => {
   const descriptions = {
     'kurti': 'Traditional Indian tunic with versatile styling options',
-    'blouse': 'Elegant fitted top perfect for sarees and lehengas',
-    'saree': 'Classic Indian drape with timeless elegance',
-    'lehenga': 'Traditional flared skirt with rich embellishments',
-    'dress': 'Modern fusion wear with contemporary styling'
+    'blouse': 'Elegant fitted top perfect for sarees and lehengas'
   }
   return descriptions[garmentType] || 'Traditional Indian wear'
 }

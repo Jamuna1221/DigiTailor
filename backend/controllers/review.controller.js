@@ -424,11 +424,43 @@ export const deleteReview = async (req, res) => {
   }
 }
 
+// Get all reviews for a specific order (for showing reviews on order details page)
+export const getOrderReviews = async (req, res) => {
+  try {
+    const { orderId } = req.params
+    const userId = req.user.id
+
+    console.log(`📋 Fetching reviews for order: ${orderId}`)
+
+    // Get reviews for this order
+    const reviews = await Review.find({
+      orderId: orderId,
+      userId: userId
+    })
+    .sort({ createdAt: -1 })
+
+    res.json({
+      success: true,
+      data: reviews,
+      count: reviews.length
+    })
+
+  } catch (error) {
+    console.error('❌ Error fetching order reviews:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching order reviews',
+      error: error.message
+    })
+  }
+}
+
 export default {
   createProductReview,
   getProductReviews,
   getUserReviews,
   getReviewableProducts,
+  getOrderReviews,
   updateReview,
   deleteReview
 }

@@ -75,8 +75,8 @@ function OrderTracking({ user }) {
         setLoading(true)
         setError(null)
         
-        // Fetch orders for the logged-in user
-        const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}`, {
+        // Fetch combined orders (regular + modular) for the logged-in user
+        const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}/combined`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
@@ -171,6 +171,7 @@ function OrderTracking({ user }) {
 
   const completedOrders = orders.filter(isCompletedOrder)
   const pendingOrders = orders.filter(isPendingOrder)
+  const customOrders = orders.filter(order => order.orderType === 'modular')
 
   // Get filtered orders based on active tab
   const getFilteredOrders = () => {
@@ -179,6 +180,8 @@ function OrderTracking({ user }) {
         return completedOrders
       case 'pending':
         return pendingOrders
+      case 'custom':
+        return customOrders
       default:
         return orders
     }
@@ -278,11 +281,11 @@ function OrderTracking({ user }) {
           <div className="flex justify-between items-center pt-4 border-t border-gray-100">
             <div>
               <span className="text-sm text-gray-500">Total Amount</span>
-              <p className="text-2xl font-bold text-gray-900">₹{order.total?.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">₹{(order.pricing?.total || order.total || 0).toLocaleString()}</p>
             </div>
             
             <Link 
-              to={`/orders/${order._id}`}
+              to={`/orders/${order.orderId || order.orderNumber || order._id}`}
               className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               View Details
@@ -308,12 +311,13 @@ function OrderTracking({ user }) {
           <>
             {/* Modern Tab Navigation */}
             <div className="mb-8">
-              <div className="bg-white rounded-2xl shadow-lg p-2 max-w-2xl mx-auto">
-                <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white rounded-2xl shadow-lg p-2 mx-auto">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {[
                     { id: 'all', label: 'All Orders', count: orders.length, icon: '📋' },
-                    { id: 'pending', label: 'Pending', count: pendingOrders.length, icon: '⏳' },
-                    { id: 'completed', label: 'Completed', count: completedOrders.length, icon: '✅' }
+                    { id: 'pending', label: 'Pending', count: pendingOrders.length, icon: '⌛' },
+                    { id: 'completed', label: 'Completed', count: completedOrders.length, icon: '✅' },
+                    { id: 'custom', label: 'Custom Design', count: customOrders.length, icon: '🎨' }
                   ].map((tab) => (
                     <button
                       key={tab.id}

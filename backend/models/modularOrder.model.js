@@ -25,7 +25,7 @@ const modularOrderSchema = new mongoose.Schema({
   shippingInfo: {
     fullName: {
       type: String,
-      required: true,
+      required: false,
       trim: true
     },
     email: {
@@ -34,28 +34,28 @@ const modularOrderSchema = new mongoose.Schema({
     },
     phone: {
       type: String,
-      required: true,
+      required: false,
       trim: true
     },
     address: {
       street: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       },
       city: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       },
       state: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       },
       zipCode: {
         type: String,
-        required: true,
+        required: false,
         trim: true
       }
     },
@@ -120,8 +120,37 @@ const modularOrderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'in-production', 'ready', 'delivered', 'cancelled'],
-    default: 'pending'
+    enum: ['placed', 'confirmed', 'assigned', 'in_progress', 'completed', 'packed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'],
+    default: 'placed'
+  },
+  assignedTailor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  allocationTimestamp: {
+    type: Date,
+    default: null
+  },
+  statusHistory: [{
+    status: String,
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    note: String
+  }],
+  deliveryToken: {
+    type: String,
+    default: null
+  },
+  deliveryConfirmedAt: {
+    type: Date,
+    default: null
+  },
+  deliveryConfirmedBy: {
+    type: String,
+    default: null
   },
   orderType: {
     type: String,
@@ -136,13 +165,22 @@ const modularOrderSchema = new mongoose.Schema({
   timestamps: true
 })
 
-// Generate order ID
+// Generate order ID and track status changes
 modularOrderSchema.pre('save', function(next) {
   if (!this.orderId) {
     const timestamp = Date.now().toString(36)
     const random = Math.random().toString(36).substr(2, 5)
     this.orderId = `MOD-${timestamp}-${random}`.toUpperCase()
   }
+  
+  // Add to status history
+  if (this.isModified('status')) {
+    this.statusHistory.push({
+      status: this.status,
+      timestamp: new Date()
+    })
+  }
+  
   next()
 })
 
