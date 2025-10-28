@@ -14,6 +14,7 @@ function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [analytics, setAnalytics] = useState(null)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -32,9 +33,10 @@ function AdminDashboard() {
         }
         
         // Fetch dashboard statistics
-        const [statsResponse, ordersResponse] = await Promise.all([
+        const [statsResponse, ordersResponse, analyticsResponse] = await Promise.all([
           fetch('http://localhost:5000/api/admin/dashboard/stats', { headers }),
-          fetch('http://localhost:5000/api/admin/dashboard/recent-orders?limit=5', { headers })
+          fetch('http://localhost:5000/api/admin/dashboard/recent-orders?limit=5', { headers }),
+          fetch('http://localhost:5000/api/analytics/dashboard', { headers })
         ])
         
         if (statsResponse.ok) {
@@ -49,6 +51,11 @@ function AdminDashboard() {
           if (ordersData.success) {
             setRecentOrders(ordersData.data)
           }
+        }
+        
+        if (analyticsResponse.ok) {
+          const a = await analyticsResponse.json()
+          if (a.success) setAnalytics(a.data)
         }
         
       } catch (error) {
@@ -117,7 +124,7 @@ function AdminDashboard() {
 
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-green-100">
+            <div className="p-3 rounded-full bg-indigo-100">
               <span className="text-2xl">📦</span>
             </div>
             <div className="ml-4">
@@ -141,12 +148,16 @@ function AdminDashboard() {
 
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-red-100">
-              <span className="text-2xl">⏳</span>
+            <div className="p-3 rounded-full bg-indigo-100">
+              <span className="text-2xl">💳</span>
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500">Pending Orders</h3>
-              <p className="text-2xl font-bold text-gray-900">{stats.pendingOrders}</p>
+              <h3 className="text-sm font-medium text-gray-500">Avg Order Value (MTD)</h3>
+              <p className="text-2xl font-bold text-gray-900">
+                ₹{(analytics?.monthly?.completedOrders
+                  ? Math.round(analytics.monthly.income / analytics.monthly.completedOrders)
+                  : 0).toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
@@ -175,6 +186,51 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Insight widgets */}
+      {analytics && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Donut: Today Income vs Expense */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border flex items-center gap-6">
+            {(() => {
+              const inc = analytics.daily.income || 0
+              const exp = analytics.daily.expenses || 0
+              const total = Math.max(inc + exp, 1)
+              const deg = Math.round((inc / total) * 360)
+              return (
+                <div className="w-24 h-24 rounded-full" style={{ background: `conic-gradient(#10b981 0deg ${deg}deg, #ef4444 ${deg}deg 360deg)` }} />
+              )
+            })()}
+            <div>
+              <div className="text-sm text-gray-500 mb-1">Today</div>
+              <div className="text-sm">Income: <span className="font-semibold text-emerald-600">₹{analytics.daily.income.toLocaleString()}</span></div>
+              <div className="text-sm">Expenses: <span className="font-semibold text-rose-600">₹{analytics.daily.expenses.toLocaleString()}</span></div>
+              <div className="text-sm">Profit: <span className={`font-semibold ${analytics.daily.profit >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>₹{analytics.daily.profit.toLocaleString()}</span></div>
+            </div>
+          </div>
+          {/* Mini bars: Orders overview */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="text-sm font-medium text-gray-700 mb-3">Orders Overview</div>
+            <div className="space-y-2">
+              {['daily','weekly','monthly','annual'].map(k => (
+                <div key={k} className="flex items-center gap-3 text-sm">
+                  <div className="w-16 capitalize text-gray-600">{k}</div>
+                  <div className="flex-1 bg-gray-100 h-2 rounded">
+                    <div className="h-2 bg-blue-600 rounded" style={{ width: `${Math.min(100, (analytics[k].orders || 0) / Math.max(1, analytics.monthly.orders || 1) * 100)}%` }} />
+                  </div>
+                  <div className="w-10 text-right font-medium">{analytics[k].orders}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* KPI: Profit trend */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="text-sm text-gray-500">Monthly Profit</div>
+            <div className={`text-3xl font-bold ${analytics.monthly.profit >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>₹{analytics.monthly.profit.toLocaleString()}</div>
+            <div className="text-xs text-gray-500 mt-1">Income ₹{analytics.monthly.income.toLocaleString()} • Expenses ₹{analytics.monthly.expenses.toLocaleString()}</div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-sm border p-6">

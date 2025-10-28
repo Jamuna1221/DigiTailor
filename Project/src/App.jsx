@@ -48,6 +48,10 @@ import { NotificationProvider } from './contexts/NotificationContext.jsx'
 import Cart from './pages/Cart.jsx'
 import ProductDetails from './components/product/ProductDetails.jsx'
 import ManageOrders from './pages/admin/ManageOrders.jsx'
+import ManageExpenses from './pages/admin/ManageExpenses.jsx'
+import ManageSalaries from './pages/admin/ManageSalaries.jsx'
+import ExpenseReports from './pages/admin/ExpenseReports.jsx'
+import AdminAnalytics from './pages/admin/AdminAnalytics.jsx'
 import Checkout from './pages/checkout.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
@@ -234,8 +238,12 @@ function AppContent() {
                   <Route path="catalog" element={<ManageCatalog />} />
                   <Route path="custom-designs" element={<ManageCustomDesigns />} />
                   <Route path="gallery" element={<ManageGallery />} />
-                  <Route path="users" element={<ManageUsers />} />
                   <Route path="orders" element={<ManageOrders />} />
+                  <Route path="expenses" element={<ManageExpenses />} />
+                  <Route path="salaries" element={<ManageSalaries />} />
+                  <Route path="expense-reports" element={<ExpenseReports />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="users" element={<ManageUsers />} />
                 </Route>
 
                 {/* Tailor Routes */}

@@ -83,6 +83,11 @@ export const adminOnly = (req, res, next) => {
   }
 }
 
+// Verify admin using existing user JWT (compose protect + adminOnly)
+export const verifyAdminToken = (req, res, next) => {
+  return protect(req, res, () => adminOnly(req, res, next))
+}
+
 // Super Admin only access
 export const superAdminOnly = (req, res, next) => {
   if (req.userType === 'admin' && req.admin?.role === 'super_admin') {

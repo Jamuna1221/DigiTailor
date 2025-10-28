@@ -183,6 +183,144 @@ function ModularCheckout() {
     return result
   }
 
+  // ✅ Handle Razorpay payment for modular orders
+  const handleRazorpayPayment = async () => {
+    console.log('💳 Starting Razorpay payment for modular design...')
+
+    // Prepare modular order data for Razorpay
+    const modularOrderData = {
+      customerInfo: {
+        name: shippingInfo.fullName.trim(),
+        phone: shippingInfo.phone.trim(),
+        email: shippingInfo.email.trim()
+      },
+      selections: orderData.selections,
+      totalPrice: total,
+      basePrice: basePrice,
+      shippingInfo: {
+        fullName: shippingInfo.fullName,
+        email: shippingInfo.email,
+        phone: shippingInfo.phone,
+        address: {
+          street: shippingInfo.street,
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          zipCode: shippingInfo.zipCode
+        },
+        specialInstructions: shippingInfo.specialInstructions || ''
+      }
+    }
+
+    try {
+      // Create Razorpay order for modular design
+      const response = await fetch(`${API_BASE_URL}/payment/create-order-modular`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(modularOrderData)
+      })
+
+      const responseData = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Failed to create payment order')
+      }
+
+      console.log('✅ Razorpay modular order created:', responseData.data)
+
+      // Initialize Razorpay payment
+      const options = {
+        key: responseData.data.key,
+        amount: responseData.data.amount,
+        currency: responseData.data.currency,
+        name: 'DigiTailor',
+        description: 'Custom Modular Design Order',
+        order_id: responseData.data.razorpayOrderId,
+        handler: async function (paymentResponse) {
+          console.log('🎉 Payment successful:', paymentResponse)
+          
+          // Verify payment
+          try {
+            const verifyResponse = await fetch(`${API_BASE_URL}/payment/verify`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              },
+              body: JSON.stringify({
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+                order_id: responseData.data.orderId,
+                order_type: 'modular'
+              })
+            })
+
+            const verifyData = await verifyResponse.json()
+            
+            if (!verifyResponse.ok) {
+              throw new Error(verifyData.message || 'Payment verification failed')
+            }
+
+            console.log('✅ Payment verified:', verifyData.data)
+            
+            // Success - redirect to order success page
+            const orderNumber = verifyData.data?.orderNumber || 'N/A'
+            const orderId = verifyData.data?.orderId || 'N/A'
+            navigate('/order-success', { state: { orderNumber, orderId, orderType: 'modular' } })
+            
+          } catch (verifyError) {
+            console.error('❌ Payment verification failed:', verifyError)
+            alert('❌ Payment verification failed. Please contact support.')
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('❌ Payment cancelled by user')
+            alert('❌ Payment was cancelled')
+          }
+        },
+        prefill: {
+          name: shippingInfo.fullName,
+          email: shippingInfo.email,
+          contact: shippingInfo.phone
+        },
+        theme: {
+          color: '#7C3AED'
+        }
+      }
+
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+
+      rzp.on('payment.failed', function (response) {
+        console.error('❌ Payment failed:', response.error)
+        
+        // Handle payment failure
+        fetch(`${API_BASE_URL}/payment/failure`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            order_id: responseData.data.orderId,
+            order_type: 'modular',
+            reason: response.error.description
+          })
+        }).catch(console.error)
+        
+        alert(`❌ Payment failed: ${response.error.description}`)
+      })
+
+    } catch (error) {
+      console.error('❌ Error creating Razorpay modular order:', error)
+      throw error
+    }
+  }
+
   // ✅ Main payment handler
   const handlePayment = async () => {
     try {
@@ -220,22 +358,19 @@ function ModularCheckout() {
       let result
       if (paymentMethod === 'cod') {
         result = await handleCODOrder()
+        // Success
+        console.log('🎉 Order placed successfully:', result)
+        const orderNumber = result.data?.orderId || 'N/A'
+        const orderId = result.data?.orderId || 'N/A'
+        navigate('/order-success', { state: { orderNumber, orderId, orderType: 'modular' } })
       } else {
         const scriptLoaded = await loadRazorpayScript()
         if (!scriptLoaded) {
           alert('Failed to load payment gateway. Please try again.')
           return
         }
-        alert('Razorpay integration coming soon!')
-        return
+        await handleRazorpayPayment()
       }
-
-      // Success
-      console.log('🎉 Order placed successfully:', result)
-      const orderNumber = result.data?.orderId || 'N/A'
-      const orderId = result.data?.orderId || 'N/A'
-      
-      navigate('/order-success', { state: { orderNumber, orderId, orderType: 'modular' } })
 
     } catch (error) {
       console.error('💥 COMPLETE Payment error details:', error)
@@ -401,7 +536,7 @@ function ModularCheckout() {
                       <label htmlFor="razorpay" className="ml-3 block text-sm font-medium text-gray-700 dark:text-white">
                         <div className="flex items-center">
                           <span>💳 Online Payment (Razorpay)</span>
-                          <span className="ml-2 text-green-600 text-xs">Coming Soon</span>
+                          <span className="ml-2 text-green-600 text-xs">Available</span>
                         </div>
                         <p className="text-gray-500 text-xs mt-1">Pay securely using cards, UPI, net banking</p>
                       </label>

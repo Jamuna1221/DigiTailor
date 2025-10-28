@@ -18,9 +18,9 @@ export const getDashboardStats = async (req, res) => {
       getTotalDesigns(),
       // Total orders
       Order.countDocuments(),
-      // Pending orders (adjust status values based on your schema)
+      // Pending orders (exclude delivered/cancelled)
       Order.countDocuments({ 
-        status: { $in: ['order_placed', 'assigned_to_tailor', 'stitching_in_progress'] } 
+        status: { $nin: ['delivered', 'cancelled'] } 
       }),
       // Total gallery items (you might have a Gallery model)
       getTotalGalleryItems(),
@@ -247,11 +247,15 @@ function formatOrderStatus(status) {
 // Helper function to get total designs
 async function getTotalDesigns() {
   try {
-    // Try to import Product/Catalog model
+    // Prefer Catalog model if available, else Product
+    try {
+      const Catalog = (await import('../models/catalog.model.js')).default
+      return await Catalog.countDocuments()
+    } catch {}
     const Product = (await import('../models/product.model.js')).default
     return await Product.countDocuments()
   } catch (error) {
-    console.log('No Product model found, returning 0 for designs')
+    console.log('No Catalog/Product model found, returning 0 for designs')
     return 0
   }
 }

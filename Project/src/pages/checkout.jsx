@@ -244,6 +244,126 @@ function Checkout() {
   return result
 }
 
+  // ✅ Handle Razorpay payment
+  const handleRazorpayPayment = async () => {
+    console.log('💳 Starting Razorpay payment...')
+
+    // Prepare order data for Razorpay
+    const orderData = {
+      customer: user.id || user._id,
+      items: cartItems.map(item => ({
+        productId: item.id || item._id || item.productId,
+        name: item.name || 'Unknown Product',
+        price: Number(item.price) || 0,
+        quantity: Number(item.quantity) || 1,
+        category: item.category || '',
+        image: item.image || ''
+      })),
+      subtotal: Number(subtotal),
+      tax: Number(tax),
+      deliveryCharges: Number(delivery),
+      total: Number(total),
+      customerNotes: shippingInfo.specialInstructions || '',
+      shippingInfo: {
+        fullName: shippingInfo.fullName,
+        email: shippingInfo.email,
+        phone: shippingInfo.phone,
+        address: {
+          street: shippingInfo.street,
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          zipCode: shippingInfo.zipCode
+        },
+        specialInstructions: shippingInfo.specialInstructions || ''
+      }
+    }
+
+    try {
+      // Create Razorpay order
+      const response = await makeAPIRequest('/payment/create-order', {
+        method: 'POST',
+        body: JSON.stringify(orderData)
+      })
+
+      console.log('✅ Razorpay order created:', response.data)
+
+      // Initialize Razorpay payment
+      const options = {
+        key: response.data.key,
+        amount: response.data.amount,
+        currency: response.data.currency,
+        name: 'DigiTailor',
+        description: 'Custom Tailoring Order',
+        order_id: response.data.razorpayOrderId,
+        handler: async function (paymentResponse) {
+          console.log('🎉 Payment successful:', paymentResponse)
+          
+          // Verify payment
+          try {
+            const verifyResponse = await makeAPIRequest('/payment/verify', {
+              method: 'POST',
+              body: JSON.stringify({
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+                order_id: response.data.orderId,
+                order_type: 'catalog'
+              })
+            })
+
+            console.log('✅ Payment verified:', verifyResponse.data)
+            
+            // Success - redirect to order success page
+            const orderNumber = verifyResponse.data?.orderNumber || 'N/A'
+            const orderId = verifyResponse.data?.orderId || 'N/A'
+            navigate('/order-success', { state: { orderNumber, orderId } })
+            
+          } catch (verifyError) {
+            console.error('❌ Payment verification failed:', verifyError)
+            alert('❌ Payment verification failed. Please contact support.')
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('❌ Payment cancelled by user')
+            alert('❌ Payment was cancelled')
+          }
+        },
+        prefill: {
+          name: shippingInfo.fullName,
+          email: shippingInfo.email,
+          contact: shippingInfo.phone
+        },
+        theme: {
+          color: '#7C3AED'
+        }
+      }
+
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+
+      rzp.on('payment.failed', function (response) {
+        console.error('❌ Payment failed:', response.error)
+        
+        // Handle payment failure
+        makeAPIRequest('/payment/failure', {
+          method: 'POST',
+          body: JSON.stringify({
+            order_id: response.data.orderId,
+            order_type: 'catalog',
+            reason: response.error.description
+          })
+        }).catch(console.error)
+        
+        alert(`❌ Payment failed: ${response.error.description}`)
+      })
+
+    } catch (error) {
+      console.error('❌ Error creating Razorpay order:', error)
+      throw error
+    }
+  }
+
   // ✅ Main payment handler with enhanced error handling
   const handlePayment = async () => {
     try {
@@ -281,23 +401,19 @@ function Checkout() {
       let result
       if (paymentMethod === 'cod') {
         result = await handleCODOrder()
+        // Success
+        console.log('🎉 Order placed successfully:', result)
+        const orderNumber = result.data?.orderNumber || 'N/A'
+        const orderId = result.data?.orderId || 'N/A'
+        navigate('/order-success', { state: { orderNumber, orderId } })
       } else {
         const scriptLoaded = await loadRazorpayScript()
         if (!scriptLoaded) {
           alert('Failed to load payment gateway. Please try again.')
           return
         }
-        // Add Razorpay logic here when needed
-        alert('Razorpay integration coming soon!')
-        return
+        await handleRazorpayPayment()
       }
-
-      // Success
-      console.log('🎉 Order placed successfully:', result)
-      const orderNumber = result.data?.orderNumber || 'N/A'
-      const orderId = result.data?.orderId || 'N/A'
-      // Move clearCart to the Order Success page to avoid race with checkout's empty-cart redirect
-      navigate('/order-success', { state: { orderNumber, orderId } })
 
     } catch (error) {
       console.error('💥 COMPLETE Payment error details:', error)
@@ -463,7 +579,7 @@ function Checkout() {
                       <label htmlFor="razorpay" className="ml-3 block text-sm font-medium text-gray-700">
                         <div className="flex items-center">
                           <span>💳 Online Payment (Razorpay)</span>
-                          <span className="ml-2 text-green-600 text-xs">Coming Soon</span>
+                          <span className="ml-2 text-green-600 text-xs">Available</span>
                         </div>
                         <p className="text-gray-500 text-xs mt-1">Pay securely using cards, UPI, net banking</p>
                       </label>

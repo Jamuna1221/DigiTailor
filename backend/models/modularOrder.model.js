@@ -110,6 +110,24 @@ const modularOrderSchema = new mongoose.Schema({
     enum: ['cash_on_delivery', 'razorpay', 'stripe'],
     default: 'cash_on_delivery'
   },
+  payment: {
+    method: {
+      type: String,
+      enum: ['razorpay', 'cod'],
+      default: 'cod'
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded'],
+      default: 'pending'
+    },
+    razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
+    transactionDate: Date,
+    failureReason: String
+  },
+  razorpayOrderId: String,
   estimatedDelivery: {
     type: Date,
     default: () => {

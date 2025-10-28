@@ -20,60 +20,37 @@ function ManageOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState('all')
+  const [stats, setStats] = useState(null)
 
 useEffect(() => {
-  const fetchAllOrders = async () => {
+  const fetchAll = async () => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('token') // get token
-      if (!token) {
-        console.error('No token found, redirect to login')
-        return
-      }
-
-      const response = await fetch('http://localhost:5000/api/orders/admin/all', {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      // Orders
+      const ordersRes = await fetch('http://localhost:5000/api/orders/admin/all', {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` // <-- include token
-        }
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
       })
-
-      const data = await response.json()
-      if (data.success) {
-        setOrders(data.data)
-      } else if (data.message.includes('token expired')) {
-        console.error('Token expired, please login again')
-        localStorage.removeItem('token')
-        // optionally redirect to admin login page
-      }
+      const ordersJson = await ordersRes.json()
+      if (ordersJson.success) setOrders(ordersJson.data)
+      // Analytics summary
+      const statsRes = await fetch('http://localhost:5000/api/analytics/dashboard', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const statsJson = await statsRes.json()
+      if (statsJson.success) setStats(statsJson.data)
     } catch (error) {
-      console.error('Error fetching orders:', error)
+      console.error('Error fetching orders/analytics:', error)
     } finally {
       setLoading(false)
     }
   }
-
-  fetchAllOrders()
+  fetchAll()
 }, [])
 
 
-  const updateOrderStatus = async (orderId, newStatus) => {
-    try {
-      await fetch(`http://localhost:5000/api/orders/admin/${orderId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-      
-      // Update local state
-      setOrders(orders.map(order => 
-        order._id === orderId ? { ...order, status: newStatus } : order
-      ))
-    } catch (error) {
-      console.error('Error updating order status:', error)
-    }
-  }
 
   const filteredOrders = filterStatus === 'all' 
     ? orders 
@@ -94,6 +71,31 @@ useEffect(() => {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Orders</h1>
         <p className="text-gray-600">View and manage all customer orders with tailor assignments</p>
       </div>
+      {/* Analytics summary */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-xs text-gray-500">Today Income</div>
+            <div className="text-2xl font-bold">₹{stats.daily.income.toLocaleString()}</div>
+            <div className="text-xs text-gray-500">Orders: {stats.daily.orders}</div>
+          </div>
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-xs text-gray-500">This Week</div>
+            <div className="text-2xl font-bold">₹{stats.weekly.income.toLocaleString()}</div>
+            <div className="text-xs text-gray-500">Orders: {stats.weekly.orders}</div>
+          </div>
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-xs text-gray-500">This Month</div>
+            <div className="text-2xl font-bold">₹{stats.monthly.income.toLocaleString()}</div>
+            <div className="text-xs text-gray-500">Orders: {stats.monthly.orders}</div>
+          </div>
+          <div className="bg-white rounded-lg border p-4">
+            <div className="text-xs text-gray-500">This Year</div>
+            <div className="text-2xl font-bold">₹{stats.annual.income.toLocaleString()}</div>
+            <div className="text-xs text-gray-500">Orders: {stats.annual.orders}</div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mb-6 bg-white p-4 rounded-lg shadow border">
@@ -138,9 +140,6 @@ useEffect(() => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -148,69 +147,46 @@ useEffect(() => {
                 <tr key={order._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">#{order.orderNumber}</div>
+                      <div className="text-sm font-medium text-gray-900">#{order.orderNumber || order.orderId || order._id?.slice(-8)}</div>
                       <div className="text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : ''}
                       </div>
                     </div>
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
-  <div>
-    <div className="text-sm font-medium text-gray-900">{order.customer?.name || 'N/A'}</div>
-    <div className="text-sm text-gray-500">{order.customer?.email || 'N/A'}</div>
-    <div className="text-sm text-gray-500">{order.customer?.phone || 'N/A'}</div>
-  </div>
-</td>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {order.userId ? `${order.userId.firstName || ''} ${order.userId.lastName || ''}`.trim() : (order.customerInfo?.name || order.shippingInfo?.fullName || 'N/A')}
+                      </div>
+                      <div className="text-sm text-gray-500">{order.userId?.email || order.customerInfo?.email || order.shippingInfo?.email || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{order.shippingInfo?.phone || order.customerInfo?.phone || 'N/A'}</div>
+                    </div>
+                  </td>
 
-                  
-                  
-                 <td className="px-6 py-4 whitespace-nowrap">
-  {order.assignedTailor ? (
-    <div>
-      <div className="text-sm font-medium text-gray-900">
-        {order.assignedTailor.name || 'N/A'}
-      </div>
-      <div className="text-sm text-gray-500">{order.assignedTailor.email || 'N/A'}</div>
-    </div>
-  ) : (
-    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-      Unassigned
-    </span>
-  )}
-</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {order.assignedTailor ? (
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {`${order.assignedTailor.firstName || ''} ${order.assignedTailor.lastName || ''}`.trim() || 'N/A'}
+                        </div>
+                        <div className="text-sm text-gray-500">{order.assignedTailor.email || 'N/A'}</div>
+                      </div>
+                    ) : (
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                        Unassigned
+                      </span>
+                    )}
+                  </td>
 
-                  
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                      {order.status.replace('_', ' ').toUpperCase()}
+                      {(order.status || '').replace('_', ' ').toUpperCase()}
                     </span>
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ₹{order.total.toLocaleString()}
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <select
-                        value={order.status}
-                        onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                        className="text-xs border border-gray-300 rounded px-2 py-1"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="assigned">Assigned</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="quality_check">Quality Check</option>
-                        <option value="ready">Ready</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                      
-                      <button className="text-blue-600 hover:text-blue-900 text-xs">
-                        View Details
-                      </button>
-                    </div>
+                    ₹{Number(order.pricing?.total || order.totalPrice || 0).toLocaleString()}
                   </td>
                 </tr>
               ))}

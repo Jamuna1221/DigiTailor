@@ -142,6 +142,8 @@ function TailorDashboard() {
   // Rest of your component remains exactly the same...
   const filteredOrders = selectedStatus === 'all' 
     ? orders 
+    : selectedStatus === 'shipped'
+    ? orders.filter(order => order.status === 'shipped' || order.status === 'delivered')
     : orders.filter(order => order.status === selectedStatus)
 
   // Get tailor's specializations from user profile
@@ -294,7 +296,8 @@ function TailorDashboard() {
                 { key: 'all', label: 'All Orders', count: orders.length },
                 { key: 'assigned', label: 'New Assignments', count: orders.filter(o => o.status === 'assigned').length },
                 { key: 'in_progress', label: 'Working On', count: orders.filter(o => o.status === 'in_progress').length },
-                { key: 'completed', label: 'Ready to Pack', count: orders.filter(o => o.status === 'completed').length }
+                { key: 'completed', label: 'Ready to Pack', count: orders.filter(o => o.status === 'completed').length },
+                { key: 'shipped', label: 'Completed Orders', count: orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length }
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -329,18 +332,21 @@ function TailorDashboard() {
                 <span className="text-4xl block mb-4">
                   {selectedStatus === 'assigned' ? '🎯' : 
                    selectedStatus === 'in_progress' ? '✂️' : 
-                   selectedStatus === 'completed' ? '📦' : '📋'}
+                   selectedStatus === 'completed' ? '📦' : 
+                   selectedStatus === 'shipped' ? '✅' : '📋'}
                 </span>
                 <p className="text-lg font-medium mb-2">
                   {selectedStatus === 'assigned' ? 'No new assignments' :
                    selectedStatus === 'in_progress' ? 'No orders in progress' :
                    selectedStatus === 'completed' ? 'No orders ready to pack' :
+                   selectedStatus === 'shipped' ? 'No completed orders' :
                    'No orders found'}
                 </p>
                 <p className="text-sm">
                   {selectedStatus === 'assigned' ? 'New orders will appear here when assigned to you.' :
                    selectedStatus === 'in_progress' ? 'Start working on assigned orders.' :
                    selectedStatus === 'completed' ? 'Complete your current orders.' :
+                   selectedStatus === 'shipped' ? 'Shipped and delivered orders will appear here.' :
                    'Orders will appear here once assigned to you.'}
                 </p>
               </div>

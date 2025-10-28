@@ -6,7 +6,7 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 lg:pl-64 pt-20">
       {/* ✅ Sidebar - persistent across admin pages */}
       <AdminSidebar 
         isOpen={sidebarOpen} 
@@ -14,7 +14,7 @@ function AdminLayout() {
       />
       
       {/* ✅ Main content area - this is where ManageUsers should render */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col">
         {/* Mobile menu button */}
         <div className="lg:hidden flex items-center p-4">
           <button
