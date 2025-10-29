@@ -6,7 +6,8 @@ import { useColorTheme } from '../contexts/ColorThemeContext.jsx'
 import { useTextSize } from '../contexts/TextSizeContext.jsx'
 import { useNotificationHelpers, generateSampleNotifications } from '../hooks/useNotificationHelpers'
 import { useNotifications } from '../contexts/NotificationContext'
-import OrderNotificationDemo from '../components/demo/OrderNotificationDemo'
+import OrderNotificationDemo from '../components/demo/OrderNotificationDemo.jsx'
+
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')

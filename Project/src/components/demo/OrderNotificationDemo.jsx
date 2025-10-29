@@ -1,275 +1,184 @@
 import { useState } from 'react'
-import { useNotificationHelpers } from '../../hooks/useNotificationHelpers'
 import { useNotifications } from '../../contexts/NotificationContext'
 
 const OrderNotificationDemo = () => {
-  const [demoOrderId, setDemoOrderId] = useState('ORD-2024-DEMO01')
-  const [currentStatusIndex, setCurrentStatusIndex] = useState(-1)
-  const { 
-    notifyOrderPlaced,
-    notifyOrderConfirmed,
-    notifyOrderAssigned,
-    notifyStitchingCompleted,
-    notifyOrderPacked,
-    notifyOrderShipped,
-    notifyOrderDelivered,
-    handleOrderStatusChange
-  } = useNotificationHelpers()
-  
-  const { notifications, unreadCount } = useNotifications()
+  const { addNotification } = useNotifications()
+  const [loading, setLoading] = useState(false)
 
-  const statusFlow = [
-    {
-      key: 'placed',
-      label: 'Order Placed',
-      icon: '📋',
-      description: 'Order has been placed and payment confirmed',
-      notifyFunction: () => notifyOrderPlaced(demoOrderId, { amount: '₹2,500', items: 2 })
-    },
-    {
-      key: 'confirmed',
-      label: 'Order Confirmed',
-      icon: '✅',
-      description: 'Order confirmed by admin and ready for processing',
-      notifyFunction: () => notifyOrderConfirmed(demoOrderId)
-    },
-    {
-      key: 'assigned',
-      label: 'Assigned to Tailor',
-      icon: '👨‍🎨',
-      description: 'Order assigned to a skilled tailor',
-      notifyFunction: () => notifyOrderAssigned(demoOrderId, {
-        tailorInfo: {
-          firstName: 'Selvi',
-          lastName: 'K',
-          phone: '6374367712'
-        }
-      })
-    },
-    {
-      key: 'completed',
-      label: 'Stitching Completed',
-      icon: '👕',
-      description: 'Tailoring work completed and ready for packing',
-      notifyFunction: () => notifyStitchingCompleted(demoOrderId, 'Dec 25, 2024')
-    },
-    {
-      key: 'packed',
-      label: 'Packed',
-      icon: '📦',
-      description: 'Order packed and ready for shipment',
-      notifyFunction: () => notifyOrderPacked(demoOrderId, `DT${Date.now().toString().slice(-6)}`)
-    },
-    {
-      key: 'shipped',
-      label: 'Out for Delivery',
-      icon: '🚚',
-      description: 'Order shipped and on the way to customer',
-      notifyFunction: () => notifyOrderShipped(demoOrderId, `DT${Date.now().toString().slice(-6)}`)
-    },
-    {
-      key: 'delivered',
-      label: 'Delivered',
-      icon: '🎉',
-      description: 'Order successfully delivered to customer',
-      notifyFunction: () => notifyOrderDelivered(demoOrderId)
-    }
-  ]
+  const generateOrderNotifications = async () => {
+    setLoading(true)
+    
+    const orderNotifications = [
+      {
+        id: `order-${Date.now()}-1`,
+        title: 'Order Placed Successfully',
+        message: 'Your order #DT241029001 has been placed and is being processed.',
+        type: 'success',
+        icon: '✅',
+        timestamp: new Date(),
+        category: 'order',
+        actionUrl: '/orders/DT241029001'
+      },
+      {
+        id: `order-${Date.now()}-2`,
+        title: 'Tailor Assigned',
+        message: 'Master tailor Priya Singh has been assigned to work on your order.',
+        type: 'info',
+        icon: '👨‍🎨',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+        category: 'order'
+      },
+      {
+        id: `order-${Date.now()}-3`,
+        title: 'Order in Progress',
+        message: 'Your custom kurti is now being crafted. Estimated completion: 5 days.',
+        type: 'info',
+        icon: '⚡',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        category: 'order'
+      },
+      {
+        id: `order-${Date.now()}-4`,
+        title: 'Quality Check Complete',
+        message: 'Your order has passed quality inspection and is ready for shipping.',
+        type: 'success',
+        icon: '🔍',
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        category: 'order'
+      },
+      {
+        id: `order-${Date.now()}-5`,
+        title: 'Out for Delivery',
+        message: 'Your order is out for delivery. Expected delivery: Today by 6 PM.',
+        type: 'warning',
+        icon: '🚚',
+        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+        category: 'order'
+      }
+    ]
 
-  const triggerNextStatus = () => {
-    const nextIndex = currentStatusIndex + 1
-    if (nextIndex < statusFlow.length) {
-      const status = statusFlow[nextIndex]
-      status.notifyFunction()
-      setCurrentStatusIndex(nextIndex)
-    }
-  }
-
-  const triggerSpecificStatus = (index) => {
-    if (index < statusFlow.length) {
-      const status = statusFlow[index]
-      status.notifyFunction()
-      setCurrentStatusIndex(index)
-    }
-  }
-
-  const triggerAllStatuses = async () => {
-    for (let i = 0; i < statusFlow.length; i++) {
+    // Add notifications with delays to show the effect
+    for (let i = 0; i < orderNotifications.length; i++) {
       setTimeout(() => {
-        statusFlow[i].notifyFunction()
-        setCurrentStatusIndex(i)
-      }, i * 1000) // 1 second delay between each notification
+        addNotification(orderNotifications[i])
+        if (i === orderNotifications.length - 1) {
+          setLoading(false)
+        }
+      }, i * 500) // 500ms delay between each notification
     }
   }
 
-  const resetDemo = () => {
-    setCurrentStatusIndex(-1)
-    setDemoOrderId(`ORD-2024-DEMO${Math.floor(Math.random() * 100).toString().padStart(2, '0')}`)
-  }
+  const generateSingleNotification = (type) => {
+    const notificationTypes = {
+      success: {
+        title: 'Order Delivered Successfully',
+        message: 'Your custom blouse has been delivered. Please confirm receipt.',
+        icon: '🎉',
+        type: 'success'
+      },
+      info: {
+        title: 'Measurement Reminder',
+        message: 'Please update your measurements for better fitting.',
+        icon: 'ℹ️',
+        type: 'info'
+      },
+      warning: {
+        title: 'Payment Pending',
+        message: 'Your COD order requires payment confirmation.',
+        icon: '⚠️',
+        type: 'warning'
+      },
+      error: {
+        title: 'Delivery Failed',
+        message: 'Unable to deliver your order. Please reschedule.',
+        icon: '❌',
+        type: 'error'
+      }
+    }
 
-  const testOrderStatusChangeHandler = () => {
-    const testStatuses = ['placed', 'assigned', 'completed', 'packed', 'shipped', 'delivered']
-    testStatuses.forEach((status, index) => {
-      setTimeout(() => {
-        const additionalInfo = {}
-        
-        if (status === 'assigned') {
-          additionalInfo.tailorInfo = { firstName: 'Ravi', lastName: 'M', phone: '9876543210' }
-        } else if (status === 'completed') {
-          additionalInfo.estimatedDelivery = 'Dec 28, 2024'
-        } else if (status === 'packed' || status === 'shipped') {
-          additionalInfo.trackingNumber = `TEST${Date.now().toString().slice(-6)}`
-        }
-        
-        handleOrderStatusChange(`TEST-${Date.now()}`, status, additionalInfo)
-      }, index * 800)
-    })
+    const notification = {
+      id: `single-${Date.now()}-${type}`,
+      timestamp: new Date(),
+      category: 'order',
+      ...notificationTypes[type]
+    }
+
+    addNotification(notification)
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">📋 Order Notification Testing</h2>
-        <p className="text-gray-600">
-          Test the complete order notification flow. Click buttons to simulate order status changes
-          and check the notification bell in the header.
+    <div className="space-y-4">
+      <div className="bg-gray-50 rounded-lg border p-4">
+        <h4 className="font-medium text-gray-900 mb-3">Order Notification Simulator</h4>
+        <p className="text-sm text-gray-700 mb-4">
+          Test different types of order notifications to see how they appear in your notification bell.
         </p>
-      </div>
-
-      {/* Demo Controls */}
-      <div className="mb-8 p-6 bg-gray-50 rounded-lg border">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Demo Controls</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Demo Order ID</label>
-            <input
-              type="text"
-              value={demoOrderId}
-              onChange={(e) => setDemoOrderId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            />
-          </div>
-          
-          <div className="flex items-end">
+        <div className="space-y-3">
+          {/* Bulk Order Flow */}
+          <div>
             <button
-              onClick={triggerNextStatus}
-              disabled={currentStatusIndex >= statusFlow.length - 1}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              onClick={generateOrderNotifications}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg font-medium transition-all text-white disabled:opacity-50"
+              style={{ background: loading ? '#6b7280' : 'var(--theme-gradient)' }}
             >
-              Next Status
-            </button>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={triggerAllStatuses}
-              className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              All Statuses
-            </button>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={resetDemo}
-              className="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Reset Demo
-            </button>
-          </div>
-        </div>
-
-        <div className="flex space-x-4">
-          <button
-            onClick={testOrderStatusChangeHandler}
-            className="px-6 py-3 text-white rounded-lg font-medium transition-all"
-            style={{ background: 'var(--theme-gradient)' }}
-          >
-            🔄 Test Status Change Handler
-          </button>
-        </div>
-      </div>
-
-      {/* Status Flow Visualization */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Status Flow</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {statusFlow.map((status, index) => (
-            <div
-              key={status.key}
-              className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                index === currentStatusIndex
-                  ? 'border-purple-500 bg-purple-50 shadow-md'
-                  : index < currentStatusIndex
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-300 bg-white hover:border-gray-400 hover:shadow-sm'
-              }`}
-              onClick={() => triggerSpecificStatus(index)}
-            >
-              <div className="flex items-center space-x-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl ${
-                  index === currentStatusIndex
-                    ? 'bg-purple-500 text-white animate-pulse'
-                    : index < currentStatusIndex
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-500'
-                }`}>
-                  {index < currentStatusIndex ? '✓' : status.icon}
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Generating...
                 </div>
-                <div className="flex-1">
-                  <h4 className={`font-semibold ${
-                    index <= currentStatusIndex ? 'text-gray-900' : 'text-gray-500'
-                  }`}>
-                    {status.label}
-                  </h4>
-                  <p className="text-sm text-gray-600">{status.description}</p>
-                  {index === currentStatusIndex && (
-                    <span className="inline-block mt-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
-                      Current
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+              ) : (
+                '📦 Generate Order Flow Notifications'
+              )}
+            </button>
+            <p className="text-xs text-gray-600 mt-1">
+              Simulates a complete order journey from placement to delivery
+            </p>
+          </div>
+
+          {/* Individual Notification Types */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <button
+              onClick={() => generateSingleNotification('success')}
+              className="px-3 py-2 bg-green-100 text-green-800 rounded-md text-sm hover:bg-green-200 transition-colors"
+            >
+              ✅ Success
+            </button>
+            <button
+              onClick={() => generateSingleNotification('info')}
+              className="px-3 py-2 bg-blue-100 text-blue-800 rounded-md text-sm hover:bg-blue-200 transition-colors"
+            >
+              ℹ️ Info
+            </button>
+            <button
+              onClick={() => generateSingleNotification('warning')}
+              className="px-3 py-2 bg-yellow-100 text-yellow-800 rounded-md text-sm hover:bg-yellow-200 transition-colors"
+            >
+              ⚠️ Warning
+            </button>
+            <button
+              onClick={() => generateSingleNotification('error')}
+              className="px-3 py-2 bg-red-100 text-red-800 rounded-md text-sm hover:bg-red-200 transition-colors"
+            >
+              ❌ Error
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Notification Status */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">📊 Notification Status</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex">
+          <svg className="w-5 h-5 text-blue-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
           <div>
-            <div className="text-2xl font-bold text-blue-600">{notifications.length}</div>
-            <div className="text-sm text-blue-700">Total Notifications</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-red-600">{unreadCount}</div>
-            <div className="text-sm text-red-700">Unread</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-green-600">{notifications.length - unreadCount}</div>
-            <div className="text-sm text-green-700">Read</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-purple-600">{currentStatusIndex + 1}</div>
-            <div className="text-sm text-purple-700">Demo Progress</div>
+            <p className="text-sm font-medium text-blue-900">Test Mode</p>
+            <p className="text-xs text-blue-700 mt-1">
+              These are demo notifications to test the notification system. Check your notification bell (🔔) in the header to see them appear.
+            </p>
           </div>
         </div>
-      </div>
-
-      {/* Instructions */}
-      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <h4 className="font-semibold text-yellow-800 mb-2">🔔 Testing Instructions</h4>
-        <ul className="text-sm text-yellow-700 space-y-1">
-          <li>• Click individual status boxes to trigger specific notifications</li>
-          <li>• Use "Next Status" to progress through the flow step by step</li>
-          <li>• Use "All Statuses" to simulate the complete order journey</li>
-          <li>• Check the notification bell in the header for new notifications</li>
-          <li>• Click notifications to navigate to order details</li>
-          <li>• Use the Status Change Handler to test the unified notification system</li>
-        </ul>
       </div>
     </div>
   )
