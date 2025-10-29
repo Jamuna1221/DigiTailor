@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
  import { useNavigate } from 'react-router-dom'
+
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
 // ✅ Helper function defined outside component
 const getStatusColor = (status) => {
   const colors = {
@@ -31,7 +33,7 @@ function UserOrders() {
       }
 
       // Fetch regular orders
-      const regularResponse = await fetch('http://localhost:5000/api/orders/user', {
+      const regularResponse = await fetch(`${API_BASE_URL}/orders/user`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -39,7 +41,7 @@ function UserOrders() {
       })
 
       // Fetch modular orders
-      const modularResponse = await fetch('http://localhost:5000/api/modular-orders', {
+      const modularResponse = await fetch(`${API_BASE_URL}/modular-orders`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

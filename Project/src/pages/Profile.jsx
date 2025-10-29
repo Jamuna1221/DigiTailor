@@ -8,6 +8,8 @@ import { useNotificationHelpers, generateSampleNotifications } from '../hooks/us
 import { useNotifications } from '../contexts/NotificationContext'
 import OrderNotificationDemo from '../components/demo/OrderNotificationDemo.jsx'
 
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
+
 
 function Profile({ user }) {
   const [activeTab, setActiveTab] = useState('measurements')
@@ -36,19 +38,19 @@ function Profile({ user }) {
       
       // Fetch user orders, wishlist, and measurements in parallel
       const [ordersResponse, wishlistResponse, measurementsResponse] = await Promise.all([
-        fetch(`http://localhost:5000/api/orders/user/${user.id}`, {
+        fetch(`${API_BASE_URL}/orders/user/${user.id}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
         }).catch(() => null),
-        fetch(`http://localhost:5000/api/wishlist`, {
+        fetch(`${API_BASE_URL}/wishlist`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
           }
         }).catch(() => null),
-        fetch(`http://localhost:5000/api/measurements`, {
+        fetch(`${API_BASE_URL}/measurements`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
@@ -71,7 +73,7 @@ function Profile({ user }) {
           const wishlistWithDetails = await Promise.all(
             wishlistData.data.map(async (item) => {
               try {
-                const designResponse = await fetch(`http://localhost:5000/api/catalog/${item.productId}`)
+                const designResponse = await fetch(`${API_BASE_URL}/catalog/${item.productId}`)
                 if (designResponse.ok) {
                   const designData = await designResponse.json()
                   if (designData.success) {
@@ -153,7 +155,7 @@ function Profile({ user }) {
   // Remove item from wishlist
   const removeFromWishlist = async (productId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/wishlist/remove/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/wishlist/remove/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -186,7 +188,7 @@ function Profile({ user }) {
   const handleSaveMeasurements = async (measurementData) => {
     try {
       setMeasurementsSaved(false)
-      const response = await fetch('http://localhost:5000/api/measurements', {
+      const response = await fetch(`${API_BASE_URL}/measurements`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -205,7 +207,7 @@ function Profile({ user }) {
           notifyMeasurementSaved()
           
           // Refresh measurements
-          const measurementsResponse = await fetch('http://localhost:5000/api/measurements', {
+          const measurementsResponse = await fetch(`${API_BASE_URL}/measurements`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('token')}`,
               'Content-Type': 'application/json'
@@ -236,7 +238,7 @@ function Profile({ user }) {
       const formData = new FormData()
       formData.append('profileImage', file)
 
-      const response = await fetch('http://localhost:5000/api/profile/picture', {
+      const response = await fetch(`${API_BASE_URL}/profile/picture`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -272,7 +274,7 @@ function Profile({ user }) {
   // Handle profile picture deletion
   const handleDeleteProfilePicture = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/profile/picture', {
+      const response = await fetch(`${API_BASE_URL}/profile/picture`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -305,7 +307,7 @@ function Profile({ user }) {
     setProfileUpdateLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/profile', {
+      const response = await fetch(`${API_BASE_URL}/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -349,7 +351,7 @@ function Profile({ user }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/measurements/${measurementId}`, {
+      const response = await fetch(`${API_BASE_URL}/measurements/${measurementId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -404,7 +406,7 @@ function Profile({ user }) {
         <div className="flex items-center space-x-6">
           <div className="relative">
             <img
-              src={user.profileImage ? `http://localhost:5000${user.profileImage}` : admin}
+              src={user.profileImage ? `${import.meta.env.VITE_API_URL}${user.profileImage}` : admin}
               alt={user.firstName}
               className="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover"
               onError={(e) => {
@@ -711,7 +713,7 @@ function Profile({ user }) {
                 <div className="flex items-center space-x-6">
                   <div className="relative">
                     <img
-                      src={user.profileImage ? `http://localhost:5000${user.profileImage}` : admin}
+                      src={user.profileImage ? `${import.meta.env.VITE_API_URL}${user.profileImage}` : admin}
                       alt="Profile"
                       className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
                       onError={(e) => {

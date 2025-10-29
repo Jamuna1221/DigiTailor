@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
+
 function AdminDashboard() {
   const [stats, setStats] = useState({
     totalDesigns: 0,
@@ -34,9 +36,9 @@ function AdminDashboard() {
         
         // Fetch dashboard statistics
         const [statsResponse, ordersResponse, analyticsResponse] = await Promise.all([
-          fetch('http://localhost:5000/api/admin/dashboard/stats', { headers }),
-          fetch('http://localhost:5000/api/admin/dashboard/recent-orders?limit=5', { headers }),
-          fetch('http://localhost:5000/api/analytics/dashboard', { headers })
+          fetch(`${API_BASE_URL}/admin/dashboard/stats`, { headers }),
+          fetch(`${API_BASE_URL}/admin/dashboard/recent-orders?limit=5`, { headers }),
+          fetch(`${API_BASE_URL}/analytics/dashboard`, { headers })
         ])
         
         if (statsResponse.ok) {
