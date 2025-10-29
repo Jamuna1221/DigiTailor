@@ -3,13 +3,13 @@ FROM node:20-alpine AS frontend
 WORKDIR /app/frontend
 
 # Copy package files
-COPY project/package*.json ./
+COPY Project/package*.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy all frontend source files
-COPY project/ .
+COPY Project/ .
 
 # Build the Vite app
 RUN npm run build
