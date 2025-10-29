@@ -73,6 +73,8 @@ app.use(helmet({
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || "https://digitailor-1.onrender.com",
+    "https://digitailor-1.onrender.com",
+    "https://digitailor.onrender.com",
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
@@ -96,7 +98,10 @@ app.use(morgan('combined'))
 // ✅ CORS MIDDLEWARE FOR STATIC FILES - Add BEFORE static serving
 app.use('/uploads', (req, res, next) => {
   const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
+    process.env.FRONTEND_URL || 'https://digitailor-1.onrender.com',
+    'https://digitailor-1.onrender.com',
+    'https://digitailor.onrender.com',
+    'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
     'http://127.0.0.1:3000'
@@ -107,7 +112,7 @@ app.use('/uploads', (req, res, next) => {
     res.header('Access-Control-Allow-Origin', origin)
   } else {
     // Fallback for direct access
-    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173')
+    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'https://digitailor-1.onrender.com')
   }
   
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS')
@@ -128,7 +133,7 @@ app.use('/uploads', (req, res, next) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   setHeaders: (res, filePath) => {
     res.header('Cross-Origin-Resource-Policy', 'cross-origin')
-    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173')
+    res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'https://digitailor-1.onrender.com')
     
     // Set proper content type based on file extension
     const ext = path.extname(filePath).toLowerCase()
