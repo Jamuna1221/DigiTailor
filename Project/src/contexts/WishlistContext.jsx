@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
 const WishlistContext = createContext()
 
 export const useWishlist = () => {
@@ -18,7 +19,7 @@ export const WishlistProvider = ({ children }) => {
   const addToWishlist = async (productId) => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:5000/api/wishlist/add', {
+      const response = await fetch(`${API_BASE_URL}/wishlist/add`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -47,7 +48,7 @@ export const WishlistProvider = ({ children }) => {
   const removeFromWishlist = async (productId) => {
     try {
       setIsLoading(true)
-      const response = await fetch(`http://localhost:5000/api/wishlist/remove/${productId}`, {
+      const response = await fetch(`${API_BASE_URL}/wishlist/remove/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -82,7 +83,7 @@ export const WishlistProvider = ({ children }) => {
       const token = localStorage.getItem('token')
       if (!token) return
 
-      const response = await fetch('http://localhost:5000/api/wishlist', {
+      const response = await fetch(`${API_BASE_URL}/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

@@ -1,5 +1,5 @@
 // API service functions for backend integration
-const API_BASE_URL = 'http://localhost:3000/api' // Change to your backend URL
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api` // Using environment variable for API URL
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {

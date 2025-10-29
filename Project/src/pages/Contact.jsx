@@ -1,5 +1,7 @@
 import { useState } from 'react'
-// import { useTranslation } from 'react-i18next'
+// import { useTranslation } from 'react-i18n'
+
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
 
 function Contact() {
   // const { t } = useTranslation()
@@ -39,7 +41,7 @@ function Contact() {
 
   try {
     // ✨ Make real API call to save contact form
-    const response = await fetch('http://localhost:5000/api/contact', {
+    const response = await fetch(`${API_BASE_URL}/contact`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
