@@ -420,7 +420,7 @@ process.on('SIGINT', () => {
 })
 
 // ✅ START SERVER
-const PORT = process.env.PORT || 5000
+
 const server = app.listen(PORT, () => {
   console.log('🚀 DigiTailor server started successfully!')
   console.log(`🌐 Server running on: http://localhost:${PORT}`)
