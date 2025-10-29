@@ -4,9 +4,7 @@ import DesignElementAPI from '../services/designElementAPI'
 import Modal from '../components/common/Modal'
 
 // ✅ Use environment variable properly for Vite
-const API_BASE_URL = import.meta.env.PROD 
-  ? 'https://your-production-api.com/api' 
-  : 'http://localhost:5000/api'
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
 
 function ModularCheckout() {
   const navigate = useNavigate()

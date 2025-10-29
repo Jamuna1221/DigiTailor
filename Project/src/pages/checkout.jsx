@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import CheckoutRecommendations from '../components/checkout/CheckoutRecommendations'
 
 // ✅ Fixed: Use environment variable properly for Vite
-const API_BASE_URL = import.meta.env.PROD 
-  ? 'https://your-production-api.com/api' 
-  : 'http://localhost:5000/api'
+const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`
 
 function Checkout() {
   const { cartItems, getCartTotal, clearCart } = useCart()
