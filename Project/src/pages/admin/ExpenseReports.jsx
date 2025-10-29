@@ -17,7 +17,7 @@ function ExpenseReports() {
   const fetchDaily = async () => {
     try {
       setLoadingDaily(true)
-      const res = await fetch(`http://localhost:5000/api/expenses/date/${selectedDate}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/date/${selectedDate}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()
@@ -33,7 +33,7 @@ function ExpenseReports() {
     try {
       setLoadingSummary(true)
       const params = new URLSearchParams({ startDate: range.start, endDate: range.end, groupBy: range.groupBy })
-      const res = await fetch(`http://localhost:5000/api/expenses/summary?${params.toString()}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/summary?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await res.json()

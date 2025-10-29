@@ -64,7 +64,7 @@ function AdminAnalytics() {
     try {
       setLoading(true)
       const params = new URLSearchParams({ startDate: range.start, endDate: range.end, period })
-      const res = await fetch(`http://localhost:5000/api/analytics/profit-loss?${params.toString()}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/analytics/profit-loss?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const json = await res.json()

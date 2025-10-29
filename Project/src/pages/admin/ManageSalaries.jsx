@@ -25,7 +25,7 @@ function ManageSalaries() {
   const fetchTailors = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/expenses/salary/tailors', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/salary/tailors`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -44,7 +44,7 @@ function ManageSalaries() {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/expenses?type=salary&limit=100', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses?type=salary&limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -82,7 +82,7 @@ function ManageSalaries() {
     
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/expenses/salary/allocate', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/salary/allocate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

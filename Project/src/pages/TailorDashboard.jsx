@@ -58,7 +58,7 @@ function TailorDashboard() {
   const fetchTailorOrders = useCallback(async (tailorId) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/orders/tailor/${tailorId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/tailor/${tailorId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -98,7 +98,7 @@ function TailorDashboard() {
   const updateOrderStatus = useCallback(async (orderId, newStatus, notes = '') => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/orders/tailor/${orderId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/tailor/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -76,7 +76,7 @@ function OrderTracking({ user }) {
         setError(null)
         
         // Fetch combined orders (regular + modular) for the logged-in user
-        const response = await fetch(`http://localhost:5000/api/orders/user/${user.id}/combined`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/user/${user.id}/combined`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'

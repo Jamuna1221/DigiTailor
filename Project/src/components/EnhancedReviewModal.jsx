@@ -71,7 +71,7 @@ function EnhancedReviewModal({ orderId, onClose, onSubmit }) {
       })
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/review-with-images`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/review-with-images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

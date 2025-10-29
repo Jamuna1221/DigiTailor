@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../contexts/CartContext'
 
-const API_BASE = 'http://localhost:5000/api'
+const API_BASE = `${import.meta.env.VITE_API_URL}/api`
 
 function normalizeItems(items = []) {
   return (items || []).map((c) => ({

@@ -29,14 +29,14 @@ useEffect(() => {
       const token = localStorage.getItem('token')
       if (!token) return
       // Orders
-      const ordersRes = await fetch('http://localhost:5000/api/orders/admin/all', {
+      const ordersRes = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/admin/all`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
       })
       const ordersJson = await ordersRes.json()
       if (ordersJson.success) setOrders(ordersJson.data)
       // Analytics summary
-      const statsRes = await fetch('http://localhost:5000/api/analytics/dashboard', {
+      const statsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/analytics/dashboard`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       const statsJson = await statsRes.json()

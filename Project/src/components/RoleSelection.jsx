@@ -25,7 +25,7 @@ const RoleSelection = () => {
       const user = JSON.parse(decodeURIComponent(userStr))
       
       // Update user role via API
-      const response = await fetch('http://localhost:5000/api/auth/update-role', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/update-role`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -17,7 +17,7 @@ export default function RecentlyViewed() {
   const fetchServerItems = async (token) => {
     try {
       if (!token) return []
-      const res = await fetch('http://localhost:5000/api/recently-viewed', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/recently-viewed`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

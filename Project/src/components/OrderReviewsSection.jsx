@@ -11,7 +11,7 @@ function OrderReviewsSection({ orderId }) {
   const fetchOrderReviews = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/reviews/order/${orderId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews/order/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -100,10 +100,10 @@ function OrderReviewsSection({ orderId }) {
                 {review.images.map((image, index) => (
                   <img
                     key={index}
-                    src={`http://localhost:5000${image.url}`}
+                    src={`${import.meta.env.VITE_API_URL}${image.url}`}
                     alt={`Review image ${index + 1}`}
                     className="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => window.open(`http://localhost:5000${image.url}`, '_blank')}
+                    onClick={() => window.open(`${import.meta.env.VITE_API_URL}${image.url}`, '_blank')}
                   />
                 ))}
               </div>

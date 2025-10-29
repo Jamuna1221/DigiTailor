@@ -30,7 +30,7 @@ function OrderDetails() {
   const fetchOrderDetails = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -100,7 +100,7 @@ function OrderDetails() {
   const submitAlterationRequest = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/alteration`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/alteration`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -32,7 +32,7 @@ function ProductDetails() {
         console.log(`🔍 Fetching product ID: ${id}`)
         
         // ✅ Use the public catalog endpoint (no auth required)
-        const response = await fetch(`http://localhost:5000/api/catalog/${id}`)
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/catalog/${id}`)
         console.log(`🔍 Response status: ${response.status}`)
         
         const data = await response.json()
@@ -57,7 +57,7 @@ function ProductDetails() {
             const token = localStorage.getItem('token')
             if (token) {
               try {
-                await fetch('http://localhost:5000/api/recently-viewed', {
+                await fetch(`${import.meta.env.VITE_API_URL}/api/recently-viewed`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',

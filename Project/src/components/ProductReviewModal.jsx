@@ -80,7 +80,7 @@ function ProductReviewModal({
       })
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/reviews/order/${orderId}/product/${product.productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews/order/${orderId}/product/${product.productId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

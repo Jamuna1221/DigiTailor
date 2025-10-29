@@ -46,7 +46,7 @@ function ManageExpenses() {
       setLoading(true)
       const token = localStorage.getItem('token')
       
-      let url = 'http://localhost:5000/api/expenses?limit=50'
+      let url = `${import.meta.env.VITE_API_URL}/api/expenses?limit=50`
       if (filterType !== 'all') {
         url += `&type=${filterType}`
       }
@@ -92,7 +92,7 @@ function ManageExpenses() {
     
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/expenses', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ function ManageExpenses() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/expenses/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/expenses/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

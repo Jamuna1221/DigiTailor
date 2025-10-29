@@ -8,7 +8,7 @@ function DeliveryStatusBanner({ orderId }) {
     const fetchDeliveryStatus = async () => {
       try {
         const token = localStorage.getItem('token')
-        const response = await fetch(`http://localhost:5000/api/orders/${orderId}/delivery-status`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${orderId}/delivery-status`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
