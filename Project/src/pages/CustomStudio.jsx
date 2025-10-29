@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Modal from '../components/common/Modal'
 import DesignElementCard from '../components/design/DesignElementCard'
@@ -7,8 +7,8 @@ import DesignElementAPI from '../services/designElementAPI'
 const CustomStudio = () => {
   const navigate = useNavigate()
   
-  // State for main workflow toggle
-  const [workflow, setWorkflow] = useState('modular') // 'modular' or 'reference'
+  // State for main workflow toggle  
+  const [workflow, setWorkflow] = useState('modular') // Only modular workflow available
   const [selectedCategory, setSelectedCategory] = useState(null)
   
   // Garment selection states
@@ -33,21 +33,11 @@ const CustomStudio = () => {
     }
   })
   
-  // Reference Order States
-  const [referenceOrder, setReferenceOrder] = useState({
-    image: null,
-    instructions: '',
-    customerName: '',
-    phone: '',
-    email: ''
-  })
 
   // General states
   const [showModal, setShowModal] = useState(false)
   const [modalContent, setModalContent] = useState({ title: '', message: '', type: '' })
 
-  // File refs
-  const referenceUploadRef = useRef(null)
 
   // Fetch garment types on component mount
   useEffect(() => {
@@ -169,17 +159,6 @@ const CustomStudio = () => {
     })
   }
 
-  // Handle reference image upload
-  const handleReferenceImageUpload = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setReferenceOrder(prev => ({...prev, image: e.target.result}))
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   // Handle navigate to checkout
   const handleProceedToCheckout = () => {
@@ -211,46 +190,6 @@ const CustomStudio = () => {
     })
   }
 
-  // Handle reference order enquiry submission
-  const handleReferenceEnquirySubmit = async () => {
-    if (!referenceOrder.image || !referenceOrder.instructions.trim() || 
-        !referenceOrder.customerName.trim() || !referenceOrder.phone.trim()) {
-      alert('Please fill in all required fields and upload a reference image.')
-      return
-    }
-
-    setLoading(true)
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      console.log('Reference Enquiry Submitted:', {
-        ...referenceOrder,
-        orderType: 'reference',
-        timestamp: new Date().toISOString()
-      })
-      
-      setModalContent({
-        title: 'Enquiry Submitted Successfully! 💬',
-        message: 'Your reference image enquiry has been submitted successfully. Our design team will review it and contact you within 24 hours with pricing and details.',
-        type: 'enquiry'
-      })
-      setShowModal(true)
-      
-      // Reset form
-      setReferenceOrder({
-        image: null,
-        instructions: '',
-        customerName: '',
-        phone: '',
-        email: ''
-      })
-    } catch (error) {
-      console.error('Enquiry submission failed:', error)
-      alert('Failed to submit enquiry. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
 
   return (
@@ -271,34 +210,6 @@ const CustomStudio = () => {
           </p>
         </div>
 
-        {/* Workflow Type Toggle */}
-        <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 dark:border-slate-800 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => {
-                setWorkflow('modular')
-                setSelectedCategory(null)
-              }}
-              className={`flex-1 max-w-md py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
-                workflow === 'modular'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-slate-600'
-              }`}
-            >
-              🎨 Modular Design Elements
-            </button>
-            <button
-              onClick={() => setWorkflow('reference')}
-              className={`flex-1 max-w-md py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
-                workflow === 'reference'
-                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
-                  : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-slate-600'
-              }`}
-            >
-              📸 Reference Image Enquiry
-            </button>
-          </div>
-        </div>
 
         {/* Garment Type Selection Dropdown */}
         {workflow === 'modular' && (
@@ -619,144 +530,6 @@ const CustomStudio = () => {
           </div>
         )}
 
-        {/* Reference Image Enquiry Section */}
-        {workflow === 'reference' && (
-          <div className="bg-white/90 dark:bg-[#111827] backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 dark:border-slate-800 mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 text-center">
-              📸 Reference Image Enquiry
-            </h2>
-            <p className="text-gray-600 dark:text-slate-300 text-center mb-8">
-              Upload a reference image and provide detailed instructions. Our design team will review and provide you with a custom quote!
-            </p>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Image Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-white mb-4">Upload Reference Image *</label>
-                <div
-                  onClick={() => referenceUploadRef.current?.click()}
-                  className="border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-2xl p-8 text-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-500 transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50 dark:bg-slate-800 hover:shadow-lg"
-                >
-                  {referenceOrder.image ? (
-                    <div className="relative">
-                      <img src={referenceOrder.image} alt="Reference" className="w-full h-64 object-cover rounded-xl shadow-md" />
-                      <div className="absolute top-4 right-4 bg-green-500 text-white rounded-full p-2">
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <p className="mt-4 text-green-600 font-medium">✓ Reference image uploaded successfully!</p>
-                    </div>
-                  ) : (
-                    <div className="text-purple-600 dark:text-white">
-                      <div className="text-6xl mb-4">📸</div>
-                      <p className="text-xl font-bold mb-2">Upload Reference Image</p>
-                      <p className="text-gray-500 dark:text-slate-300">Click to browse files or drag and drop</p>
-                      <p className="text-sm text-gray-400 dark:text-slate-400 mt-2">JPG, PNG, WebP up to 10MB</p>
-                    </div>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  ref={referenceUploadRef}
-                  onChange={handleReferenceImageUpload}
-                  accept="image/*"
-                  className="hidden"
-                />
-              </div>
-
-              {/* Order Form */}
-              <div className="space-y-6">
-                {/* Category Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Garment Category *</label>
-                  <select
-                    value={referenceOrder.category || 'Blouse'}
-                    onChange={(e) => setReferenceOrder(prev => ({...prev, category: e.target.value}))}
-                    className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                  >
-                    <option value="Blouse">👗 Blouse</option>
-                    <option value="Kurti">👘 Kurti</option>
-                    <option value="Dress">💃 Dress</option>
-                    <option value="Saree">👺 Saree Blouse</option>
-                    <option value="Lehenga">👑 Lehenga</option>
-                    <option value="Kids">👶 Kids Wear</option>
-                    <option value="Gown">👰 Gown</option>
-                    <option value="Suit">👔 Suit</option>
-                    <option value="Other">✨ Other</option>
-                  </select>
-                </div>
-
-                {/* Instructions */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Detailed Instructions *</label>
-                  <textarea
-                    value={referenceOrder.instructions}
-                    onChange={(e) => setReferenceOrder(prev => ({...prev, instructions: e.target.value}))}
-                    placeholder="Please provide detailed instructions about the design, colors, size, measurements, special requirements, etc..."
-                    className="w-full p-4 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                    rows={6}
-                  />
-                </div>
-
-                {/* Customer Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Your Name *</label>
-                    <input
-                      type="text"
-                      value={referenceOrder.customerName}
-                      onChange={(e) => setReferenceOrder(prev => ({...prev, customerName: e.target.value}))}
-                      placeholder="Enter your full name"
-                      className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Phone Number *</label>
-                    <input
-                      type="tel"
-                      value={referenceOrder.phone}
-                      onChange={(e) => setReferenceOrder(prev => ({...prev, phone: e.target.value}))}
-                      placeholder="Enter your phone number"
-                      className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">Email (Optional)</label>
-                  <input
-                    type="email"
-                    value={referenceOrder.email}
-                    onChange={(e) => setReferenceOrder(prev => ({...prev, email: e.target.value}))}
-                    placeholder="Enter your email address"
-                    className="w-full p-3 border-2 border-purple-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-white/50 dark:bg-[#0f172a] dark:text-white"
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  onClick={handleReferenceEnquirySubmit}
-                  disabled={loading}
-                  className={`w-full py-4 px-6 rounded-xl font-bold text-white text-lg transition-all duration-300 transform hover:scale-105 ${
-                    loading
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl'
-                  }`}
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                      Submitting Enquiry...
-                    </span>
-                  ) : (
-                    '💬 Send Enquiry'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
       </div>
 
