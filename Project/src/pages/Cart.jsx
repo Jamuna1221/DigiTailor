@@ -14,7 +14,7 @@ function Cart() {
     closeCart
   } = useCart()
 
-  const navigate = useNavigate() // ✅ Add this
+  const navigate = useNavigate() 
 
   // Close cart when clicking outside
   useEffect(() => {
@@ -33,7 +33,7 @@ function Cart() {
       return
     }
     closeCart()
-    navigate('/checkout') // ✅ Use navigate instead of window.location.href
+    navigate('/checkout') 
   }
 
   if (!isCartOpen) return null

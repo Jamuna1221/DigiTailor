@@ -272,7 +272,8 @@ function AppContent() {
               message="Hi! I'm interested in your tailoring services. Can you help me?"
               position="bottom-right"
             />
-            <ChatbotWidget />
+            {/* ChatbotWidget disabled - hidden for now, implementation kept
+            <ChatbotWidget /> */}
             
             {/* Toast Notifications */}
             <Toaster

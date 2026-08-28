@@ -84,7 +84,7 @@ export const createOrder = async (req, res) => {
         method: paymentMethod === 'cash_on_delivery' ? 'cod' : paymentMethod,
         status: 'pending'
       },
-      status: assignedTailorId ? 'assigned' : 'placed', // ✅ Valid enum values
+      status: assignedTailorId ? 'assigned' : 'placed', 
       assignedTailor: assignedTailorId,
       allocationTimestamp: assignedTailorId ? new Date() : null,
       estimatedDelivery

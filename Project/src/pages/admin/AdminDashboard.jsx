@@ -148,21 +148,7 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-indigo-100">
-              <span className="text-2xl">💳</span>
-            </div>
-            <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500">Avg Order Value (MTD)</h3>
-              <p className="text-2xl font-bold text-gray-900">
-                ₹{(analytics?.monthly?.completedOrders
-                  ? Math.round(analytics.monthly.income / analytics.monthly.completedOrders)
-                  : 0).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
+        
 
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <div className="flex items-center">

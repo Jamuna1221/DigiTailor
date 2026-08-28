@@ -5,7 +5,7 @@ function ChatbotWidget() {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hi! I'm DigiTailor's AI assistant. How can I help you today?",
+      text: "Hi! I'm DigiTailor's chat assistant. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -27,7 +27,7 @@ function ChatbotWidget() {
     "Check Order Status",
     "Pricing Info",
     "Book Consultation",
-    "AI Design Help"
+    "Design Help"
   ]
 
   const botResponses = {
@@ -35,7 +35,7 @@ function ChatbotWidget() {
     "check order": "I can help you track your order! Please provide your order number or go to the Orders section in your profile.",
     "pricing": "Our pricing starts from $45 for simple designs. Complex designs range from $100-$500. Pricing depends on design complexity, fabric choice, and urgency.",
     "consultation": "Perfect! We offer free consultations. You can book through our profile section or call us at +91 98765 43210.",
-    "ai design": "Our AI Design Studio can create custom designs based on your preferences! Try describing your dream outfit and watch the magic happen.",
+    "Design": "Our Design Studio can create custom designs based on your preferences! Try describing your dream outfit and watch the magic happen.",
     "default": "I understand you're asking about that! For detailed assistance, please contact our WhatsApp support or visit our help section. Our team typically responds within a few minutes!"
   }
 

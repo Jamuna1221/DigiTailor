@@ -63,8 +63,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
-      connectSrc: ["'self'", "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"]
+      imgSrc: ["'self'", "data:", "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "https://digitailor-1.onrender.com", "https://digitailor.onrender.com"],
+      connectSrc: ["'self'", "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "https://digitailor-1.onrender.com", "https://digitailor.onrender.com"]
     }
   }
 }))
@@ -78,7 +78,9 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'https://digitailor-1.onrender.com',
+    'https://digitailor.onrender.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -104,7 +106,9 @@ app.use('/uploads', (req, res, next) => {
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'https://digitailor-1.onrender.com',
+    'https://digitailor.onrender.com'
   ]
   
   const origin = req.headers.origin
@@ -296,7 +300,9 @@ app.get('/api/uploads/info', (req, res) => {
       enabled: true,
       allowedOrigins: [
         process.env.FRONTEND_URL || 'http://localhost:5173',
-        'http://localhost:3000'
+        'http://localhost:3000',
+        'https://digitailor-1.onrender.com',
+        'https://digitailor.onrender.com'
       ]
     }
   })
