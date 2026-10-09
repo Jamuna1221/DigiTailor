@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Header from './components/common/Header.jsx'
 import Footer from './components/common/Footer.jsx'
@@ -302,6 +302,23 @@ function AppContent() {
   )
 }
 
+// Restores deep links that landed on the static 404 page (Render serves 404.html for unknown paths)
+function SpaRestore() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      const saved = sessionStorage.getItem('spa_redirect')
+      if (saved) {
+        sessionStorage.removeItem('spa_redirect')
+        navigate(saved, { replace: true })
+      }
+    }
+  }, [location.pathname, navigate])
+
+  return null
+}
 // Main App component that wraps AppContent with Router
 function App() {
   return (
@@ -314,6 +331,7 @@ function App() {
                 <TextSizeProvider>
                   <NotificationProvider>
                     <Router>
+                      <SpaRestore />
                       <AppContent />
                     </Router>
                   </NotificationProvider>
